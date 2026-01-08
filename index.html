@@ -263,6 +263,8 @@ async function loadClubs() {
   document.getElementById("clubs").style.display = "none";
   clubPage.style.display = "block";
 
+      document.querySelector("header").style.display = "none";
+      
       clubPage.dataset.photos = club.photos?.join(",") || "";
 clubPage.dataset.lat = club.lat || "";
 clubPage.dataset.lng = club.lng || "";
@@ -317,7 +319,13 @@ clubPage.dataset.ram = club.ram || "";
     content.innerHTML = `
       ${(clubPage.dataset.photos || "").split(",").map(p => `
         <div style="margin-bottom:12px">
-          <img src="${p}" style="width:100%;border-radius:14px">
+          <img src="${p}" style="
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:16px;
+  display:block;
+">
           <p style="opacity:.7;margin-top:4px">Фото клуба</p>
         </div>
       `).join("")}
@@ -360,8 +368,9 @@ clubPage.dataset.ram = club.ram || "";
     }
     
     function goBack() {
-      clubPage.style.display = "none";
-      document.getElementById("clubs").style.display = "grid";
+  clubPage.style.display = "none";
+  document.getElementById("clubs").style.display = "grid";
+  document.querySelector("header").style.display = "block";
     }
 
     function openAdmin(link) {
