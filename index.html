@@ -364,37 +364,6 @@ clubPage.dataset.ram = club.ram || "";
     </div>
   `;
   }
-
-      <button onclick="openMap(${club.lat},${club.lng})"
-        style="
-          margin-top:12px;
-          width:100%;
-          padding:14px;
-          border:none;
-          border-radius:12px;
-          background:#141a2b;
-          color:#00e5ff;
-          font-weight:600;
-        ">
-        📍 Открыть карту
-      </button>
-
-      <button onclick="openAdmin('${club.admin_link}')"
-        style="
-          margin-top:12px;
-          width:100%;
-          padding:14px;
-          border:none;
-          border-radius:12px;
-          background:#00e5ff;
-          font-weight:600;
-        ">
-        💬 Связаться с админом
-      </button>
-
-    </div>
-  `;
-  }
       
   if (tab === "prices") {
     content.innerHTML = `
