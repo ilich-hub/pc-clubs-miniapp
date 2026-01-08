@@ -89,18 +89,45 @@
 
     let clubs = [];
 
-    async function loadClubs() {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/clubs?select=*`, {
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-        },
-      });
+async function loadClubs() {
+  // 1️⃣ Пытаемся взять данные из кэша
+  const cached = localStorage.getItem("clubs_cache");
 
-      clubs = await res.json();
+  if (cached) {
+    try {
+      clubs = JSON.parse(cached);
+      renderDistricts();
+      renderClubs();
+    } catch (e) {
+      console.log("Кэш повреждён");
+    }
+  } else {
+    // Если кэша нет — показываем загрузку
+    clubsContainer.innerHTML = "<p style='opacity:.6'>Загрузка клубов...</p>";
+  }
+
+  // 2️⃣ ВСЕГДА обновляем данные с Supabase
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/clubs?select=*`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    });
+
+    const freshData = await res.json();
+
+    // 3️⃣ Если данные изменились — обновляем экран и кэш
+    if (JSON.stringify(freshData) !== JSON.stringify(clubs)) {
+      clubs = freshData;
+      localStorage.setItem("clubs_cache", JSON.stringify(clubs));
       renderDistricts();
       renderClubs();
     }
+  } catch (err) {
+    console.log("Ошибка загрузки из Supabase", err);
+  }
+}
 
     function renderDistricts() {
       const districts = [...new Set(clubs.map((c) => c.district))];
