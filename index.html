@@ -140,6 +140,20 @@
     let clubs = [];
 
 async function loadClubs() {
+
+  clubsContainer.innerHTML = `
+  <div class="skeleton">
+    <div class="skeleton-img"></div>
+    <div class="skeleton-text"></div>
+    <div class="skeleton-btn"></div>
+  </div>
+  <div class="skeleton">
+    <div class="skeleton-img"></div>
+    <div class="skeleton-text"></div>
+    <div class="skeleton-btn"></div>
+  </div>
+`;
+  
   // 1️⃣ Пытаемся взять данные из кэша
   const cached = localStorage.getItem("clubs_cache");
 
@@ -221,17 +235,28 @@ async function loadClubs() {
       clubPage.style.display = "block";
 
       clubPage.innerHTML = `
-        <div style="padding:16px">
+  <div style="
+    padding:16px;
+    background:#0b0f19;
+    min-height:100vh;
+  ">
 
-          <button onclick="goBack()" style="
-            background:none;
-            color:#00e5ff;
-            border:none;
-            margin-bottom:12px;
-            font-size:16px;
-          ">
-            ← Назад
-          </button>
+    <button onclick="goBack()" style="
+      background:none;
+      color:#00e5ff;
+      border:none;
+      font-size:16px;
+      margin-bottom:12px;
+    ">
+      ← Назад
+    </button>
+
+    <div style="
+      background:#141a2b;
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    ">
 
           <h2>${club.name}</h2>
           <p>📍 ${club.district}</p>
@@ -304,6 +329,7 @@ async function loadClubs() {
             💬 Связаться с админом
           </button>
 
+         </div>
         </div>
       `;
     }
