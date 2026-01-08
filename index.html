@@ -240,7 +240,7 @@ async function loadClubs() {
       clubs
         .filter((c) => !selected || c.district === selected)
         .forEach((c) => {
-          const img = c.photos?.[0] || "https://via.placeholder.com/400x200";
+          const img = c.photos?.[0]?.url || "https://via.placeholder.com/400x200";
 
           clubsContainer.innerHTML += `
             <div class="card">
