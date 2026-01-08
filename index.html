@@ -316,32 +316,55 @@ clubPage.dataset.ram = club.ram || "";
   document.querySelector(`.tab[onclick*="${tab}"]`)?.classList.add("active");
 
   if (tab === "main") {
-    content.innerHTML = `
-      ${(clubPage.dataset.photos || "").split(",").map(p => `
-        <div style="margin-bottom:12px">
-          <img src="${p}" style="
-  width:100%;
-  height:200px;
-  object-fit:cover;
-  border-radius:16px;
-  display:block;
-">
-          <p style="opacity:.7;margin-top:4px">Фото клуба</p>
+  const photos = club.photos || [];
+
+  content.innerHTML = `
+    <div class="section">
+
+      ${photos.map(p => `
+        <div style="margin-bottom:16px">
+          <img src="${p.url}" style="
+            width:100%;
+            height:220px;
+            object-fit:cover;
+            border-radius:16px;
+            display:block;
+          ">
+          <p style="opacity:.7;margin-top:6px">${p.title}</p>
         </div>
       `).join("")}
 
-      <button onclick="openMap(${clubPage.dataset.lat},${clubPage.dataset.lng})"
-        style="margin-top:12px;width:100%;padding:14px;border:none;border-radius:12px;background:#141a2b;color:#00e5ff">
+      <button onclick="openMap(${club.lat},${club.lng})"
+        style="
+          margin-top:12px;
+          width:100%;
+          padding:14px;
+          border:none;
+          border-radius:12px;
+          background:#141a2b;
+          color:#00e5ff;
+          font-weight:600;
+        ">
         📍 Открыть карту
       </button>
 
-      <button onclick="openAdmin('${clubPage.dataset.admin}')"
-        style="margin-top:12px;width:100%;padding:14px;border:none;border-radius:12px;background:#00e5ff">
+      <button onclick="openAdmin('${club.admin_link}')"
+        style="
+          margin-top:12px;
+          width:100%;
+          padding:14px;
+          border:none;
+          border-radius:12px;
+          background:#00e5ff;
+          font-weight:600;
+        ">
         💬 Связаться с админом
       </button>
-    `;
-  }
 
+    </div>
+  `;
+  }
+      
   if (tab === "prices") {
     content.innerHTML = `
       <p>1 час: ${clubPage.dataset.priceHour} сум</p>
