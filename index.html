@@ -110,6 +110,35 @@
   0% { background-position: 100% 0; }
   100% { background-position: -100% 0; }
 }
+
+    .tabs {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: #1a2033;
+  color: #aaa;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: #00e5ff;
+  color: #001418;
+}
+
+.section {
+  margin-top: 16px;
+}
+
+.section h3 {
+  margin-bottom: 8px;
+}
     
   </style>
 </head>
@@ -228,112 +257,108 @@ async function loadClubs() {
     filter.addEventListener("change", renderClubs);
 
     function openClub(id) {
-      const club = clubs.find((c) => c.id === id);
-      if (!club) return;
+  const club = clubs.find((c) => c.id === id);
+  if (!club) return;
 
-      document.getElementById("clubs").style.display = "none";
-      clubPage.style.display = "block";
+  document.getElementById("clubs").style.display = "none";
+  clubPage.style.display = "block";
 
-      clubPage.innerHTML = `
-  <div style="
-    padding:16px;
-    background:#0b0f19;
-    min-height:100vh;
-  ">
+      clubPage.dataset.photos = club.photos?.join(",") || "";
+clubPage.dataset.lat = club.lat || "";
+clubPage.dataset.lng = club.lng || "";
+clubPage.dataset.admin = club.admin_link || "";
+clubPage.dataset.priceHour = club.price_hour || "";
+clubPage.dataset.priceNight = club.price_night || "";
+clubPage.dataset.priceVip = club.price_vip || "";
+clubPage.dataset.cpu = club.cpu || "";
+clubPage.dataset.gpu = club.gpu || "";
+clubPage.dataset.ram = club.ram || "";
+      
+  clubPage.innerHTML = `
+    <div style="padding:16px;min-height:100vh">
 
-    <button onclick="goBack()" style="
-      background:none;
-      color:#00e5ff;
-      border:none;
-      font-size:16px;
-      margin-bottom:12px;
-    ">
-      ← Назад
-    </button>
+      <button onclick="goBack()" style="
+        background:none;
+        border:none;
+        color:#00e5ff;
+        font-size:16px;
+        margin-bottom:10px
+      ">← Назад</button>
 
-    <div style="
-      background:#141a2b;
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-    ">
+      <h2>${club.name}</h2>
+      <p>📍 ${club.district}</p>
 
-          <h2>${club.name}</h2>
-          <p>📍 ${club.district}</p>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('main')">Главная</div>
+        <div class="tab" onclick="showTab('prices')">Цены</div>
+        <div class="tab" onclick="showTab('zones')">Зоны</div>
+        <div class="tab" onclick="showTab('specs')">Характеристики</div>
+        <div class="tab" onclick="showTab('games')">Игры</div>
+      </div>
 
-          ${
-            club.photos && club.photos.length
-              ? `<img src="${club.photos[0]}" style="
-                  width:100%;
-                  height:180px;
-                  object-fit:cover;
-                  border-radius:14px;
-                  margin:12px 0;
-                ">`
-              : ""
-          }
+      <div id="tabContent"></div>
 
-          <h3>Характеристики ПК</h3>
-          <p>CPU: ${club.cpu || "—"}</p>
-          <p>GPU: ${club.gpu || "—"}</p>
-          <p>RAM: ${club.ram || "—"}</p>
+    </div>
+  `;
 
-          <h3>FPS и герцы</h3>
-          ${
-            club.fps
-              ? Object.entries(club.fps)
-                  .map(
-                    ([game, fps]) =>
-                      `<p>${game.toUpperCase()} — ${fps} FPS | ${club.hz || "—"} Hz</p>`
-                  )
-                  .join("")
-              : "<p>—</p>"
-          }
-
-          <h3>Периферия</h3>
-          <p>🖱 ${club.mouse || "—"}</p>
-          <p>⌨️ ${club.keyboard || "—"}</p>
-          <p>🎧 ${club.headset || "—"}</p>
-
-          <h3>Цены</h3>
-          <p>1 час: ${club.price_hour || "—"} сум</p>
-          <p>Ночь: ${club.price_night || "—"} сум</p>
-          <p>VIP: ${club.price_vip || "—"} сум</p>
-
-          ${
-            club.lat && club.lng
-              ? `<button onclick="openMap(${club.lat}, ${club.lng})" style="
-                  margin-top:12px;
-                  width:100%;
-                  padding:14px;
-                  border:none;
-                  border-radius:12px;
-                  background:#141a2b;
-                  color:#00e5ff;
-                  font-weight:600;
-                ">
-                  📍 Открыть на карте
-                </button>`
-              : ""
-          }
-
-          <button onclick="openAdmin('${club.admin_link}')" style="
-            margin-top:16px;
-            width:100%;
-            padding:14px;
-            border:none;
-            border-radius:12px;
-            background:#00e5ff;
-            font-weight:600;
-          ">
-            💬 Связаться с админом
-          </button>
-
-         </div>
-        </div>
-      `;
+  showTab("main");
     }
 
+    function showTab(tab) {
+  const content = document.getElementById("tabContent");
+  if (!content) return;
+
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.remove("active");
+  });
+  document.querySelector(`.tab[onclick*="${tab}"]`)?.classList.add("active");
+
+  if (tab === "main") {
+    content.innerHTML = `
+      ${(clubPage.dataset.photos || "").split(",").map(p => `
+        <div style="margin-bottom:12px">
+          <img src="${p}" style="width:100%;border-radius:14px">
+          <p style="opacity:.7;margin-top:4px">Фото клуба</p>
+        </div>
+      `).join("")}
+
+      <button onclick="openMap(${clubPage.dataset.lat},${clubPage.dataset.lng})"
+        style="margin-top:12px;width:100%;padding:14px;border:none;border-radius:12px;background:#141a2b;color:#00e5ff">
+        📍 Открыть карту
+      </button>
+
+      <button onclick="openAdmin('${clubPage.dataset.admin}')"
+        style="margin-top:12px;width:100%;padding:14px;border:none;border-radius:12px;background:#00e5ff">
+        💬 Связаться с админом
+      </button>
+    `;
+  }
+
+  if (tab === "prices") {
+    content.innerHTML = `
+      <p>1 час: ${clubPage.dataset.priceHour} сум</p>
+      <p>Ночь: ${clubPage.dataset.priceNight} сум</p>
+      <p>VIP: ${clubPage.dataset.priceVip} сум</p>
+    `;
+  }
+
+  if (tab === "zones") {
+    content.innerHTML = `<p>Стандарт · VIP</p>`;
+  }
+
+  if (tab === "specs") {
+    content.innerHTML = `
+      <p>CPU: ${clubPage.dataset.cpu}</p>
+      <p>GPU: ${clubPage.dataset.gpu}</p>
+      <p>RAM: ${clubPage.dataset.ram}</p>
+    `;
+  }
+
+  if (tab === "games") {
+    content.innerHTML = `<p>Раздел игр (будем улучшать дальше)</p>`;
+  }
+    }
+    
     function goBack() {
       clubPage.style.display = "none";
       document.getElementById("clubs").style.display = "grid";
