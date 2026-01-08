@@ -72,6 +72,44 @@
   font-weight: 700;
   font-size: 14px;
     }
+
+    /* ===== Skeleton ===== */
+.skeleton {
+  background: #141a2b;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.skeleton-img {
+  height: 160px;
+  background: linear-gradient(
+    90deg,
+    #1a2033 25%,
+    #222a44 37%,
+    #1a2033 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-text {
+  height: 16px;
+  margin: 12px;
+  border-radius: 8px;
+  background: #1a2033;
+}
+
+.skeleton-btn {
+  height: 44px;
+  margin: 12px;
+  border-radius: 14px;
+  background: #1a2033;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
     
   </style>
 </head>
