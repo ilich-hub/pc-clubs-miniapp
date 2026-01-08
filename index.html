@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cyber Clubs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #0b0f19;
+      color: #fff;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    header {
+      padding: 16px;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      background: #141a2b;
+      color: #fff;
+      border: none;
+      margin-top: 8px;
+    }
+    #clubs {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+    .card {
+      background: #141a2b;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+    .card h2 {
+      margin: 12px;
+    }
+    .card button {
+      margin: 12px;
+      padding: 12px;
+      width: calc(100% - 24px);
+      border: none;
+      border-radius: 12px;
+      background: #00e5ff;
+      color: #000;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Компьютерные клубы</h1>
+    <select id="districtFilter">
+      <option value="">Все районы</option>
+    </select>
+  </header>
+
+  <main id="clubs"></main>
+  <section id="clubPage" style="display:none;"></section>
+
+  <script>
+    const SUPABASE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_WVIM_p30Vjag_MTxDWapEQ__W0SftDv";
+
+    const clubsContainer = document.getElementById("clubs");
+    const filter = document.getElementById("districtFilter");
+    const clubPage = document.getElementById("clubPage");
+
+    let clubs = [];
+
+    async function loadClubs() {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/clubs?select=*`, {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      });
+
+      clubs = await res.json();
+      renderDistricts();
+      renderClubs();
+    }
+
+    function renderDistricts() {
+      filter.innerHTML = '<option value="">Все районы</option>';
+      const districts = [...new Set(clubs.map(c => c.district))];
+      districts.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        filter.appendChild(opt);
+      });
+    }
+
+    function renderClubs() {
+      clubsContainer.innerHTML = "";
+      clubsContainer.style.display = "grid";
+      clubPage.style.display = "none";
+
+      const selected = filter.value;
+
+      clubs
+        .filter(c => !selected || c.district === selected)
+        .forEach(c => {
+          const img = c.photos?.[0] || "https://via.placeholder.com/400x200";
+
+          clubsContainer.innerHTML += `
+            <div class="card">
+              <img src="${img}">
+              <h2>${c.name}</h2>
+              <button onclick="openClub(${c.id})">Подробнее</button>
+            </div>
+          `;
+        });
+    }
+
+    filter.addEventListener("change", renderClubs);
+
+    function openClub(id) {
+      const club = clubs.find(c => c.id === id);
+      if (!club) return;
+
+      clubsContainer.style.display = "none";
+      clubPage.style.display = "block";
+
+      clubPage.innerHTML = `
+        <div style="padding:16px">
+          <button onclick="goBack()" style="
+            background:none;
+            color:#00e5ff;
+            border:none;
+            margin-bottom:12px;
+            font-size:16px;
+          ">← Назад</button>
+
+          <h2>${club.name}</h2>
+          <p>📍 ${club.district}</p>
+
+          ${club.photos?.length ? `
+            <img src="${club.photos[0]}" style="
+              width:100%;
+              height:180px;
+              object-fit:cover;
+              border-radius:14px;
+              margin:12px 0;
+            ">
+          ` : ""}
+
+          <h3>FPS и герцы</h3>
+          ${club.fps ? Object.entries(club.fps).map(
+            ([g,f]) => `<p>${g.toUpperCase()} — ${f} FPS | ${club.hz || "—"} Hz</p>`
+          ).join("") : "<p>—</p>"}
+
+          <button onclick="openAdmin('${club.admin_link}')" style="
+            margin-top:16px;
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:12px;
+            background:#00e5ff;
+            font-weight:600;
+          ">💬 Связаться с админом</button>
+        </div>
+      `;
+    }
+
+    function goBack() {
+      clubPage.style.display = "none";
+      clubsContainer.style.display = "grid";
+    }
+
+    function openAdmin(link) {
+      window.open(link, "_blank");
+    }
+
+    loadClubs();
+  </script>
+</body>
+</html>
