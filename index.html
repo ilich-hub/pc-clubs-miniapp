@@ -36,9 +36,16 @@
     }
 
     .card {
-      background: #141a2b;
-      border-radius: 18px;
-      overflow: hidden;
+  background: linear-gradient(180deg, #141a2b, #0f1322);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  transition: transform .2s ease, box-shadow .2s ease;
+    }
+    
+    .card:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
     }
 
     .card img {
@@ -48,19 +55,24 @@
     }
 
     .card h2 {
-      margin: 12px;
+  margin: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
     }
 
     .card button {
-      margin: 12px;
-      padding: 12px;
-      width: calc(100% - 24px);
-      border: none;
-      border-radius: 12px;
-      background: #00e5ff;
-      color: #000;
-      font-weight: 600;
+  margin: 12px;
+  padding: 13px;
+  width: calc(100% - 24px);
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #00e5ff, #00bcd4);
+  color: #001418;
+  font-weight: 700;
+  font-size: 14px;
     }
+    
   </style>
 </head>
 
