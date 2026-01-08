@@ -299,36 +299,7 @@ clubPage.dataset.ram = club.ram || "";
       </div>
 
       <div id="tabContent"></div>
-      <div style="margin-top:16px">
-
-  <button onclick="openMap(${club.lat},${club.lng})"
-    style="
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:12px;
-      background:#141a2b;
-      color:#00e5ff;
-      font-weight:600;
-    ">
-    📍 Открыть карту
-  </button>
-
-  <button onclick="openAdmin('${club.admin_link}')"
-    style="
-      margin-top:12px;
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:12px;
-      background:#00e5ff;
-      font-weight:600;
-    ">
-    💬 Связаться с админом
-  </button>
-
-</div>
-
+      
     </div>
   `;
 
@@ -361,6 +332,36 @@ clubPage.dataset.ram = club.ram || "";
           <p style="opacity:.7;margin-top:6px">${p.title || ""}</p>
         </div>
       `).join("")}
+
+      <div style="margin-top:16px">
+
+        <button onclick="openMap(${clubPage.dataset.lat},${clubPage.dataset.lng})"
+          style="
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:12px;
+            background:#141a2b;
+            color:#00e5ff;
+            font-weight:600;
+          ">
+          📍 Открыть карту
+        </button>
+
+        <button onclick="openAdmin('${clubPage.dataset.admin}')"
+          style="
+            margin-top:12px;
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:12px;
+            background:#00e5ff;
+            font-weight:600;
+          ">
+          💬 Связаться с админом
+        </button>
+
+      </div>
     </div>
   `;
   }
