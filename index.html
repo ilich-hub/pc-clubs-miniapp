@@ -217,7 +217,13 @@ body {
   <script>
     const SUPABASE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co";
     const SUPABASE_KEY = "sb_publishable_WVIM_p30Vjag_MTxDWapEQ__W0SftDv";
+const tg = window.Telegram?.WebApp;
 
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+    
     const clubsContainer = document.getElementById("clubs");
     const filter = document.getElementById("districtFilter");
     const clubPage = document.getElementById("clubPage");
@@ -279,13 +285,17 @@ async function loadClubs() {
 }
 
     function renderDistricts() {
-      const districts = [...new Set(clubs.map((c) => c.district))];
-      districts.forEach((d) => {
-        const opt = document.createElement("option");
-        opt.value = d;
-        opt.textContent = d;
-        filter.appendChild(opt);
-      });
+  // очищаем список районов
+  filter.innerHTML = `<option value="">Все районы</option>`;
+
+  const districts = [...new Set(clubs.map(c => c.district))];
+
+  districts.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d;
+    opt.textContent = d;
+    filter.appendChild(opt);
+  });
     }
 
     function renderClubs() {
@@ -296,7 +306,10 @@ async function loadClubs() {
       clubs
         .filter((c) => !selected || c.district === selected)
         .forEach((c) => {
-          const img = c.photos?.[0]?.url || "https://via.placeholder.com/400x200";
+          const img =
+  Array.isArray(c.photos) && c.photos.length
+    ? c.photos[0].url
+    : "https://via.placeholder.com/400x200";
 
           clubsContainer.innerHTML += `
             <div class="card">
@@ -465,7 +478,12 @@ clubPage.dataset.ram = club.ram || "";
     }
 
     function openMap(lat, lng) {
-      window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank");
+  if (!lat || !lng) {
+    alert("Локация клуба не указана");
+    return;
+  }
+
+  window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank");
     }
 
     loadClubs();
@@ -530,18 +548,21 @@ function setActiveBottomTab(tab) {
   const club = clubs.find(c => c.id === id);
   if (!club) return;
 
-  const index = favs.findIndex(c => c.id === id);
+  const exists = favs.some(c => c.id === id);
 
-  if (index >= 0) {
-    favs.splice(index, 1);
+  if (exists) {
+    favs = favs.filter(c => c.id !== id);
   } else {
-    favs.push({ id: club.id, name: club.name });
+    favs.push(club);
   }
 
   localStorage.setItem("favorites", JSON.stringify(favs));
 
-  // перерисовываем карточки, чтобы обновился цвет ❤️
   renderClubs();
+
+  if (document.getElementById("favoritesPage").style.display === "block") {
+    renderFavorites();
+  }
     }
   </script>
   
