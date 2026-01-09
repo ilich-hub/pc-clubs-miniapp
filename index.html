@@ -357,6 +357,7 @@ clubPage.dataset.priceVip = club.price_vip || "";
 clubPage.dataset.cpu = club.cpu || "";
 clubPage.dataset.gpu = club.gpu || "";
 clubPage.dataset.ram = club.ram || "";
+ clubPage.dataset.games = JSON.stringify(club.games || []);
       
   clubPage.innerHTML = `
     <div style="padding:16px;min-height:100vh">
@@ -469,7 +470,18 @@ clubPage.dataset.ram = club.ram || "";
   }
 
   if (tab === "games") {
-    content.innerHTML = `<p>Раздел игр (будем улучшать дальше)</p>`;
+  const games = JSON.parse(clubPage.dataset.games || "[]");
+
+  if (games.length === 0) {
+    content.innerHTML = `<p style="opacity:.7">Игры не указаны</p>`;
+    return;
+  }
+
+  content.innerHTML = `
+    <ul style="padding-left:18px">
+      ${games.map(g => `<li>${g}</li>`).join("")}
+    </ul>
+  `;
   }
     }
     
