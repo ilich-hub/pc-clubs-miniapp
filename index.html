@@ -233,6 +233,7 @@ if (tg) {
     const clubPage = document.getElementById("clubPage");
 
     let clubs = [];
+    let clubOpenedFrom = "clubs";
 
 async function loadClubs() {
 
@@ -326,7 +327,7 @@ async function loadClubs() {
   </div>
 
   <h2>${c.name}</h2>
-  <button onclick="openClub(${c.id})">Подробнее</button>
+  <button onclick="clubOpenedFrom='clubs'; openClub(${c.id})">Подробнее</button>
 </div>
           `;
         });
@@ -341,6 +342,7 @@ async function loadClubs() {
 window.scrollTo(0, 0);
 
   document.getElementById("clubs").style.display = "none";
+  document.getElementById("favoritesPage").style.display = "none";
   clubPage.style.display = "block";
 
       document.querySelector("header").style.display = "none";
@@ -472,10 +474,16 @@ clubPage.dataset.ram = club.ram || "";
     }
     
     function goBack() {
-      window.scrollTo({ top: 0, behavior: "instant" });
+      window.scrollTo(0, 0);
+
   clubPage.style.display = "none";
-  document.getElementById("clubs").style.display = "grid";
   document.querySelector("header").style.display = "block";
+
+  if (clubOpenedFrom === "favorites") {
+    showFavoritesTab();
+  } else {
+    showClubsTab();
+  }
     }
 
     function openAdmin(link) {
@@ -540,7 +548,7 @@ function setActiveBottomTab(tab) {
   page.innerHTML = favs.map(c => `
     <div class="card">
       <h2>${c.name}</h2>
-      <button onclick="openClub(${c.id})">Подробнее</button>
+      <button onclick="clubOpenedFrom='favorites'; openClub(${c.id})">Подробнее</button>
     </div>
   `).join("");
     }
