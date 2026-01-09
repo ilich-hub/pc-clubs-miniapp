@@ -139,6 +139,36 @@
 .section h3 {
   margin-bottom: 8px;
 }
+
+   #bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #0b0f19;
+  display: flex;
+  border-top: 1px solid #1f253a;
+  z-index: 1000;
+}
+
+.nav-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #8a93b2;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-btn.active {
+  color: #00e5ff;
+}
+
+/* чтобы контент не залезал под меню */
+body {
+  padding-bottom: 70px;
+}
     
   </style>
 </head>
@@ -246,9 +276,8 @@ async function loadClubs() {
             <div class="card">
               <img src="${img}">
               <h2>${c.name}</h2>
-              <button onclick="openClub(${c.id})">
-                Подробнее
-              </button>
+              <button onclick="toggleFavorite(${c.id})">❤️</button>
+              <button onclick="openClub(${c.id})">Подробнее</button>
             </div>
           `;
         });
@@ -407,6 +436,76 @@ clubPage.dataset.ram = club.ram || "";
     }
 
     loadClubs();
+
+    function showClubsTab() {
+  const favPage = document.getElementById("favoritesPage");
+  if (favPage) favPage.remove();
+
+  document.getElementById("clubs").style.display = "grid";
+  clubPage.style.display = "none";
+
+  setActiveBottomTab("clubs");
+}
+
+function showFavoritesTab() {
+  document.getElementById("clubs").style.display = "none";
+  clubPage.style.display = "none";
+
+  renderFavorites();
+
+  setActiveBottomTab("favorites");
+}
+
+function setActiveBottomTab(tab) {
+  document.getElementById("tabClubs").classList.toggle("active", tab === "clubs");
+  document.getElementById("tabFavs").classList.toggle("active", tab === "favorites");
+}
+    function renderFavorites() {
+  let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+  let page = document.createElement("div");
+  page.id = "favoritesPage";
+  page.style.padding = "16px";
+
+  if (favs.length === 0) {
+    page.innerHTML = `<p style="opacity:.7">Нет избранных клубов</p>`;
+  } else {
+    page.innerHTML = favs.map(c => `
+      <div class="card">
+        <h3>${c.name}</h3>
+        <button onclick="openClub(${c.id})">Подробнее</button>
+      </div>
+    `).join("");
+  }
+
+  document.body.appendChild(page);
+    }
+
+    function toggleFavorite(id) {
+  let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  const club = clubs.find(c => c.id === id);
+  if (!club) return;
+
+  const index = favs.findIndex(c => c.id === id);
+
+  if (index >= 0) {
+    favs.splice(index, 1);
+  } else {
+    favs.push({ id: club.id, name: club.name });
+  }
+
+  localStorage.setItem("favorites", JSON.stringify(favs));
+  alert("Избранное обновлено");
+    }
   </script>
+  
+  <div id="bottomNav">
+  <button id="tabClubs" class="nav-btn active" onclick="showClubsTab()">
+    🖥 Клубы
+  </button>
+  <button id="tabFavs" class="nav-btn" onclick="showFavoritesTab()">
+    ❤️ Избранное
+  </button>
+  </div>
 </body>
 </html>
