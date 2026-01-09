@@ -16,7 +16,11 @@
     }
 
     header {
-      padding: 16px;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: #0b0f19;
     }
 
     select {
@@ -333,6 +337,8 @@ async function loadClubs() {
     function openClub(id) {
   const club = clubs.find((c) => c.id === id);
   if (!club) return;
+      // ⬆️ ВСЕГДА поднимаем страницу вверх
+window.scrollTo(0, 0);
 
   document.getElementById("clubs").style.display = "none";
   clubPage.style.display = "block";
@@ -489,20 +495,21 @@ clubPage.dataset.ram = club.ram || "";
     loadClubs();
 
     function showClubsTab() {
-  // 🔹 сбрасываем прокрутку вверх
-  window.scrollTo({ top: 0, behavior: "instant" });
+  window.scrollTo(0, 0);
 
   document.getElementById("favoritesPage").style.display = "none";
   document.getElementById("clubs").style.display = "grid";
   clubPage.style.display = "none";
 
+  document.querySelector("header").style.display = "block";
+
   setActiveBottomTab("clubs");
     }
 
 function showFavoritesTab() {
-  // 🔹 сбрасываем прокрутку вверх
-  window.scrollTo({ top: 0, behavior: "instant" });
+  window.scrollTo(0, 0);
 
+  document.querySelector("header").style.display = "block";
   document.getElementById("clubs").style.display = "none";
   clubPage.style.display = "none";
 
