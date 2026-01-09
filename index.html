@@ -169,6 +169,31 @@
 body {
   padding-bottom: 70px;
 }
+
+    .card-img-wrap {
+  position: relative;
+}
+
+.fav-heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 22px;
+  color: #fff;
+  background: rgba(0,0,0,0.35);
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+  transition: transform .2s ease, color .2s ease;
+}
+
+.fav-heart.active {
+  color: #ff3b3b;
+}
+
+.fav-heart:active {
+  transform: scale(0.9);
+}
     
   </style>
 </head>
@@ -274,11 +299,17 @@ async function loadClubs() {
 
           clubsContainer.innerHTML += `
             <div class="card">
-              <img src="${img}">
-              <h2>${c.name}</h2>
-              <button onclick="toggleFavorite(${c.id})">❤️</button>
-              <button onclick="openClub(${c.id})">Подробнее</button>
-            </div>
+  <div class="card-img-wrap">
+    <img src="${img}">
+    <div class="fav-heart ${isFavorite(c.id) ? "active" : ""}"
+         onclick="toggleFavorite(${c.id})">
+      ❤️
+    </div>
+  </div>
+
+  <h2>${c.name}</h2>
+  <button onclick="openClub(${c.id})">Подробнее</button>
+</div>
           `;
         });
     }
@@ -481,6 +512,11 @@ function setActiveBottomTab(tab) {
   document.body.appendChild(page);
     }
 
+    function isFavorite(id) {
+  const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  return favs.some(c => c.id === id);
+    }
+    
     function toggleFavorite(id) {
   let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
   const club = clubs.find(c => c.id === id);
@@ -495,7 +531,9 @@ function setActiveBottomTab(tab) {
   }
 
   localStorage.setItem("favorites", JSON.stringify(favs));
-  alert("Избранное обновлено");
+
+  // перерисовываем карточки, чтобы обновился цвет ❤️
+  renderClubs();
     }
   </script>
   
