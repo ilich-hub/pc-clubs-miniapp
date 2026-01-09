@@ -453,6 +453,7 @@ clubPage.dataset.ram = club.ram || "";
     }
     
     function goBack() {
+      window.scrollTo({ top: 0, behavior: "instant" });
   clubPage.style.display = "none";
   document.getElementById("clubs").style.display = "grid";
   document.querySelector("header").style.display = "block";
@@ -470,6 +471,9 @@ clubPage.dataset.ram = club.ram || "";
     loadClubs();
 
     function showClubsTab() {
+  // 🔹 сбрасываем прокрутку вверх
+  window.scrollTo({ top: 0, behavior: "instant" });
+
   document.getElementById("favoritesPage").style.display = "none";
   document.getElementById("clubs").style.display = "grid";
   clubPage.style.display = "none";
@@ -478,6 +482,9 @@ clubPage.dataset.ram = club.ram || "";
     }
 
 function showFavoritesTab() {
+  // 🔹 сбрасываем прокрутку вверх
+  window.scrollTo({ top: 0, behavior: "instant" });
+
   document.getElementById("clubs").style.display = "none";
   clubPage.style.display = "none";
 
