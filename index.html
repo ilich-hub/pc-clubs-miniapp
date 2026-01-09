@@ -209,6 +209,7 @@ body {
   </header>
 
   <main id="clubs"></main>
+  <section id="favoritesPage" style="display:none;"></section>
 
   <section id="clubPage" style="display:none;"></section>
 
@@ -469,14 +470,12 @@ clubPage.dataset.ram = club.ram || "";
     loadClubs();
 
     function showClubsTab() {
-  const favPage = document.getElementById("favoritesPage");
-  if (favPage) favPage.remove();
-
+  document.getElementById("favoritesPage").style.display = "none";
   document.getElementById("clubs").style.display = "grid";
   clubPage.style.display = "none";
 
   setActiveBottomTab("clubs");
-}
+    }
 
 function showFavoritesTab() {
   document.getElementById("clubs").style.display = "none";
@@ -492,24 +491,26 @@ function setActiveBottomTab(tab) {
   document.getElementById("tabFavs").classList.toggle("active", tab === "favorites");
 }
     function renderFavorites() {
-  let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  const page = document.getElementById("favoritesPage");
+  const clubsPage = document.getElementById("clubs");
 
-  let page = document.createElement("div");
-  page.id = "favoritesPage";
-  page.style.padding = "16px";
+  // показываем избранное, скрываем клубы
+  page.style.display = "block";
+  clubsPage.style.display = "none";
+
+  const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
 
   if (favs.length === 0) {
     page.innerHTML = `<p style="opacity:.7">Нет избранных клубов</p>`;
-  } else {
-    page.innerHTML = favs.map(c => `
-      <div class="card">
-        <h3>${c.name}</h3>
-        <button onclick="openClub(${c.id})">Подробнее</button>
-      </div>
-    `).join("");
+    return;
   }
 
-  document.body.appendChild(page);
+  page.innerHTML = favs.map(c => `
+    <div class="card">
+      <h2>${c.name}</h2>
+      <button onclick="openClub(${c.id})">Подробнее</button>
+    </div>
+  `).join("");
     }
 
     function isFavorite(id) {
