@@ -472,15 +472,36 @@ clubPage.dataset.ram = club.ram || "";
   if (tab === "games") {
   const games = JSON.parse(clubPage.dataset.games || "[]");
 
-  if (games.length === 0) {
+  if (!Array.isArray(games) || games.length === 0) {
     content.innerHTML = `<p style="opacity:.7">Игры не указаны</p>`;
     return;
   }
 
   content.innerHTML = `
-    <ul style="padding-left:18px">
-      ${games.map(g => `<li>${g}</li>`).join("")}
-    </ul>
+    <div style="display:grid; gap:12px">
+      ${games.map(game => `
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+          background:#141a2b;
+          border-radius:12px;
+          padding:12px;
+        ">
+          <img src="${game.icon || ''}"
+               style="width:40px;height:40px;object-fit:contain"
+               onerror="this.style.display='none'">
+
+          <div style="flex:1">
+            <div style="font-weight:600">${game.name || 'Игра'}</div>
+            <div style="font-size:13px;opacity:.7">
+              ${game.fps ? `FPS: ${game.fps}` : ''}
+              ${game.hz ? ` · ${game.hz} Гц` : ''}
+            </div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
   `;
   }
     }
