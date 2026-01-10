@@ -233,6 +233,7 @@ if (tg) {
     const clubPage = document.getElementById("clubPage");
 
     let clubs = [];
+    let activeZoneIndex = 0;
     let clubOpenedFrom = "clubs";
 
 async function loadClubs() {
@@ -361,6 +362,7 @@ clubPage.dataset.mouse = club.mouse || "";
 clubPage.dataset.keyboard = club.keyboard || "";
 clubPage.dataset.headset = club.headset || "";
  clubPage.dataset.games = JSON.stringify(club.games || []);
+clubPage.dataset.zones = JSON.stringify(club.zones || []);
       
   clubPage.innerHTML = `
     <div style="padding:16px;min-height:100vh">
@@ -453,28 +455,66 @@ clubPage.dataset.headset = club.headset || "";
   }
       
   if (tab === "prices") {
-    content.innerHTML = `
-      <p>1 час: ${clubPage.dataset.priceHour} сум</p>
-      <p>Ночь: ${clubPage.dataset.priceNight} сум</p>
-      <p>VIP: ${clubPage.dataset.priceVip} сум</p>
-    `;
+  const zones = JSON.parse(clubPage.dataset.zones || "[]");
+  const zone = zones[activeZoneIndex];
+
+  if (!zone || !zone.prices) {
+    content.innerHTML = `<p>Цены не указаны</p>`;
+    return;
+  }
+
+  content.innerHTML = `
+    <p><b>${zone.name}</b></p>
+    ${zone.prices.hour ? `<p>1 час: ${zone.prices.hour}</p>` : ''}
+    ${zone.prices.night ? `<p>Ночь: ${zone.prices.night}</p>` : ''}
+  `;
   }
 
   if (tab === "zones") {
-    content.innerHTML = `<p>Стандарт · VIP</p>`;
+  const zones = JSON.parse(clubPage.dataset.zones || "[]");
+
+  if (!zones.length) {
+    content.innerHTML = `<p>Зоны не указаны</p>`;
+    return;
+  }
+
+  content.innerHTML = zones.map((z, i) => `
+    <button
+      onclick="activeZoneIndex=${i}; showTab('prices')"
+      style="
+        display:block;
+        width:100%;
+        margin-bottom:8px;
+        padding:12px;
+        border-radius:12px;
+        border:none;
+        font-weight:600;
+        background:${i === activeZoneIndex ? '#00e5ff' : '#1a2033'};
+        color:${i === activeZoneIndex ? '#001418' : '#fff'};
+      "
+    >
+      ${z.name}
+    </button>
+  `).join("");
   }
 
   if (tab === "specs") {
+  const zones = JSON.parse(clubPage.dataset.zones || "[]");
+  const zone = zones[activeZoneIndex];
+
+  if (!zone || !zone.specs) {
+    content.innerHTML = `<p>Характеристики не указаны</p>`;
+    return;
+  }
+
   content.innerHTML = `
-    <p><b>CPU:</b> ${clubPage.dataset.cpu || "—"}</p>
-    <p><b>GPU:</b> ${clubPage.dataset.gpu || "—"}</p>
-    <p><b>RAM:</b> ${clubPage.dataset.ram || "—"}</p>
-
-    <hr style="border:0;border-top:1px solid #1f253a;margin:12px 0">
-
-    <p><b>Мышь:</b> ${clubPage.dataset.mouse || "—"}</p>
-    <p><b>Клавиатура:</b> ${clubPage.dataset.keyboard || "—"}</p>
-    <p><b>Наушники:</b> ${clubPage.dataset.headset || "—"}</p>
+    <p><b>${zone.name}</b></p>
+    <p>CPU: ${zone.specs.cpu || '—'}</p>
+    <p>GPU: ${zone.specs.gpu || '—'}</p>
+    <p>RAM: ${zone.specs.ram || '—'}</p>
+    <p>Мышь: ${zone.specs.mouse || '—'}</p>
+    <p>Клавиатура: ${zone.specs.keyboard || '—'}</p>
+    <p>Наушники: ${zone.specs.headset || '—'}</p>
   `;
   }
 
