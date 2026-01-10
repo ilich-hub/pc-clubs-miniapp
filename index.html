@@ -380,9 +380,7 @@ clubPage.dataset.zones = JSON.stringify(club.zones || []);
 
       <div class="tabs">
         <div class="tab active" onclick="showTab('main')">Главная</div>
-        <div class="tab" onclick="showTab('prices')">Цены</div>
         <div class="tab" onclick="showTab('zones')">Зоны</div>
-        <div class="tab" onclick="showTab('specs')">Характеристики</div>
         <div class="tab" onclick="showTab('games')">Игры</div>
       </div>
 
@@ -453,22 +451,6 @@ clubPage.dataset.zones = JSON.stringify(club.zones || []);
     </div>
   `;
   }
-      
-  if (tab === "prices") {
-  const zones = JSON.parse(clubPage.dataset.zones || "[]");
-  const zone = zones[activeZoneIndex];
-
-  if (!zone || !zone.prices) {
-    content.innerHTML = `<p>Цены не указаны</p>`;
-    return;
-  }
-
-  content.innerHTML = `
-    <p><b>${zone.name}</b></p>
-    ${zone.prices.hour ? `<p>1 час: ${zone.prices.hour}</p>` : ''}
-    ${zone.prices.night ? `<p>Ночь: ${zone.prices.night}</p>` : ''}
-  `;
-  }
 
   if (tab === "zones") {
   const zones = JSON.parse(clubPage.dataset.zones || "[]");
@@ -496,26 +478,6 @@ clubPage.dataset.zones = JSON.stringify(club.zones || []);
       ${z.name}
     </button>
   `).join("");
-  }
-
-  if (tab === "specs") {
-  const zones = JSON.parse(clubPage.dataset.zones || "[]");
-  const zone = zones[activeZoneIndex];
-
-  if (!zone || !zone.specs) {
-    content.innerHTML = `<p>Характеристики не указаны</p>`;
-    return;
-  }
-
-  content.innerHTML = `
-    <p><b>${zone.name}</b></p>
-    <p>CPU: ${zone.specs.cpu || '—'}</p>
-    <p>GPU: ${zone.specs.gpu || '—'}</p>
-    <p>RAM: ${zone.specs.ram || '—'}</p>
-    <p>Мышь: ${zone.specs.mouse || '—'}</p>
-    <p>Клавиатура: ${zone.specs.keyboard || '—'}</p>
-    <p>Наушники: ${zone.specs.headset || '—'}</p>
-  `;
   }
 
   if (tab === "games") {
