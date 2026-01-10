@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Cyber Clubs</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+/>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <!-- ===== style.css (БЕЗ ИЗМЕНЕНИЙ) ===== -->
@@ -222,7 +225,11 @@ body {
     transform: translateY(0);
   }
 }
-    
+
+    html, body {
+  touch-action: manipulation;
+  overscroll-behavior: none;
+    }
   </style>
 </head>
 
@@ -811,6 +818,17 @@ function setActiveBottomTab(tab) {
 function closeImage() {
   document.getElementById("imageViewer").style.display = "none";
 }
+
+    let lastTouchEnd = 0;
+
+document.addEventListener("touchend", function (event) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    event.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+    
   </script>
   
   <div id="bottomNav">
