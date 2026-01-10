@@ -230,6 +230,36 @@ body {
   touch-action: manipulation;
   overscroll-behavior: none;
     }
+
+    .tab-fade-out {
+  animation: tabFadeOut .15s ease forwards;
+}
+
+.tab-fade-in {
+  animation: tabFadeIn .25s ease forwards;
+}
+
+@keyframes tabFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
   </style>
 </head>
 
@@ -410,7 +440,10 @@ clubPage.dataset.instagram = club.instagram || '';
         margin-bottom:10px
       ">← Назад</button>
 
-      <h2>${club.name}</h2>
+      <h2 style="display:flex;align-items:center;gap:10px">
+  ${club.name}
+  <span id="openBadge" style="font-size:14px"></span>
+</h2>
       <p>📍 ${club.district}</p>
 
       <div class="tabs">
@@ -425,11 +458,27 @@ clubPage.dataset.instagram = club.instagram || '';
   `;
 
   showTab("main");
+      const badge = document.getElementById("openBadge");
+const isOpen = isClubOpen(clubPage.dataset.workTime);
+
+if (badge) {
+  if (isOpen === true) {
+    badge.textContent = "🟢 Открыто";
+    badge.style.color = "#00e676";
+  } else if (isOpen === false) {
+    badge.textContent = "🔴 Закрыто";
+    badge.style.color = "#ff5252";
+  } else {
+    badge.textContent = "";
+  }
+}
     }
 
     function showTab(tab) {
   const content = document.getElementById("tabContent");
   if (!content) return;
+      content.classList.remove("tab-fade-in");
+content.classList.add("tab-fade-out");
 
   document.querySelectorAll(".tab").forEach(t => {
     t.classList.remove("active");
@@ -577,6 +626,10 @@ clubPage.dataset.instagram = club.instagram || '';
     </div>
   `;
   }
+      setTimeout(() => {
+  content.classList.remove("tab-fade-out");
+  content.classList.add("tab-fade-in");
+}, 150);
     }
     
     function goBack() {
@@ -828,6 +881,27 @@ document.addEventListener("touchend", function (event) {
   }
   lastTouchEnd = now;
 }, false);
+
+    function isClubOpen(workTime) {
+  if (!workTime || !workTime.includes("-")) return null;
+
+  const [start, end] = workTime.split("-");
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const startMinutes = sh * 60 + sm;
+  const endMinutes = eh * 60 + em;
+
+  // обычный диапазон (например 10:00-23:00)
+  if (startMinutes < endMinutes) {
+    return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  }
+
+  // ночной режим (например 10:00-02:00)
+  return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+    }
     
   </script>
   
