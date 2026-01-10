@@ -398,37 +398,11 @@ clubPage.dataset.instagram = club.instagram || '';
       </div>
 
       <div id="tabContent"></div>
-      <div id="clubInfo" style="
-  margin-top:20px;
-  padding:16px;
-  background:#0f172a;
-  border-radius:18px
-">
-  <h3 style="margin-top:0">ℹ️ Информация</h3>
-
-  <p id="infoAddress"></p>
-  <p id="infoWorkTime"></p>
-  <p id="infoPhone"></p>
-  <p id="infoInstagram"></p>
-</div>
       
     </div>
   `;
 
   showTab("main");
-      document.getElementById("infoAddress").innerHTML =
-  clubPage.dataset.address ? `📍 ${clubPage.dataset.address}` : '';
-
-document.getElementById("infoWorkTime").innerHTML =
-  clubPage.dataset.workTime ? `🕒 ${clubPage.dataset.workTime}` : '';
-
-document.getElementById("infoPhone").innerHTML =
-  clubPage.dataset.phone ? `☎️ ${clubPage.dataset.phone}` : '';
-
-document.getElementById("infoInstagram").innerHTML =
-  clubPage.dataset.instagram
-    ? `📸 <a href="${clubPage.dataset.instagram}" target="_blank" style="color:#00e5ff">Instagram</a>`
-    : '';
     }
 
     function showTab(tab) {
@@ -443,56 +417,74 @@ document.getElementById("infoInstagram").innerHTML =
   if (tab === "main") {
   const photos = JSON.parse(clubPage.dataset.photos || "[]");
 
-  content.innerHTML = `
-    <div class="section">
-  <div class="photos-grid">
-    ${photos.map(p => `
-      <div>
-        <img src="${p.url}" style="
-          width:100%;
-          height:140px;
-          object-fit:cover;
-          border-radius:14px;
-          display:block;
-        ">
-        <p style="opacity:.7;margin-top:6px;font-size:13px">
-          ${p.title || ""}
-        </p>
-      </div>
-    `).join("")}
-  </div>
+    content.innerHTML = `
+  <div class="section">
 
-      <div style="margin-top:16px">
+    <!-- ℹ️ Информация -->
+    <div style="
+      margin-bottom:16px;
+      padding:16px;
+      background:#0f172a;
+      border-radius:18px
+    ">
+      <h3 style="margin-top:0">ℹ️ Информация</h3>
 
-        <button onclick="openMap(${clubPage.dataset.lat},${clubPage.dataset.lng})"
-          style="
-            width:100%;
-            padding:14px;
-            border:none;
-            border-radius:12px;
-            background:#141a2b;
-            color:#00e5ff;
-            font-weight:600;
-          ">
-          📍 Открыть карту
-        </button>
-
-        <button onclick="openAdmin('${clubPage.dataset.admin}')"
-          style="
-            margin-top:12px;
-            width:100%;
-            padding:14px;
-            border:none;
-            border-radius:12px;
-            background:#00e5ff;
-            font-weight:600;
-          ">
-          💬 Связаться с админом
-        </button>
-
-      </div>
+      ${clubPage.dataset.address ? `<p>📍 ${clubPage.dataset.address}</p>` : ''}
+      ${clubPage.dataset.workTime ? `<p>🕒 ${clubPage.dataset.workTime}</p>` : ''}
+      ${clubPage.dataset.phone ? `<p>☎️ ${clubPage.dataset.phone}</p>` : ''}
+      ${clubPage.dataset.instagram
+        ? `<p>📸 <a href="${clubPage.dataset.instagram}" target="_blank" style="color:#00e5ff">Instagram</a></p>`
+        : ''}
     </div>
-  `;
+
+    <!-- Фото -->
+    <div class="photos-grid">
+      ${photos.map(p => `
+        <div>
+          <img src="${p.url}" style="
+            width:100%;
+            height:140px;
+            object-fit:cover;
+            border-radius:14px;
+            display:block;
+          ">
+          <p style="opacity:.7;margin-top:6px;font-size:13px">
+            ${p.title || ""}
+          </p>
+        </div>
+      `).join("")}
+    </div>
+
+    <div style="margin-top:16px">
+      <button onclick="openMap(${clubPage.dataset.lat},${clubPage.dataset.lng})"
+        style="
+          width:100%;
+          padding:14px;
+          border:none;
+          border-radius:12px;
+          background:#141a2b;
+          color:#00e5ff;
+          font-weight:600;
+        ">
+        📍 Открыть карту
+      </button>
+
+      <button onclick="openAdmin('${clubPage.dataset.admin}')"
+        style="
+          margin-top:12px;
+          width:100%;
+          padding:14px;
+          border:none;
+          border-radius:12px;
+          background:#00e5ff;
+          font-weight:600;
+        ">
+        💬 Связаться с админом
+      </button>
+    </div>
+
+  </div>
+`;
   }
 
   if (tab === "zones") {
