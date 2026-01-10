@@ -489,7 +489,7 @@ content.classList.add("tab-fade-out");
   const photos = JSON.parse(clubPage.dataset.photos || "[]");
 
     content.innerHTML = `
-  <div class="section fade-in">
+  <div class="section">
 
     <!-- ℹ️ Информация -->
     <div style="
@@ -629,7 +629,7 @@ content.classList.add("tab-fade-out");
       setTimeout(() => {
   content.classList.remove("tab-fade-out");
   content.classList.add("tab-fade-in");
-}, 150);
+}, 120);
     }
     
     function goBack() {
