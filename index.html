@@ -461,22 +461,22 @@ clubPage.dataset.zones = JSON.stringify(club.zones || []);
   }
 
   content.innerHTML = zones.map((z, i) => `
-    <button
+    <div
       onclick="openZone(${i})"
       style="
-        display:block;
-        width:100%;
-        margin-bottom:10px;
+        display:flex;
+        align-items:center;
+        gap:12px;
         padding:14px;
+        margin-bottom:10px;
         border-radius:14px;
-        border:none;
-        font-weight:600;
         background:#1a2033;
-        color:#fff;
+        cursor:pointer;
       "
     >
-      ${z.name}
-    </button>
+      ${z.icon ? `<img src="${z.icon}" style="width:36px;height:36px">` : ''}
+      <span style="font-weight:600">${z.name}</span>
+    </div>
   `).join("");
   }
 
@@ -640,29 +640,35 @@ function setActiveBottomTab(tab) {
   const specs = zone.specs || {};
 
   zonePage.innerHTML = `
-    <div style="padding:16px">
-      <button
-        onclick="goBackToZones()"
-        style="background:none;border:none;color:#00e5ff;font-size:16px"
-      >← Назад</button>
+  <div style="padding:16px">
+    <button onclick="goBackToZones()" style="background:none;border:none;color:#00e5ff;font-size:16px">
+      ← Назад
+    </button>
 
-      <h2 style="margin-top:12px">${zone.name}</h2>
+    <h2 style="margin-top:12px">${zone.name}</h2>
 
-      <h3>Цены</h3>
-      ${prices.hour ? `<p>1 час: ${prices.hour}</p>` : ''}
-      ${prices.night ? `<p>Ночь: ${prices.night}</p>` : ''}
+    <h3>Цены</h3>
+    ${zone.prices?.hour ? `<p>1 час: ${zone.prices.hour}</p>` : ''}
+    ${zone.prices?.package_3h ? `<p>3 часа: ${zone.prices.package_3h}</p>` : ''}
+    ${zone.prices?.package_5h ? `<p>5 часов: ${zone.prices.package_5h}</p>` : ''}
 
-      <h3>Характеристики</h3>
-      <p>CPU: ${specs.cpu || '—'}</p>
-      <p>GPU: ${specs.gpu || '—'}</p>
-      <p>RAM: ${specs.ram || '—'}</p>
+    <h3>CS2</h3>
+    ${zone.games?.cs2
+      ? `<p>FPS: ${zone.games.cs2.fps} · ${zone.games.cs2.hz} Hz</p>`
+      : `<p>Нет данных</p>`
+    }
 
-      <h3>Периферия</h3>
-      <p>Мышь: ${specs.mouse || '—'}</p>
-      <p>Клавиатура: ${specs.keyboard || '—'}</p>
-      <p>Наушники: ${specs.headset || '—'}</p>
-    </div>
-  `;
+    <h3>Характеристики</h3>
+    <p>CPU: ${zone.specs?.cpu || '—'}</p>
+    <p>GPU: ${zone.specs?.gpu || '—'}</p>
+    <p>RAM: ${zone.specs?.ram || '—'}</p>
+
+    <h3>Периферия</h3>
+    <p>Мышь: ${zone.specs?.mouse || '—'}</p>
+    <p>Клавиатура: ${zone.specs?.keyboard || '—'}</p>
+    <p>Наушники: ${zone.specs?.headset || '—'}</p>
+  </div>
+`;
     }
 
     function goBackToZones() {
