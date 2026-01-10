@@ -216,7 +216,7 @@ body {
   <section id="favoritesPage" style="display:none;"></section>
 
   <section id="clubPage" style="display:none;"></section>
-
+  <section id="zonePage" style="display:none;"></section>
   <!-- ===== app.js (БЕЗ ИЗМЕНЕНИЙ) ===== -->
   <script>
     const SUPABASE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co";
@@ -480,17 +480,17 @@ clubPage.dataset.zones = JSON.stringify(club.zones || []);
 
   content.innerHTML = zones.map((z, i) => `
     <button
-      onclick="activeZoneIndex=${i}; showTab('prices')"
+      onclick="openZone(${i})"
       style="
         display:block;
         width:100%;
-        margin-bottom:8px;
-        padding:12px;
-        border-radius:12px;
+        margin-bottom:10px;
+        padding:14px;
+        border-radius:14px;
         border:none;
         font-weight:600;
-        background:${i === activeZoneIndex ? '#00e5ff' : '#1a2033'};
-        color:${i === activeZoneIndex ? '#001418' : '#fff'};
+        background:#1a2033;
+        color:#fff;
       "
     >
       ${z.name}
@@ -660,6 +660,54 @@ function setActiveBottomTab(tab) {
   if (document.getElementById("favoritesPage").style.display === "block") {
     renderFavorites();
   }
+    }
+
+    function openZone(index) {
+  const zones = JSON.parse(clubPage.dataset.zones || "[]");
+  const zone = zones[index];
+  if (!zone) return;
+
+  activeZoneIndex = index;
+
+  window.scrollTo(0, 0);
+
+  document.getElementById("clubPage").style.display = "none";
+  document.getElementById("zonePage").style.display = "block";
+
+  const prices = zone.prices || {};
+  const specs = zone.specs || {};
+
+  zonePage.innerHTML = `
+    <div style="padding:16px">
+      <button
+        onclick="goBackToZones()"
+        style="background:none;border:none;color:#00e5ff;font-size:16px"
+      >← Назад</button>
+
+      <h2 style="margin-top:12px">${zone.name}</h2>
+
+      <h3>Цены</h3>
+      ${prices.hour ? `<p>1 час: ${prices.hour}</p>` : ''}
+      ${prices.night ? `<p>Ночь: ${prices.night}</p>` : ''}
+
+      <h3>Характеристики</h3>
+      <p>CPU: ${specs.cpu || '—'}</p>
+      <p>GPU: ${specs.gpu || '—'}</p>
+      <p>RAM: ${specs.ram || '—'}</p>
+
+      <h3>Периферия</h3>
+      <p>Мышь: ${specs.mouse || '—'}</p>
+      <p>Клавиатура: ${specs.keyboard || '—'}</p>
+      <p>Наушники: ${specs.headset || '—'}</p>
+    </div>
+  `;
+    }
+
+    function goBackToZones() {
+  window.scrollTo(0, 0);
+  document.getElementById("zonePage").style.display = "none";
+  document.getElementById("clubPage").style.display = "block";
+  showTab("zones");
     }
   </script>
   
