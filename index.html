@@ -190,7 +190,7 @@ body {
   right: 10px;
   font-size: 22px;
   color: #ffffff;
-  opacity: 0.7; /* 🤍 неактивное */
+  opacity: 1; /* 🤍 неактивное */
   background: rgba(0,0,0,0.35);
   border-radius: 50%;
   padding: 6px;
@@ -385,8 +385,9 @@ async function loadClubs() {
   <div class="card-img-wrap">
     <img src="${img}">
     <div class="fav-heart ${isFavorite(c.id) ? "active" : ""}"
-         onclick="toggleFavorite(${c.id})">
-      ❤️
+     onclick="toggleFavorite(${c.id})">
+  ♥
+</div>
     </div>
   </div>
 
