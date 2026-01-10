@@ -640,33 +640,101 @@ function setActiveBottomTab(tab) {
   const specs = zone.specs || {};
 
   zonePage.innerHTML = `
-  <div style="padding:16px">
-    <button onclick="goBackToZones()" style="background:none;border:none;color:#00e5ff;font-size:16px">
-      ← Назад
-    </button>
+  <div style="padding:16px;display:flex;flex-direction:column;gap:16px">
 
-    <h2 style="margin-top:12px">${zone.name}</h2>
+    <!-- Назад -->
+    <button
+      onclick="goBackToZones()"
+      style="
+        background:none;
+        border:none;
+        color:#00e5ff;
+        font-size:16px;
+        align-self:flex-start
+      "
+    >← Назад</button>
 
-    <h3>Цены</h3>
-    ${zone.prices?.hour ? `<p>1 час: ${zone.prices.hour}</p>` : ''}
-    ${zone.prices?.package_3h ? `<p>3 часа: ${zone.prices.package_3h}</p>` : ''}
-    ${zone.prices?.package_5h ? `<p>5 часов: ${zone.prices.package_5h}</p>` : ''}
+    <!-- Заголовок зоны -->
+    <div style="
+      background:linear-gradient(135deg,#1e293b,#0f172a);
+      border-radius:20px;
+      padding:20px
+    ">
+      <h2 style="margin:0">${zone.name}</h2>
+    </div>
 
-    <h3>CS2</h3>
-    ${zone.games?.cs2
-      ? `<p>FPS: ${zone.games.cs2.fps} · ${zone.games.cs2.hz} Hz</p>`
-      : `<p>Нет данных</p>`
-    }
+    <!-- Цены -->
+    <div style="
+      background:#0f172a;
+      border-radius:18px;
+      padding:16px
+    ">
+      <h3 style="margin-top:0">💰 Цены</h3>
 
-    <h3>Характеристики</h3>
-    <p>CPU: ${zone.specs?.cpu || '—'}</p>
-    <p>GPU: ${zone.specs?.gpu || '—'}</p>
-    <p>RAM: ${zone.specs?.ram || '—'}</p>
+      ${zone.prices?.hour ? `
+        <div style="display:flex;justify-content:space-between">
+          <span>1 час</span><b>${zone.prices.hour}</b>
+        </div>` : ''}
 
-    <h3>Периферия</h3>
-    <p>Мышь: ${zone.specs?.mouse || '—'}</p>
-    <p>Клавиатура: ${zone.specs?.keyboard || '—'}</p>
-    <p>Наушники: ${zone.specs?.headset || '—'}</p>
+      ${zone.prices?.package_3h ? `
+        <div style="display:flex;justify-content:space-between">
+          <span>3 часа</span><b>${zone.prices.package_3h}</b>
+        </div>` : ''}
+
+      ${zone.prices?.package_5h ? `
+        <div style="display:flex;justify-content:space-between">
+          <span>5 часов</span><b>${zone.prices.package_5h}</b>
+        </div>` : ''}
+    </div>
+
+    <!-- CS2 -->
+    <div style="
+      background:#0f172a;
+      border-radius:18px;
+      padding:16px
+    ">
+      <h3 style="margin-top:0">🎮 CS2</h3>
+
+      ${zone.games?.cs2 ? `
+        <div style="display:flex;justify-content:space-between">
+          <span>FPS</span><b>${zone.games.cs2.fps}</b>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>Частота</span><b>${zone.games.cs2.hz} Hz</b>
+        </div>
+      ` : `<p>Нет данных</p>`}
+    </div>
+
+    <!-- Характеристики -->
+    <div style="
+      background:#0f172a;
+      border-radius:18px;
+      padding:16px
+    ">
+      <h3 style="margin-top:0">🖥 Характеристики</h3>
+
+      <div style="display:grid;gap:6px">
+        <div>CPU: <b>${zone.specs?.cpu || '—'}</b></div>
+        <div>GPU: <b>${zone.specs?.gpu || '—'}</b></div>
+        <div>RAM: <b>${zone.specs?.ram || '—'}</b></div>
+      </div>
+    </div>
+
+    <!-- Периферия -->
+    <div style="
+      background:#0f172a;
+      border-radius:18px;
+      padding:16px
+    ">
+      <h3 style="margin-top:0">🎧 Периферия</h3>
+
+      <div style="display:grid;gap:6px">
+        <div>Мышь: <b>${zone.specs?.mouse || '—'}</b></div>
+        <div>Клавиатура: <b>${zone.specs?.keyboard || '—'}</b></div>
+        <div>Наушники: <b>${zone.specs?.headset || '—'}</b></div>
+      </div>
+    </div>
+
   </div>
 `;
     }
