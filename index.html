@@ -372,6 +372,10 @@ clubPage.dataset.keyboard = club.keyboard || "";
 clubPage.dataset.headset = club.headset || "";
  clubPage.dataset.games = JSON.stringify(club.games || []);
 clubPage.dataset.zones = JSON.stringify(club.zones || []);
+clubPage.dataset.address = club.address || '';
+clubPage.dataset.workTime = club.work_time || '';
+clubPage.dataset.phone = club.phone || '';
+clubPage.dataset.instagram = club.instagram || '';
       
   clubPage.innerHTML = `
     <div style="padding:16px;min-height:100vh">
@@ -394,11 +398,37 @@ clubPage.dataset.zones = JSON.stringify(club.zones || []);
       </div>
 
       <div id="tabContent"></div>
+      <div id="clubInfo" style="
+  margin-top:20px;
+  padding:16px;
+  background:#0f172a;
+  border-radius:18px
+">
+  <h3 style="margin-top:0">ℹ️ Информация</h3>
+
+  <p id="infoAddress"></p>
+  <p id="infoWorkTime"></p>
+  <p id="infoPhone"></p>
+  <p id="infoInstagram"></p>
+</div>
       
     </div>
   `;
 
   showTab("main");
+      document.getElementById("infoAddress").innerHTML =
+  clubPage.dataset.address ? `📍 ${clubPage.dataset.address}` : '';
+
+document.getElementById("infoWorkTime").innerHTML =
+  clubPage.dataset.workTime ? `🕒 ${clubPage.dataset.workTime}` : '';
+
+document.getElementById("infoPhone").innerHTML =
+  clubPage.dataset.phone ? `☎️ ${clubPage.dataset.phone}` : '';
+
+document.getElementById("infoInstagram").innerHTML =
+  clubPage.dataset.instagram
+    ? `📸 <a href="${clubPage.dataset.instagram}" target="_blank" style="color:#00e5ff">Instagram</a>`
+    : '';
     }
 
     function showTab(tab) {
