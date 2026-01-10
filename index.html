@@ -477,14 +477,16 @@ if (badge) {
     function showTab(tab) {
   const content = document.getElementById("tabContent");
   if (!content) return;
-      content.classList.remove("tab-fade-in");
+      // если анимация уже идёт — выходим
+if (content.dataset.animating === "1") return;
+content.dataset.animating = "1";
+
+// запускаем fade-out
+content.className = "";
 content.classList.add("tab-fade-out");
 
-  document.querySelectorAll(".tab").forEach(t => {
-    t.classList.remove("active");
-  });
-  document.querySelector(`.tab[onclick*="${tab}"]`)?.classList.add("active");
-
+// ждём завершения fade-out
+setTimeout(() => { 
   if (tab === "main") {
   const photos = JSON.parse(clubPage.dataset.photos || "[]");
 
@@ -626,12 +628,19 @@ content.classList.add("tab-fade-out");
     </div>
   `;
   }
-      setTimeout(() => {
-  content.classList.remove("tab-fade-out");
-  content.classList.add("tab-fade-in");
-}, 120);
+// запускаем fade-in нового контента
+content.className = "";
+content.classList.add("tab-fade-in");
+
+// разрешаем следующие клики
+content.dataset.animating = "0";
+}, 180);
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.remove("active");
+  });
+  document.querySelector(`.tab[onclick*="${tab}"]`)?.classList.add("active");
     }
-    
+
     function goBack() {
       window.scrollTo(0, 0);
 
