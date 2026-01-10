@@ -357,6 +357,9 @@ clubPage.dataset.priceVip = club.price_vip || "";
 clubPage.dataset.cpu = club.cpu || "";
 clubPage.dataset.gpu = club.gpu || "";
 clubPage.dataset.ram = club.ram || "";
+clubPage.dataset.mouse = club.mouse || "";
+clubPage.dataset.keyboard = club.keyboard || "";
+clubPage.dataset.headset = club.headset || "";
  clubPage.dataset.games = JSON.stringify(club.games || []);
       
   clubPage.innerHTML = `
@@ -462,11 +465,17 @@ clubPage.dataset.ram = club.ram || "";
   }
 
   if (tab === "specs") {
-    content.innerHTML = `
-      <p>CPU: ${clubPage.dataset.cpu}</p>
-      <p>GPU: ${clubPage.dataset.gpu}</p>
-      <p>RAM: ${clubPage.dataset.ram}</p>
-    `;
+  content.innerHTML = `
+    <p><b>CPU:</b> ${clubPage.dataset.cpu || "—"}</p>
+    <p><b>GPU:</b> ${clubPage.dataset.gpu || "—"}</p>
+    <p><b>RAM:</b> ${clubPage.dataset.ram || "—"}</p>
+
+    <hr style="border:0;border-top:1px solid #1f253a;margin:12px 0">
+
+    <p><b>Мышь:</b> ${clubPage.dataset.mouse || "—"}</p>
+    <p><b>Клавиатура:</b> ${clubPage.dataset.keyboard || "—"}</p>
+    <p><b>Наушники:</b> ${clubPage.dataset.headset || "—"}</p>
+  `;
   }
 
   if (tab === "games") {
