@@ -477,6 +477,11 @@ if (badge) {
     function showTab(tab) {
   const content = document.getElementById("tabContent");
   if (!content) return;
+      
+      document.querySelectorAll(".tab").forEach(t => {
+    t.classList.remove("active");
+  });
+  document.querySelector(`.tab[onclick*="${tab}"]`)?.classList.add("active");
       // если анимация уже идёт — выходим
 if (content.dataset.animating === "1") return;
 content.dataset.animating = "1";
@@ -635,10 +640,6 @@ content.classList.add("tab-fade-in");
 // разрешаем следующие клики
 content.dataset.animating = "0";
 }, 180);
-  document.querySelectorAll(".tab").forEach(t => {
-    t.classList.remove("active");
-  });
-  document.querySelector(`.tab[onclick*="${tab}"]`)?.classList.add("active");
     }
 
     function goBack() {
