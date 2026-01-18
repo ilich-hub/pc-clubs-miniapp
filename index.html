@@ -716,9 +716,26 @@ function setActiveBottomTab(tab) {
 
   const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
 
-  if (favs.length === 0) {
-    page.innerHTML = `<p style="opacity:.7">Нет избранных клубов</p>`;
-    return;
+    if (favs.length === 0) {
+  page.innerHTML = `
+    <div style="
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:40px 20px;
+      opacity:.85
+    ">
+      <div style="font-size:56px;margin-bottom:12px">❤️</div>
+      <h3 style="margin:0 0 8px 0">Пока пусто</h3>
+      <p style="margin:0;opacity:.7">
+        Добавляй клубы в избранное,<br>
+        чтобы быстро находить их
+      </p>
+    </div>
+  `;
+  return;
   }
 
   page.innerHTML = favs.map(c => `
