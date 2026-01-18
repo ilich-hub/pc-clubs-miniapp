@@ -803,10 +803,14 @@ function setActiveBottomTab(tab) {
     ">
       <h3 style="margin-top:0">💰 Цены</h3>
 
-      ${zone.prices?.hour ? `
-        <div style="display:flex;justify-content:space-between">
-          <span>1 час</span><b>${zone.prices.hour}</b>
-        </div>` : ''}
+      ${zone.prices?.hour_ranges
+  ? zone.prices.hour_ranges.map(r => `
+      <div style="display:flex;justify-content:space-between">
+        <span>${r.from} – ${r.to}</span>
+        <b>${r.price}</b>
+      </div>
+    `).join("")
+  : ''}
 
       ${zone.prices?.package_3h ? `
         <div style="display:flex;justify-content:space-between">
