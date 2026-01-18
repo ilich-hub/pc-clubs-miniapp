@@ -837,7 +837,23 @@ function setActiveBottomTab(tab) {
       `
       : ''
       }
-
+      
+      ${zone.prices?.night
+  ? `
+    <div style="
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px dashed rgba(255,255,255,.15)
+    ">
+      <div style="display:flex;justify-content:space-between">
+        <span>🌙 Ночной пакет (${zone.prices.night.from} – ${zone.prices.night.to})</span>
+        <b>${zone.prices.night.price}</b>
+      </div>
+    </div>
+  `
+  : ''
+      }
+      
       ${zone.prices?.package_3h ? `
         <div style="display:flex;justify-content:space-between">
           <span>3 часа</span><b>${zone.prices.package_3h}</b>
