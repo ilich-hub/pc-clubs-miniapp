@@ -540,7 +540,7 @@ const query = searchInput.value.toLowerCase();
 clubs
   .filter(c =>
     (!selected || c.district === selected) &&
-    (!query || c.name.toLowerCase().includes(query))
+    (!query || (c.name || "").toLowerCase().includes(query))
   )
   .forEach((c) => {
           const img =
@@ -571,6 +571,16 @@ clubs
     function openClub(id) {
   const club = clubs.find((c) => c.id === id);
   if (!club) return;
+      clubPage.innerHTML = `
+  <div style="
+    padding:40px;
+    text-align:center;
+    opacity:.7
+  ">
+    <div style="font-size:40px">⏳</div>
+    <p>Загрузка клуба...</p>
+  </div>
+`;
       // ⬆️ ВСЕГДА поднимаем страницу вверх
 SCROLL_TO_TOP();
 
@@ -681,9 +691,10 @@ setTimeout(() => {
       ${clubPage.dataset.address ? `<p>📍 ${safe(clubPage.dataset.address)}</p>` : ''}
 ${clubPage.dataset.workTime ? `<p>🕒 ${safe(clubPage.dataset.workTime)}</p>` : ''}
 ${clubPage.dataset.phone ? `<p>☎️ ${safe(clubPage.dataset.phone)}</p>` : ''}
-      ${clubPage.dataset.instagram
-        ? `<p>📸 <a href="${clubPage.dataset.instagram}" target="_blank" style="color:#00e5ff">Instagram</a></p>`
-        : ''}
+      ${clubPage.dataset.instagram &&
+  clubPage.dataset.instagram.startsWith("http")
+  ? `<p>📸 <a href="${clubPage.dataset.instagram}" target="_blank" style="color:#00e5ff">Instagram</a></p>`
+  : ''}
     </div>
 
     <!-- Фото -->
@@ -847,10 +858,11 @@ content.dataset.animating = "0";
   const longitude = parseFloat(lng);
   
   // Проверяем что координаты валидные
-  if (!latitude || !longitude || 
-      isNaN(latitude) || isNaN(longitude) ||
-      latitude < -90 || latitude > 90 ||
-      longitude < -180 || longitude > 180) {
+  if (
+  isNaN(latitude) || isNaN(longitude) ||
+  latitude < -90 || latitude > 90 ||
+  longitude < -180 || longitude > 180
+) {
     alert("❌ Локация клуба не указана или некорректна");
     return;
   }
@@ -884,10 +896,6 @@ function showFavoritesTab() {
   setActiveBottomTab("favorites");
 }
 
-function setActiveBottomTab(tab) {
-  document.getElementById("tabClubs").classList.toggle("active", tab === "clubs");
-  document.getElementById("tabFavs").classList.toggle("active", tab === "favorites");
-}
     function renderFavorites() {
   const page = document.getElementById("favoritesPage");
   const clubsPage = document.getElementById("clubs");
