@@ -352,20 +352,21 @@ async function trackVisit() {
         visit_date: today
       })
     });
-   // 📊 обновляем агрегированную статистику по дням
-await fetch(`${SUPABASE_URL}/rest/v1/daily_stats`, {
-  method: "POST",
-  headers: {
-    apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${SUPABASE_KEY}`,
-    "Content-Type": "application/json",
-    Prefer: "resolution=merge-duplicates"
-  },
-  body: JSON.stringify({
-    day: today,
-    visits: 1
-  })
-});
+   // 📊 увеличиваем счётчик посещений за день
+await fetch(
+  `${SUPABASE_URL}/rest/v1/daily_stats?day=eq.${today}`,
+  {
+    method: "PATCH",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      visits: 1
+    })
+  }
+);
     localStorage.setItem(lastVisitKey, today);
   } catch (e) {
     console.log("visit skipped");
@@ -1236,62 +1237,7 @@ const totalVisits = stats.reduce((sum, d) => sum + (d.visits || 0), 0);
               Всего посещений
             </div>
           </div>
-          
-          <!-- Уникальных пользователей -->
-          <div style="
-            background:#141a2b;
-            border-radius:18px;
-            padding:20px;
-            text-align:center
-          ">
-            <div style="font-size:40px;font-weight:700;color:#00e5ff">
-              ${uniqueUsers}
-            </div>
-            <div style="opacity:.7;margin-top:8px">
-              Уникальных пользователей
-            </div>
           </div>
-          
-          <!-- За последний месяц -->
-          <div style="
-            background:#141a2b;
-            border-radius:18px;
-            padding:20px;
-            text-align:center
-          ">
-            <div style="font-size:40px;font-weight:700;color:#00e5ff">
-              ${visitsThisMonth}
-            </div>
-            <div style="opacity:.7;margin-top:8px">
-              Посещений за месяц
-            </div>
-          </div>
-        </div>
-        
-        <!-- Последние посещения -->
-        <h3 style="margin-top:32px">Последние посещения:</h3>
-        <div style="display:grid;gap:10px;margin-top:12px">
-          ${visits.slice(0, 10).map(v => `
-            <div style="
-              background:#141a2b;
-              border-radius:12px;
-              padding:12px;
-              display:flex;
-              justify-content:space-between;
-              align-items:center
-            ">
-              <div>
-                <div style="font-weight:600">
-                  ${safe(v.first_name || 'Пользователь')} ${safe(v.last_name || '')}
-                </div>
-                ${v.username ? `<div style="opacity:.6;font-size:13px">@${safe(v.username)}</div>` : ''}
-              </div>
-              <div style="opacity:.6;font-size:13px">
-                ${new Date(v.created_at).toLocaleDateString('ru-RU')}
-              </div>
-            </div>
-          `).join('')}
-        </div>
       </div>
     `;
     
