@@ -753,8 +753,18 @@ content.dataset.animating = "0";
     }
 
     function openAdmin(link) {
-      if (!link) return;
-      window.open(link, "_blank");
+  if (!link || link.trim() === '') {
+    alert("❌ Ссылка на администратора не указана");
+    return;
+  }
+  
+  // Проверяем что это похоже на ссылку
+  if (!link.startsWith('http://') && !link.startsWith('https://') && !link.startsWith('tg://')) {
+    alert("❌ Некорректная ссылка");
+    return;
+  }
+  
+  window.open(link, "_blank");
     }
 
     function openMap(lat, lng) {
