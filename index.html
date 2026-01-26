@@ -1196,21 +1196,18 @@ document.addEventListener("touchend", function (event) {
 async function showStatsTab() {
   const user = tg?.initDataUnsafe?.user;
 
-if (!user || user.id !== ADMIN_TELEGRAM_ID) {
-  alert("⛔ Статистика доступна только администратору");
-  return;
-}
-  // 👉 показываем ТОЛЬКО страницу статистики
-statsPage.style.display = "block";
-mainPage.style.display = "none";
-favsPage.style.display = "none";
+  if (!user || user.id !== ADMIN_TELEGRAM_ID) {
+    alert("⛔ Статистика доступна только администратору");
+    return;
+  }
+
   SCROLL_TO_TOP();
-  
   SHOW_HEADER();
+
   document.getElementById("clubs").style.display = "none";
   document.getElementById("favoritesPage").style.display = "none";
-  clubPage.style.display = "none";
-  
+  document.getElementById("clubPage").style.display = "none";
+
   const statsPage = document.getElementById("statsPage");
   statsPage.style.display = "block";
   
