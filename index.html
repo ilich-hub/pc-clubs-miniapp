@@ -656,8 +656,19 @@ ${c.tournament ? `
         });
     }
 
-    filter.addEventListener("change", renderClubs);
-    searchInput.addEventListener("input", renderClubs);
+    filter.addEventListener("change", () => {
+  specialFilter = "";
+  promoBtn.classList.remove("active");
+  tournamentBtn.classList.remove("active");
+  renderClubs();
+});
+
+searchInput.addEventListener("input", () => {
+  specialFilter = "";
+  promoBtn.classList.remove("active");
+  tournamentBtn.classList.remove("active");
+  renderClubs();
+});
     const promoBtn = document.getElementById("promoBtn");
 const tournamentBtn = document.getElementById("tournamentBtn");
 
