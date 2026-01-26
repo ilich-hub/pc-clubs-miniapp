@@ -946,6 +946,14 @@ function showFavoritesTab() {
     if (favs.length === 0) {
   page.innerHTML = `
     <div style="
+      padding:16px;
+      font-size:22px;
+      font-weight:700;
+    ">
+      ❤️ Избранное
+    </div>
+
+    <div style="
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -963,14 +971,26 @@ function showFavoritesTab() {
     </div>
   `;
   return;
-  }
+    }
 
-  page.innerHTML = favs.map(c => `
+  page.innerHTML = `
+  <div style="
+    padding:16px;
+    font-size:22px;
+    font-weight:700;
+  ">
+    ❤️ Избранное
+  </div>
+
+  ${favs.map(c => `
     <div class="card">
       <h2>${safe(c.name)}</h2>
-      <button onclick="clubOpenedFrom='favorites'; openClub(${c.id})">Подробнее</button>
+      <button onclick="clubOpenedFrom='favorites'; openClub(${c.id})">
+        Подробнее
+      </button>
     </div>
-  `).join("");
+  `).join("")}
+`;
     }
 
     function isFavorite(id) {
