@@ -1334,9 +1334,9 @@ window.addEventListener("load", () => {
   ctx.clearRect(0, 0, width, height);
 
   const data = stats
-    .slice()
-    .reverse()
-    .slice(-30);
+  .slice()
+  .reverse()
+  .slice(-STATS_DAYS);
 
   const max = Math.max(...data.map(d => d.visits), 1);
   const padding = 20;
@@ -1346,6 +1346,16 @@ window.addEventListener("load", () => {
   ctx.beginPath();
 
   data.forEach((d, i) => {
+    if (data.length === 1) {
+  // рисуем одну точку по центру
+  const d = data[0];
+  const x = width / 2;
+  const y = height - padding;
+  ctx.beginPath();
+  ctx.arc(x, y, 4, 0, Math.PI * 2);
+  ctx.fill();
+  return;
+    }
     const x = padding + (i / (data.length - 1)) * (width - padding * 2);
     const y = height - padding - (d.visits / max) * (height - padding * 2);
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
