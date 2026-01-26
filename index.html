@@ -1388,16 +1388,16 @@ function showFavoritesTab() {
   <div style="padding:16px;display:flex;flex-direction:column;gap:16px">
 
     <!-- Назад -->
-    <button
-      onclick="goBackToZones()"
-      style="
-        background:none;
-        border:none;
-        color:#00e5ff;
-        font-size:16px;
-        align-self:flex-start
-      "
-    >← Назад</button>
+    <button onclick="goBackToZones()" class="back-btn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+       xmlns="http://www.w3.org/2000/svg">
+    <path d="M15 18l-6-6 6-6"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </svg>
+</button>
 
     <!-- Заголовок зоны -->
     <div style="
