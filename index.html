@@ -749,7 +749,7 @@ clubs
     overflow:hidden;
     text-overflow:ellipsis;
   ">
-    🔥 Акция
+    🔥 ${safe(c.promo).slice(0, 30)}
   </div>
 ` : ""}
 
@@ -766,7 +766,7 @@ ${c.tournament ? `
     overflow:hidden;
     text-overflow:ellipsis;
   ">
-    🏆 Турнир
+    🏆 ${safe(c.tournament).slice(0, 30)}
   </div>
 ` : ""}
   <button onclick="clubOpenedFrom='clubs'; openClub(${Number(c.id)})">Подробнее</button>
