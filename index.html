@@ -337,6 +337,10 @@ if (tg) {
   tg.ready();
   tg.expand();
 }
+    // 📋 Константы для повторяющихся действий
+const SCROLL_TO_TOP = () => window.scrollTo(0, 0);
+const HIDE_HEADER = () => document.querySelector("header").style.display = "none";
+const SHOW_HEADER = () => document.querySelector("header").style.display = "block";
     
     const clubsContainer = document.getElementById("clubs");
     const filter = document.getElementById("districtFilter");
@@ -498,13 +502,13 @@ clubs
   const club = clubs.find((c) => c.id === id);
   if (!club) return;
       // ⬆️ ВСЕГДА поднимаем страницу вверх
-window.scrollTo(0, 0);
+SCROLL_TO_TOP();
 
   document.getElementById("clubs").style.display = "none";
   document.getElementById("favoritesPage").style.display = "none";
   clubPage.style.display = "block";
 
-      document.querySelector("header").style.display = "none";
+      HIDE_HEADER();
       
       clubPage.dataset.photos = JSON.stringify(club.photos || []);
 clubPage.dataset.lat = club.lat || "";
@@ -740,10 +744,10 @@ content.dataset.animating = "0";
     }
 
     function goBack() {
-      window.scrollTo(0, 0);
+      SCROLL_TO_TOP();
 
   clubPage.style.display = "none";
-  document.querySelector("header").style.display = "block";
+  SHOW_HEADER();
 
   if (clubOpenedFrom === "favorites") {
     showFavoritesTab();
@@ -786,20 +790,20 @@ content.dataset.animating = "0";
 
     loadClubs();
 
-    function showClubsTab() {
-  window.scrollTo(0, 0);
+    function showFavoritesTab() {
+  SCROLL_TO_TOP();
 
-  document.getElementById("favoritesPage").style.display = "none";
+  SHOW_HEADER();
   document.getElementById("clubs").style.display = "grid";
   clubPage.style.display = "none";
 
-  document.querySelector("header").style.display = "block";
+  SHOW_HEADER();
 
   setActiveBottomTab("clubs");
     }
 
 function showFavoritesTab() {
-  window.scrollTo(0, 0);
+  SCROLL_TO_TOP();
 
   document.querySelector("header").style.display = "block";
   document.getElementById("clubs").style.display = "none";
@@ -888,7 +892,7 @@ function setActiveBottomTab(tab) {
 
   activeZoneIndex = index;
 
-  window.scrollTo(0, 0);
+  SCROLL_TO_TOP();
 
   document.getElementById("clubPage").style.display = "none";
   document.getElementById("zonePage").style.display = "block";
@@ -1026,7 +1030,7 @@ function setActiveBottomTab(tab) {
     }
 
     function goBackToZones() {
-  window.scrollTo(0, 0);
+  SCROLL_TO_TOP();
   document.getElementById("zonePage").style.display = "none";
   document.getElementById("clubPage").style.display = "block";
   showTab("zones");
