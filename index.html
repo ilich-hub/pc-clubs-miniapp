@@ -924,7 +924,7 @@ content.dataset.animating = "0";
 function showFavoritesTab() {
   SCROLL_TO_TOP();
   document.getElementById("statsPage").style.display = "none";
-  SHOW_HEADER();
+  HIDE_HEADER();
   document.getElementById("clubs").style.display = "none";
   clubPage.style.display = "none";
 
@@ -1203,7 +1203,7 @@ async function showStatsTab() {
   }
 
   SCROLL_TO_TOP();
-  SHOW_HEADER();
+  HIDE_HEADER();
 
   document.getElementById("clubs").style.display = "none";
   document.getElementById("favoritesPage").style.display = "none";
