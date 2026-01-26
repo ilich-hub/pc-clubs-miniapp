@@ -448,10 +448,31 @@ const SHOW_HEADER = () => document.querySelector("header").style.display = "bloc
       // 🖼️ Предзагружаем картинки в фоне
 function preloadImages() {
   clubs.forEach(club => {
+    // Фото клубов
     if (Array.isArray(club.photos) && club.photos.length) {
       club.photos.forEach(photo => {
         const img = new Image();
         img.src = photo.url;
+      });
+    }
+    
+    // Иконки игр
+    if (Array.isArray(club.games) && club.games.length) {
+      club.games.forEach(game => {
+        if (game.icon) {
+          const img = new Image();
+          img.src = game.icon;
+        }
+      });
+    }
+    
+    // Иконки зон
+    if (Array.isArray(club.zones) && club.zones.length) {
+      club.zones.forEach(zone => {
+        if (zone.icon) {
+          const img = new Image();
+          img.src = zone.icon;
+        }
       });
     }
   });
