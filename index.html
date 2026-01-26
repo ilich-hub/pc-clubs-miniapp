@@ -738,27 +738,35 @@ clubs
   <h2>${safe(c.name)}</h2>
   ${c.promo ? `
   <div style="
-    margin:0 12px 8px;
-    padding:8px;
+    margin:0 12px 6px;
+    padding:6px 8px;
     background:#102a1c;
-    border-radius:10px;
-    font-size:13px;
+    border-radius:8px;
+    font-size:12px;
     color:#00e676;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   ">
-    🔥 ${safe(c.promo)}
+    🔥 Акция
   </div>
 ` : ""}
 
 ${c.tournament ? `
   <div style="
-    margin:0 12px 8px;
-    padding:8px;
+    margin:0 12px 6px;
+    padding:6px 8px;
     background:#1a2033;
-    border-radius:10px;
-    font-size:13px;
+    border-radius:8px;
+    font-size:12px;
     color:#00e5ff;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   ">
-    🏆 ${safe(c.tournament)}
+    🏆 Турнир
   </div>
 ` : ""}
   <button onclick="clubOpenedFrom='clubs'; openClub(${Number(c.id)})">Подробнее</button>
@@ -877,10 +885,18 @@ clubPage.dataset.instagram = club.instagram || '';
       <p>📍 ${safe(club.district)}</p>
 
       <div class="tabs">
-        <div class="tab active" onclick="showTab('main')">Главная</div>
-        <div class="tab" onclick="showTab('zones')">Зоны</div>
-        <div class="tab" onclick="showTab('games')">Игры</div>
-      </div>
+  <div class="tab active" onclick="showTab('main')">Главная</div>
+  <div class="tab" onclick="showTab('zones')">Зоны</div>
+  <div class="tab" onclick="showTab('games')">Игры</div>
+
+  ${club.promo ? `
+    <div class="tab" onclick="showTab('promo')">🔥 Акции</div>
+  ` : ""}
+
+  ${club.tournament ? `
+    <div class="tab" onclick="showTab('tournament')">🏆 Турниры</div>
+  ` : ""}
+</div>
 
       <div id="tabContent"></div>
       
@@ -1066,6 +1082,39 @@ ${clubPage.dataset.phone ? `<p>☎️ ${safe(clubPage.dataset.phone)}</p>` : ''}
     </div>
   `;
   }
+  if (tab === "promo") {
+  content.innerHTML = `
+    <div class="section">
+      <div style="
+        background:#102a1c;
+        border-radius:18px;
+        padding:16px
+      ">
+        <h3 style="margin-top:0">🔥 Акции</h3>
+        <p style="font-size:15px;line-height:1.5">
+          ${safe(club.promo)}
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+if (tab === "tournament") {
+  content.innerHTML = `
+    <div class="section">
+      <div style="
+        background:#1a2033;
+        border-radius:18px;
+        padding:16px
+      ">
+        <h3 style="margin-top:0">🏆 Турниры</h3>
+        <p style="font-size:15px;line-height:1.5">
+          ${safe(club.tournament)}
+        </p>
+      </div>
+    </div>
+  `;
+}
 // запускаем fade-in нового контента
 content.className = "";
 content.classList.add("tab-fade-in");
