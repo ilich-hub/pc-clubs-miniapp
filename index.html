@@ -325,6 +325,13 @@ body {
     const SUPABASE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co";
     const SUPABASE_KEY = "sb_publishable_WVIM_p30Vjag_MTxDWapEQ__W0SftDv";
 const tg = window.Telegram?.WebApp;
+    // 🛡️ Функция для безопасной вставки текста
+function safe(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 
 if (tg) {
   tg.ready();
@@ -435,8 +442,8 @@ clubs
     </div>
   </div>
 
-  <h2>${c.name}</h2>
-  <button onclick="clubOpenedFrom='clubs'; openClub(${c.id})">Подробнее</button>
+  <h2>${safe(c.name)}</h2>
+  <button onclick="clubOpenedFrom='clubs'; openClub(${Number(c.id)})">Подробнее</button>
 </div>
           `;
         });
@@ -489,10 +496,10 @@ clubPage.dataset.instagram = club.instagram || '';
       ">← Назад</button>
 
       <h2 style="display:flex;align-items:center;gap:10px">
-  ${club.name}
+  ${safe(club.name)}
   <span id="openBadge" style="font-size:14px"></span>
 </h2>
-      <p>📍 ${club.district}</p>
+      <p>📍 ${safe(club.district)}</p>
 
       <div class="tabs">
         <div class="tab active" onclick="showTab('main')">Главная</div>
@@ -555,9 +562,9 @@ setTimeout(() => {
     ">
       <h3 style="margin-top:0">ℹ️ Информация</h3>
 
-      ${clubPage.dataset.address ? `<p>📍 ${clubPage.dataset.address}</p>` : ''}
-      ${clubPage.dataset.workTime ? `<p>🕒 ${clubPage.dataset.workTime}</p>` : ''}
-      ${clubPage.dataset.phone ? `<p>☎️ ${clubPage.dataset.phone}</p>` : ''}
+      ${clubPage.dataset.address ? `<p>📍 ${safe(clubPage.dataset.address)}</p>` : ''}
+${clubPage.dataset.workTime ? `<p>🕒 ${safe(clubPage.dataset.workTime)}</p>` : ''}
+${clubPage.dataset.phone ? `<p>☎️ ${safe(clubPage.dataset.phone)}</p>` : ''}
       ${clubPage.dataset.instagram
         ? `<p>📸 <a href="${clubPage.dataset.instagram}" target="_blank" style="color:#00e5ff">Instagram</a></p>`
         : ''}
@@ -641,7 +648,7 @@ setTimeout(() => {
       "
     >
       ${z.icon ? `<img src="${z.icon}" style="width:36px;height:36px">` : ''}
-      <span style="font-weight:600">${z.name}</span>
+      <span style="font-weight:600">${safe(z.name)}</span>
     </div>
   `).join("");
   }
@@ -670,7 +677,7 @@ setTimeout(() => {
                onerror="this.style.display='none'">
 
           <div style="flex:1">
-            <div style="font-weight:600">${game.name || 'Игра'}</div>
+            <div style="font-weight:600">${safe(game.name) || 'Игра'}</div>
             <div style="font-size:13px;opacity:.7">
               ${game.fps ? `FPS: ${game.fps}` : ''}
               ${game.hz ? ` · ${game.hz} Гц` : ''}
@@ -781,7 +788,7 @@ function setActiveBottomTab(tab) {
 
   page.innerHTML = favs.map(c => `
     <div class="card">
-      <h2>${c.name}</h2>
+      <h2>${safe(c.name)}</h2>
       <button onclick="clubOpenedFrom='favorites'; openClub(${c.id})">Подробнее</button>
     </div>
   `).join("");
@@ -850,7 +857,7 @@ function setActiveBottomTab(tab) {
       border-radius:20px;
       padding:20px
     ">
-      <h2 style="margin:0">${zone.name}</h2>
+      <h2 style="margin:0">${safe(zone.name)}</h2>
     </div>
 
     <!-- Цены -->
