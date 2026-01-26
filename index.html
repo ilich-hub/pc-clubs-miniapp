@@ -317,7 +317,7 @@ body {
 
   <main id="clubs"></main>
   <section id="favoritesPage" style="display:none;"></section>
-
+  <section id="statsPage" style="display:none;"></section>
   <section id="clubPage" style="display:none;"></section>
   <section id="zonePage" style="display:none;"></section>
   <!-- ===== app.js (БЕЗ ИЗМЕНЕНИЙ) ===== -->
@@ -1147,7 +1147,149 @@ document.addEventListener("touchend", function (event) {
   // ночной режим (например 10:00-02:00)
   return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
     }
+
+    // 📊 Показать страницу статистики
+async function showStatsTab() {
+  SCROLL_TO_TOP();
+  
+  SHOW_HEADER();
+  document.getElementById("clubs").style.display = "none";
+  document.getElementById("favoritesPage").style.display = "none";
+  clubPage.style.display = "none";
+  
+  const statsPage = document.getElementById("statsPage");
+  statsPage.style.display = "block";
+  
+  // Показываем загрузку
+  statsPage.innerHTML = `
+    <div style="padding:20px;text-align:center">
+      <p>Загрузка статистики...</p>
+    </div>
+  `;
+  
+  try {
+    // Получаем статистику из Supabase
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_visits?select=*&order=created_at.desc&limit=100`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    });
     
+    const visits = await res.json();
+    
+    // Считаем уникальных пользователей
+    const uniqueUsers = new Set(visits.map(v => v.user_id)).size;
+    const totalVisits = visits.length;
+    
+    // Считаем посещения за последний месяц
+    const monthAgo = new Date();
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+    const visitsThisMonth = visits.filter(v => new Date(v.created_at) > monthAgo).length;
+    
+    statsPage.innerHTML = `
+      <div style="padding:16px">
+        <h2>📊 Статистика приложения</h2>
+        
+        <div style="
+          display:grid;
+          gap:16px;
+          margin-top:20px
+        ">
+          <!-- Всего посещений -->
+          <div style="
+            background:#141a2b;
+            border-radius:18px;
+            padding:20px;
+            text-align:center
+          ">
+            <div style="font-size:40px;font-weight:700;color:#00e5ff">
+              ${totalVisits}
+            </div>
+            <div style="opacity:.7;margin-top:8px">
+              Всего посещений
+            </div>
+          </div>
+          
+          <!-- Уникальных пользователей -->
+          <div style="
+            background:#141a2b;
+            border-radius:18px;
+            padding:20px;
+            text-align:center
+          ">
+            <div style="font-size:40px;font-weight:700;color:#00e5ff">
+              ${uniqueUsers}
+            </div>
+            <div style="opacity:.7;margin-top:8px">
+              Уникальных пользователей
+            </div>
+          </div>
+          
+          <!-- За последний месяц -->
+          <div style="
+            background:#141a2b;
+            border-radius:18px;
+            padding:20px;
+            text-align:center
+          ">
+            <div style="font-size:40px;font-weight:700;color:#00e5ff">
+              ${visitsThisMonth}
+            </div>
+            <div style="opacity:.7;margin-top:8px">
+              Посещений за месяц
+            </div>
+          </div>
+        </div>
+        
+        <!-- Последние посещения -->
+        <h3 style="margin-top:32px">Последние посещения:</h3>
+        <div style="display:grid;gap:10px;margin-top:12px">
+          ${visits.slice(0, 10).map(v => `
+            <div style="
+              background:#141a2b;
+              border-radius:12px;
+              padding:12px;
+              display:flex;
+              justify-content:space-between;
+              align-items:center
+            ">
+              <div>
+                <div style="font-weight:600">
+                  ${safe(v.first_name || 'Пользователь')} ${safe(v.last_name || '')}
+                </div>
+                ${v.username ? `<div style="opacity:.6;font-size:13px">@${safe(v.username)}</div>` : ''}
+              </div>
+              <div style="opacity:.6;font-size:13px">
+                ${new Date(v.created_at).toLocaleDateString('ru-RU')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    
+  } catch (err) {
+    statsPage.innerHTML = `
+      <div style="padding:40px 20px;text-align:center;opacity:.7">
+        <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+        <h3>Не удалось загрузить статистику</h3>
+      </div>
+    `;
+  }
+  
+  setActiveBottomTab("stats");
+}
+
+// Обновляем функцию переключения активной вкладки
+function setActiveBottomTab(tab) {
+  document.getElementById("tabClubs").classList.toggle("active", tab === "clubs");
+  document.getElementById("tabFavs").classList.toggle("active", tab === "favorites");
+  const statsBtn = document.getElementById("tabStats");
+  if (statsBtn) {
+    statsBtn.classList.toggle("active", tab === "stats");
+  }
+}
   </script>
   
   <div id="bottomNav">
@@ -1156,6 +1298,9 @@ document.addEventListener("touchend", function (event) {
   </button>
   <button id="tabFavs" class="nav-btn" onclick="showFavoritesTab()">
     ❤️ Избранное
+  </button>
+  <button id="tabStats" class="nav-btn" onclick="showStatsTab()">
+    📊 Статистика
   </button>
   </div>
 
