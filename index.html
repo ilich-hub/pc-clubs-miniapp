@@ -1242,34 +1242,58 @@ const stats = await res.json();
 
 // Считаем общее количество посещений
 const totalVisits = stats.reduce((sum, d) => sum + (d.visits || 0), 0);
+// 📅 посещения за последние 30 дней
+const monthVisits = stats
+  .filter(d => {
+    const day = new Date(d.day);
+    const diff = (Date.now() - day.getTime()) / (1000 * 60 * 60 * 24);
+    return diff <= 30;
+  })
+  .reduce((sum, d) => sum + (d.visits || 0), 0);
     
     statsPage.innerHTML = `
-      <div style="padding:16px">
-        <h2>📊 Статистика приложения</h2>
-        
-        <div style="
-          display:grid;
-          gap:16px;
-          margin-top:20px
-        ">
-          <!-- Всего посещений -->
-          <div style="
-            background:#141a2b;
-            border-radius:18px;
-            padding:20px;
-            text-align:center
-          ">
-            <div style="font-size:40px;font-weight:700;color:#00e5ff">
-              ${totalVisits}
-            </div>
-            <div style="opacity:.7;margin-top:8px">
-              Всего посещений
-            </div>
-          </div>
-          </div>
+  <div style="padding:16px">
+    <h2>📊 Статистика приложения</h2>
+
+    <div style="
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-top:20px
+    ">
+      <div style="
+        background:#141a2b;
+        border-radius:18px;
+        padding:20px;
+        text-align:center
+      ">
+        <div style="font-size:36px;font-weight:700;color:#00e5ff">
+          ${totalVisits}
+        </div>
+        <div style="opacity:.7;margin-top:8px">
+          Всего посещений
+        </div>
       </div>
-    `;
-    
+
+      <div style="
+        background:#141a2b;
+        border-radius:18px;
+        padding:20px;
+        text-align:center
+      ">
+        <div style="font-size:36px;font-weight:700;color:#00e5ff">
+          ${monthVisits}
+        </div>
+        <div style="opacity:.7;margin-top:8px">
+          За последние 30 дней
+        </div>
+      </div>
+    </div>
+
+    <canvas id="visitsChart" height="180" style="margin-top:32px"></canvas>
+  </div>
+`;
+    drawVisitsChart(stats);
   } catch (err) {
     statsPage.innerHTML = `
       <div style="padding:40px 20px;text-align:center;opacity:.7">
@@ -1300,6 +1324,46 @@ window.addEventListener("load", () => {
     }
   }
 });
+    function drawVisitsChart(stats) {
+  const canvas = document.getElementById("visitsChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width = canvas.offsetWidth;
+  const height = canvas.height;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const data = stats
+    .slice()
+    .reverse()
+    .slice(-30);
+
+  const max = Math.max(...data.map(d => d.visits), 1);
+  const padding = 20;
+
+  ctx.strokeStyle = "#00e5ff";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+
+  data.forEach((d, i) => {
+    const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+    const y = height - padding - (d.visits / max) * (height - padding * 2);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+
+  ctx.stroke();
+
+  // точки
+  ctx.fillStyle = "#00e5ff";
+  data.forEach((d, i) => {
+    const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+    const y = height - padding - (d.visits / max) * (height - padding * 2);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+    }
   </script>
   
   <div id="bottomNav">
