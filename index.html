@@ -267,6 +267,11 @@ body {
     transform: translateY(0);
   }
 }
+    #promoBtn.active,
+#tournamentBtn.active {
+  background: linear-gradient(135deg, #00e5ff, #00bcd4);
+  color: #001418;
+}
   </style>
 </head>
 
@@ -653,13 +658,32 @@ ${c.tournament ? `
 
     filter.addEventListener("change", renderClubs);
     searchInput.addEventListener("input", renderClubs);
-    document.getElementById("promoBtn").onclick = () => {
-  specialFilter = "promo";
+    const promoBtn = document.getElementById("promoBtn");
+const tournamentBtn = document.getElementById("tournamentBtn");
+
+promoBtn.onclick = () => {
+  if (specialFilter === "promo") {
+    // повторный клик → сброс
+    specialFilter = "";
+    promoBtn.classList.remove("active");
+  } else {
+    specialFilter = "promo";
+    promoBtn.classList.add("active");
+    tournamentBtn.classList.remove("active");
+  }
   renderClubs();
 };
 
-document.getElementById("tournamentBtn").onclick = () => {
-  specialFilter = "tournament";
+tournamentBtn.onclick = () => {
+  if (specialFilter === "tournament") {
+    // повторный клик → сброс
+    specialFilter = "";
+    tournamentBtn.classList.remove("active");
+  } else {
+    specialFilter = "tournament";
+    tournamentBtn.classList.add("active");
+    promoBtn.classList.remove("active");
+  }
   renderClubs();
 };
 
