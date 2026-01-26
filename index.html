@@ -274,6 +274,25 @@ body {
   box-shadow: 0 0 0 2px #00e5ff;
   transform: scale(0.95);
 }
+    #searchToggle.active {
+  background: linear-gradient(135deg, #00e5ff, #00bcd4);
+  color: #001418;
+  box-shadow: 0 0 0 2px #00e5ff;
+    }
+    .search-animate {
+  animation: searchSlide .25s ease;
+}
+
+@keyframes searchSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
   </style>
 </head>
 
@@ -469,14 +488,24 @@ const SHOW_HEADER = () => document.querySelector("header").style.display = "bloc
     const searchToggle = document.getElementById("searchToggle");
 
 searchToggle.onclick = () => {
-  if (searchInput.style.display === "block") {
+  const isOpen = searchInput.style.display === "block";
+
+  // 🔴 СБРОС акций / турниров
+  specialFilter = "";
+  promoBtn.classList.remove("active");
+  tournamentBtn.classList.remove("active");
+
+  if (isOpen) {
     searchInput.style.display = "none";
     searchInput.value = "";
-    renderClubs();
+    searchToggle.classList.remove("active");
   } else {
     searchInput.style.display = "block";
     searchInput.focus();
+    searchToggle.classList.add("active");
   }
+
+  renderClubs();
 };
     const clubPage = document.getElementById("clubPage");
 
