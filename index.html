@@ -373,11 +373,7 @@ if (tg) {
   // 📊 Записываем посещение
   trackVisit();
 }
-    // 👑 Показываем кнопку статистики только админу
-if (tg?.initDataUnsafe?.user?.id === ADMIN_TELEGRAM_ID) {
-  const statsBtn = document.getElementById("tabStats");
-  if (statsBtn) statsBtn.style.display = "block";
-}
+    
     // 📋 Константы для повторяющихся действий
 const SCROLL_TO_TOP = () => window.scrollTo(0, 0);
 const HIDE_HEADER = () => document.querySelector("header").style.display = "none";
@@ -1310,6 +1306,15 @@ function setActiveBottomTab(tab) {
     statsBtn.classList.toggle("active", tab === "stats");
   }
 }
+    // 👑 Показываем кнопку статистики только админу (после загрузки DOM)
+window.addEventListener("load", () => {
+  if (tg?.initDataUnsafe?.user?.id === ADMIN_TELEGRAM_ID) {
+    const statsBtn = document.getElementById("tabStats");
+    if (statsBtn) {
+      statsBtn.style.display = "block";
+    }
+  }
+});
   </script>
   
   <div id="bottomNav">
