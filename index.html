@@ -283,62 +283,86 @@ body {
   <h1>Компьютерные клубы</h1>
 
   <div style="
-    display:flex;
-    gap:10px;
-    margin-top:12px;
-    align-items:center;
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  align-items:center;
+">
+
+  <!-- Районы -->
+  <select id="districtFilter" style="
+    flex:1;
+    height:44px;
+    padding:0 12px;
+    border-radius:12px;
+    background:#141a2b;
+    color:#fff;
+    border:none;
+    font-size:14px;
   ">
-    <!-- Фильтр районов -->
-    <select id="districtFilter" style="flex:1">
-      <option value="">Все районы</option>
-    </select>
+    <option value="">Все районы</option>
+  </select>
 
-    <button id="promoBtn" style="
-  padding:10px 14px;
-  border-radius:12px;
-  border:none;
-  background:#1a2033;
-  color:#fff;
-  font-weight:600;
-">
-  🔥 Акции
-</button>
+  <!-- Акции -->
+  <button id="promoBtn" style="
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    border:none;
+    background:#1a2033;
+    color:#fff;
+    font-size:18px;
+  ">
+    🔥
+  </button>
 
-<button id="tournamentBtn" style="
-  padding:10px 14px;
-  border-radius:12px;
-  border:none;
-  background:#1a2033;
-  color:#fff;
-  font-weight:600;
-">
-  🏆 Турниры
-</button>
-    <!-- Поиск -->
-    <div style="
-      width:44px;
-      height:44px;
-      background:#141a2b;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    ">
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="Поиск"
-        style="
-          width:100%;
-          height:100%;
-          background:transparent;
-          border:none;
-          outline:none;
-          color:#fff;
-          text-align:center;
-          font-size:14px;
-        "
-      />
+  <!-- Турниры -->
+  <button id="tournamentBtn" style="
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    border:none;
+    background:#1a2033;
+    color:#fff;
+    font-size:18px;
+  ">
+    🏆
+  </button>
+
+  <!-- Поиск -->
+  <button id="searchToggle" style="
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    border:none;
+    background:#141a2b;
+    color:#fff;
+    font-size:18px;
+  ">
+    🔍
+  </button>
+
+</div>
+
+<!-- Скрытый поиск -->
+<input
+  id="searchInput"
+  type="text"
+  placeholder="Поиск клуба"
+  style="
+    display:none;
+    margin-top:10px;
+    width:100%;
+    height:44px;
+    padding:0 14px;
+    border-radius:12px;
+    background:#141a2b;
+    border:none;
+    outline:none;
+    color:#fff;
+    font-size:14px;
+  "
+/>
     </div>
   </div>
   </header>
@@ -442,6 +466,18 @@ const SHOW_HEADER = () => document.querySelector("header").style.display = "bloc
     const clubsContainer = document.getElementById("clubs");
     const filter = document.getElementById("districtFilter");
     const searchInput = document.getElementById("searchInput");
+    const searchToggle = document.getElementById("searchToggle");
+
+searchToggle.onclick = () => {
+  if (searchInput.style.display === "block") {
+    searchInput.style.display = "none";
+    searchInput.value = "";
+    renderClubs();
+  } else {
+    searchInput.style.display = "block";
+    searchInput.focus();
+  }
+};
     const clubPage = document.getElementById("clubPage");
 
     let clubs = [];
