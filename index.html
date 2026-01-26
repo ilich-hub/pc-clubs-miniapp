@@ -445,6 +445,20 @@ const SHOW_HEADER = () => document.querySelector("header").style.display = "bloc
     }
     // Если кэш есть — просто используем его (уже показан)
   }
+      // 🖼️ Предзагружаем картинки в фоне
+function preloadImages() {
+  clubs.forEach(club => {
+    if (Array.isArray(club.photos) && club.photos.length) {
+      club.photos.forEach(photo => {
+        const img = new Image();
+        img.src = photo.url;
+      });
+    }
+  });
+}
+
+// Запускаем предзагрузку через 500мс (чтобы не мешать основной загрузке)
+setTimeout(preloadImages, 500);
     }
 
     function renderDistricts() {
