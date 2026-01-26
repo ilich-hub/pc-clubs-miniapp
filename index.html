@@ -793,6 +793,10 @@ promoBtn.onclick = () => {
     promoBtn.classList.add("active");
     tournamentBtn.classList.remove("active");
   }
+  // 🔍 закрываем поиск, если был открыт
+searchInput.style.display = "none";
+searchInput.value = "";
+searchToggle.classList.remove("active");
   renderClubs();
 };
 
@@ -806,6 +810,10 @@ tournamentBtn.onclick = () => {
     tournamentBtn.classList.add("active");
     promoBtn.classList.remove("active");
   }
+  // 🔍 закрываем поиск, если был открыт
+searchInput.style.display = "none";
+searchInput.value = "";
+searchToggle.classList.remove("active");
   renderClubs();
 };
 
