@@ -352,21 +352,50 @@ async function trackVisit() {
         visit_date: today
       })
     });
-   // 📊 увеличиваем счётчик посещений за день
-await fetch(
+   // 📊 корректно увеличиваем счётчик посещений за день
+const statsRes = await fetch(
   `${SUPABASE_URL}/rest/v1/daily_stats?day=eq.${today}`,
   {
-    method: "PATCH",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+    },
+  }
+);
+
+const statsToday = await statsRes.json();
+
+if (statsToday.length === 0) {
+  // если записи за день нет — создаём
+  await fetch(`${SUPABASE_URL}/rest/v1/daily_stats`, {
+    method: "POST",
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
+      day: today,
       visits: 1
     })
-  }
-);
+  });
+} else {
+  // если запись есть — увеличиваем visits
+  await fetch(
+    `${SUPABASE_URL}/rest/v1/daily_stats?day=eq.${today}`,
+    {
+      method: "PATCH",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        visits: statsToday[0].visits + 1
+      })
+    }
+  );
+}
     localStorage.setItem(lastVisitKey, today);
   } catch (e) {
     console.log("visit skipped");
