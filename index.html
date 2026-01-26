@@ -690,6 +690,8 @@ if (badge) {
     }
 
     function showTab(tab) {
+      // всегда скрываем статистику при переключении вкладок
+statsPage.style.display = "none";
   const content = document.getElementById("tabContent");
   if (!content) return;
       
@@ -1198,6 +1200,10 @@ if (!user || user.id !== ADMIN_TELEGRAM_ID) {
   alert("⛔ Статистика доступна только администратору");
   return;
 }
+  // 👉 показываем ТОЛЬКО страницу статистики
+statsPage.style.display = "block";
+mainPage.style.display = "none";
+favsPage.style.display = "none";
   SCROLL_TO_TOP();
   
   SHOW_HEADER();
