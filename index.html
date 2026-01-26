@@ -293,6 +293,24 @@ body {
     transform: translateY(0);
   }
 }
+    .back-btn {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#1a2033;
+  border:none;
+  color:#fff;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:12px;
+  cursor:pointer;
+}
+
+.back-btn:active {
+  transform: scale(0.92);
+}
   </style>
 </head>
 
@@ -880,13 +898,7 @@ clubPage.dataset.tournamentImage = club.tournament_image || "";
   clubPage.innerHTML = `
     <div style="padding:16px;min-height:100vh">
 
-      <button onclick="goBack()" style="
-        background:none;
-        border:none;
-        color:#00e5ff;
-        font-size:16px;
-        margin-bottom:10px
-      ">← Назад</button>
+      <button onclick="goBack()" class="back-btn">←</button>
 
       <h2 style="display:flex;align-items:center;gap:10px">
   ${safe(club.name)}
