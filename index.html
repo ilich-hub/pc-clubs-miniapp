@@ -866,6 +866,8 @@ clubPage.dataset.address = club.address || '';
 clubPage.dataset.workTime = club.work_time || '';
 clubPage.dataset.phone = club.phone || '';
 clubPage.dataset.instagram = club.instagram || '';
+clubPage.dataset.promo = club.promo || "";
+clubPage.dataset.tournament = club.tournament || "";
       
   clubPage.innerHTML = `
     <div style="padding:16px;min-height:100vh">
@@ -1092,12 +1094,12 @@ ${clubPage.dataset.phone ? `<p>☎️ ${safe(clubPage.dataset.phone)}</p>` : ''}
       ">
         <h3 style="margin-top:0">🔥 Акции</h3>
         <p style="font-size:15px;line-height:1.5">
-          ${safe(club.promo)}
+          ${safe(clubPage.dataset.promo)}
         </p>
       </div>
     </div>
   `;
-}
+  }
 
 if (tab === "tournament") {
   content.innerHTML = `
@@ -1109,7 +1111,7 @@ if (tab === "tournament") {
       ">
         <h3 style="margin-top:0">🏆 Турниры</h3>
         <p style="font-size:15px;line-height:1.5">
-          ${safe(club.tournament)}
+          ${safe(clubPage.dataset.tournament)}
         </p>
       </div>
     </div>
