@@ -347,38 +347,37 @@ if (tg) {
     let activeZoneIndex = 0;
     let clubOpenedFrom = "clubs";
 
-async function loadClubs() {
-
+    async function loadClubs() {
   clubsContainer.innerHTML = `
-  <div class="skeleton">
-    <div class="skeleton-img"></div>
-    <div class="skeleton-text"></div>
-    <div class="skeleton-btn"></div>
-  </div>
-  <div class="skeleton">
-    <div class="skeleton-img"></div>
-    <div class="skeleton-text"></div>
-    <div class="skeleton-btn"></div>
-  </div>
-`;
+    <div class="skeleton">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-text"></div>
+      <div class="skeleton-btn"></div>
+    </div>
+    <div class="skeleton">
+      <div class="skeleton-img"></div>
+      <div class="skeleton-text"></div>
+      <div class="skeleton-btn"></div>
+    </div>
+  `;
   
   // 1️⃣ Пытаемся взять данные из кэша
   const cached = localStorage.getItem("clubs_cache");
+  let usingCache = false;
 
   if (cached) {
     try {
       clubs = JSON.parse(cached);
       renderDistricts();
       renderClubs();
+      usingCache = true;
     } catch (e) {
       console.log("Кэш повреждён");
+      localStorage.removeItem("clubs_cache"); // удаляем сломанный кэш
     }
-  } else {
-    // Если кэша нет — показываем загрузку
-    clubsContainer.innerHTML = "<p style='opacity:.6'>Загрузка клубов...</p>";
   }
 
-  // 2️⃣ ВСЕГДА обновляем данные с Supabase
+  // 2️⃣ Обновляем данные с Supabase
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/clubs?select=*`, {
       headers: {
@@ -387,19 +386,62 @@ async function loadClubs() {
       },
     });
 
+    // ✅ ПРОВЕРЯЕМ, что запрос успешен
+    if (!res.ok) {
+      throw new Error(`Ошибка сервера: ${res.status}`);
+    }
+
     const freshData = await res.json();
 
-    // 3️⃣ Если данные изменились — обновляем экран и кэш
+    // ✅ ПРОВЕРЯЕМ, что данные валидны
+    if (!Array.isArray(freshData)) {
+      throw new Error("Неверный формат данных");
+    }
+
+    // 3️⃣ Обновляем экран и кэш только если данные изменились
     if (JSON.stringify(freshData) !== JSON.stringify(clubs)) {
       clubs = freshData;
       localStorage.setItem("clubs_cache", JSON.stringify(clubs));
       renderDistricts();
       renderClubs();
+    } else if (usingCache) {
+      // Данные те же, но показываем что обновились успешно
+      console.log("✅ Данные актуальны");
     }
+    
   } catch (err) {
-    console.log("Ошибка загрузки из Supabase", err);
+    console.log("⚠️ Ошибка загрузки:", err.message);
+    
+    // Если кэша нет вообще — показываем ошибку
+    if (!usingCache) {
+      clubsContainer.innerHTML = `
+        <div style="
+          padding:40px 20px;
+          text-align:center;
+          opacity:.7
+        ">
+          <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+          <h3>Не удалось загрузить клубы</h3>
+          <p style="opacity:.8;margin:12px 0">
+            Проверьте подключение к интернету
+          </p>
+          <button onclick="loadClubs()" style="
+            margin-top:16px;
+            padding:12px 24px;
+            border:none;
+            border-radius:12px;
+            background:#00e5ff;
+            font-weight:600;
+            cursor:pointer;
+          ">
+            🔄 Попробовать снова
+          </button>
+        </div>
+      `;
+    }
+    // Если кэш есть — просто используем его (уже показан)
   }
-}
+    }
 
     function renderDistricts() {
   // очищаем список районов
