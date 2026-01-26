@@ -324,10 +324,11 @@ body {
   <script>
     const SUPABASE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co";
     const SUPABASE_KEY = "sb_publishable_WVIM_p30Vjag_MTxDWapEQ__W0SftDv";
+    const STATS_DAYS = 30;
 const tg = window.Telegram?.WebApp;
     const ADMIN_TELEGRAM_ID = 938184349; // ← вставь СВОЙ ID
     // 📊 Функция для записи статистики
-async function trackVisit() {
+async function trackDailyVisit() {
   try {
     const user = tg?.initDataUnsafe?.user;
     if (!user) return;
@@ -402,7 +403,7 @@ if (tg) {
   tg.expand();
   
   // 📊 Записываем посещение
-  trackVisit();
+  trackDailyVisit();
 }
     
     // 📋 Константы для повторяющихся действий
@@ -1217,7 +1218,7 @@ if (!user || user.id !== ADMIN_TELEGRAM_ID) {
   try {
     // 📊 Читаем агрегированную статистику по дням
 const res = await fetch(
-  `${SUPABASE_URL}/rest/v1/daily_stats?order=day.desc&limit=30`,
+  `${SUPABASE_URL}/rest/v1/daily_stats?order=day.desc&limit=${STATS_DAYS}`,
   {
     headers: {
       apikey: SUPABASE_KEY,
@@ -1227,6 +1228,16 @@ const res = await fetch(
 );
 
 const stats = await res.json();
+    if (!Array.isArray(stats) || stats.length === 0) {
+  statsPage.innerHTML = `
+    <div style="padding:40px 20px;text-align:center;opacity:.7">
+      <div style="font-size:48px;margin-bottom:16px">📊</div>
+      <h3>Пока нет данных</h3>
+      <p>Статистика появится после первых посещений</p>
+    </div>
+  `;
+  return;
+    }
 
 // Считаем общее количество посещений
 const totalVisits = stats.reduce((sum, d) => sum + (d.visits || 0), 0);
@@ -1235,7 +1246,7 @@ const monthVisits = stats
   .filter(d => {
     const day = new Date(d.day);
     const diff = (Date.now() - day.getTime()) / (1000 * 60 * 60 * 24);
-    return diff <= 30;
+    return diff <= STATS_DAYS;
   })
   .reduce((sum, d) => sum + (d.visits || 0), 0);
     
@@ -1340,6 +1351,8 @@ window.addEventListener("load", () => {
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
 
+  ctx.lineJoin = "round";
+ctx.lineCap = "round";
   ctx.stroke();
 
   // точки
