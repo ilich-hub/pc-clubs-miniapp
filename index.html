@@ -758,12 +758,20 @@ content.dataset.animating = "0";
     }
 
     function openMap(lat, lng) {
-  if (!lat || !lng) {
-    alert("Локация клуба не указана");
+  // Преобразуем в числа
+  const latitude = parseFloat(lat);
+  const longitude = parseFloat(lng);
+  
+  // Проверяем что координаты валидные
+  if (!latitude || !longitude || 
+      isNaN(latitude) || isNaN(longitude) ||
+      latitude < -90 || latitude > 90 ||
+      longitude < -180 || longitude > 180) {
+    alert("❌ Локация клуба не указана или некорректна");
     return;
   }
 
-  window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank");
+  window.open(`https://www.google.com/maps?q=${latitude},${longitude}`, "_blank");
     }
 
     loadClubs();
