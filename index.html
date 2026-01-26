@@ -271,6 +271,8 @@ body {
 #tournamentBtn.active {
   background: linear-gradient(135deg, #00e5ff, #00bcd4);
   color: #001418;
+  box-shadow: 0 0 0 2px #00e5ff;
+  transform: scale(0.95);
 }
   </style>
 </head>
@@ -594,6 +596,39 @@ setTimeout(preloadImages, 500);
 
     function renderClubs() {
       clubsContainer.innerHTML = "";
+      if (specialFilter === "promo") {
+  clubsContainer.innerHTML = `
+    <div style="
+      grid-column:1 / -1;
+      margin-bottom:12px;
+      padding:10px;
+      border-radius:12px;
+      background:#102a1c;
+      color:#00e676;
+      font-weight:600;
+      text-align:center;
+    ">
+      🔥 Показаны клубы с акциями
+    </div>
+  `;
+}
+
+if (specialFilter === "tournament") {
+  clubsContainer.innerHTML = `
+    <div style="
+      grid-column:1 / -1;
+      margin-bottom:12px;
+      padding:10px;
+      border-radius:12px;
+      background:#1a2033;
+      color:#00e5ff;
+      font-weight:600;
+      text-align:center;
+    ">
+      🏆 Показаны клубы с турнирами
+    </div>
+  `;
+}
 
       const selected = filter.value;
 const query = searchInput.value.toLowerCase();
