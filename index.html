@@ -969,9 +969,24 @@ setTimeout(() => {
 ${clubPage.dataset.workTime ? `<p>🕒 ${safe(clubPage.dataset.workTime)}</p>` : ''}
 ${clubPage.dataset.phone ? `<p>☎️ ${safe(clubPage.dataset.phone)}</p>` : ''}
       ${clubPage.dataset.instagram &&
-  clubPage.dataset.instagram.startsWith("http")
-  ? `<p>📸 <a href="${clubPage.dataset.instagram}" target="_blank" style="color:#00e5ff">Instagram</a></p>`
-  : ''}
+clubPage.dataset.instagram.startsWith("http")
+? `
+  <a href="${clubPage.dataset.instagram}" target="_blank" style="
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:8px;
+    text-decoration:none;
+    color:#fff;
+  ">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+      style="width:22px;height:22px"
+    />
+    <span style="color:#00e5ff;font-weight:600">Instagram</span>
+  </a>
+`
+: ''}
     </div>
 
     <!-- Фото -->
@@ -990,9 +1005,14 @@ ${clubPage.dataset.phone ? `<p>☎️ ${safe(clubPage.dataset.phone)}</p>` : ''}
     cursor:pointer;
   "
 >
-          <p style="opacity:.7;margin-top:6px;font-size:13px">
-            ${p.title || ""}
-          </p>
+          <p style="
+  margin-top:6px;
+  font-size:12px;
+  opacity:.6;
+  text-align:center;
+">
+  ${p.title || ""}
+</p>
         </div>
       `).join("")}
     </div>
