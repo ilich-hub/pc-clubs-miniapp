@@ -225,6 +225,23 @@ body {
   -webkit-tap-highlight-color: transparent;
 user-select: none;
 }
+    /* ⭐ Рекомендуем */
+.recommended-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 215, 0, 0.95);
+  color: #000;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
 .fav-heart.active {
   color: #ff3b3b; /* ❤️ активное */
@@ -808,12 +825,19 @@ clubs
           clubsContainer.innerHTML += `
             <div class="card">
   <div class="card-img-wrap">
-    <img src="${img}">
-    <div class="fav-heart ${isFavorite(c.id) ? "active" : ""}"
-     onclick="toggleFavorite(${c.id})">
-  ♥
+  <img src="${img}">
+
+  ${c.recommended ? `
+    <div class="recommended-badge">
+      ⭐ Рекомендуем
     </div>
+  ` : ""}
+
+  <div class="fav-heart ${isFavorite(c.id) ? "active" : ""}"
+       onclick="toggleFavorite(${c.id})">
+    ♥
   </div>
+</div>
 
   <h2>${safe(c.name)}</h2>
   ${c.promo ? `
