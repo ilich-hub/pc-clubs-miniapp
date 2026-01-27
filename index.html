@@ -1011,7 +1011,21 @@ setTimeout(() => {
 
       ${clubPage.dataset.address ? `<p>📍 ${safe(clubPage.dataset.address)}</p>` : ''}
 ${clubPage.dataset.workTime ? `<p>🕒 ${safe(clubPage.dataset.workTime)}</p>` : ''}
-${clubPage.dataset.phone ? `<p>☎️ ${safe(clubPage.dataset.phone)}</p>` : ''}
+${clubPage.dataset.phone
+  ? `
+    <a href="tel:${clubPage.dataset.phone.replace(/\s+/g, '')}" style="
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:6px;
+      text-decoration:none;
+      color:#00e5ff;
+      font-weight:600;
+    ">
+      📞 ${safe(clubPage.dataset.phone)}
+    </a>
+  `
+  : ''}
       ${clubPage.dataset.instagram &&
 clubPage.dataset.instagram.startsWith("http")
 ? `
