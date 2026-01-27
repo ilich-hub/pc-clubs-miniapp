@@ -852,9 +852,9 @@ clubs
 ` : ""}
 
   <div class="fav-heart ${isFavorite(c.id) ? "active" : ""}"
-       onclick="toggleFavorite(${c.id})">
-    ♥
-  </div>
+     data-id="${c.id}">
+  ♥
+</div>
 </div>
 
   <h2>${safe(c.name)}</h2>
@@ -1712,24 +1712,34 @@ document.addEventListener("touchend", function (event) {
 }, false);
 
     function isClubOpen(workTime) {
-  if (!workTime || !workTime.includes("-")) return null;
+  if (!workTime) return null;
 
-  const [start, end] = workTime.split("-");
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
+  // нормализация
+  const clean = workTime
+    .replace(/[–—]/g, "-")
+    .replace(/\./g, ":")
+    .replace(/\s+/g, "");
+
+  if (!clean.includes("-")) return null;
+
+  const [start, end] = clean.split("-");
+
+  const parse = (t) => {
+    const [h, m] = t.split(":").map(Number);
+    if (isNaN(h) || isNaN(m)) return null;
+    return h * 60 + m;
+  };
+
+  const s = parse(start);
+  const e = parse(end);
+  if (s === null || e === null) return null;
 
   const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const startMinutes = sh * 60 + sm;
-  const endMinutes = eh * 60 + em;
+  const cur = now.getHours() * 60 + now.getMinutes();
 
-  // обычный диапазон (например 10:00-23:00)
-  if (startMinutes < endMinutes) {
-    return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
-  }
-
-  // ночной режим (например 10:00-02:00)
-  return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+  return s < e
+    ? cur >= s && cur <= e
+    : cur >= s || cur <= e;
     }
 
     // 📊 Показать страницу статистики
@@ -1918,6 +1928,11 @@ ctx.lineCap = "round";
     ctx.fill();
   });
     }
+    document.addEventListener("click", function (e) {
+  const heart = e.target.closest(".fav-heart");
+  if (!heart) return;
+  toggleFavorite(heart.dataset.id);
+});
   </script>
   
   <div id="bottomNav">
