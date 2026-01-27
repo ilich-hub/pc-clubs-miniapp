@@ -226,28 +226,31 @@ body {
 user-select: none;
 }
     
-/* ⭐ Рекомендуемый клуб — ИДЕНТИЧНАЯ ЛОГИКА С ❤️ */
+/* ⭐ Рекомендуемый клуб — ОПТИЧЕСКИ ВЫРОВНЕН */
 .recommended-star {
   position: absolute;
-  top: 10px;        /* ТОЧНО как у .fav-heart */
+  top: 10px;
   left: 10px;
 
-  font-size: 18px;  /* чуть меньше ❤️ */
+  font-size: 22px;          /* ТОЧНО как у сердечка */
   line-height: 1;
 
   color: #f5c451;
   background: rgba(0,0,0,0.35);
 
   border-radius: 50%;
-  padding: 6px;     /* ТОЧНО как у .fav-heart */
+  padding: 6px;
 
-  box-shadow: 0 4px 12px rgba(0,0,0,.3);
-  z-index: 2;
+  /* 🔑 КЛЮЧ: оптическая коррекция */
+  transform: translateY(1px);
+
+  box-shadow:
+  inset 0 0 0 1px rgba(255,255,255,0.08),
+  0 4px 12px rgba(0,0,0,.35);
 
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
-
 
 .fav-heart.active {
   color: #ff3b3b; /* ❤️ активное */
