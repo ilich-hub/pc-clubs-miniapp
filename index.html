@@ -588,7 +588,8 @@ searchInput.classList.add("search-animate");
     let activeZoneIndex = 0;
     let clubOpenedFrom = "clubs";
     let specialFilter = ""; // "", "promo", "tournament"
-
+    let skipTabAnimation = false;
+    
     async function loadClubs() {
   clubsContainer.innerHTML = `
     <div class="skeleton">
@@ -1032,10 +1033,40 @@ statsPage.style.display = "none";
     t.classList.remove("active");
   });
   document.querySelector(`.tab[onclick*="${tab}"]`)?.classList.add("active");
-      // если анимация уже идёт — выходим
+      
+// если нужно пропустить анимацию (возврат назад)
+if (skipTabAnimation) {
+  skipTabAnimation = false;
+
+  if (tab === "zones") {
+    const zones = JSON.parse(clubPage.dataset.zones || "[]");
+
+    content.innerHTML = zones.map((z, i) => `
+      <div
+        class="zone-item"
+        onclick="openZone(${i})"
+        style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+          padding:14px;
+          margin-bottom:10px;
+          border-radius:14px;
+          background:#1a2033;
+        "
+      >
+        ${z.icon ? `<img src="${z.icon}" style="width:36px;height:36px">` : ''}
+        <span style="font-weight:600">${safe(z.name)}</span>
+      </div>
+    `).join("");
+  }
+
+  return;
+}
+
+// обычная логика с анимацией
 if (content.dataset.animating === "1") return;
 content.dataset.animating = "1";
-
 // запускаем fade-out
 content.className = "";
 content.classList.add("tab-fade-out");
@@ -1612,6 +1643,8 @@ setTimeout(() => {
   SCROLL_TO_TOP();
   document.getElementById("zonePage").style.display = "none";
   document.getElementById("clubPage").style.display = "block";
+
+  skipTabAnimation = true;
   showTab("zones");
     }
 
