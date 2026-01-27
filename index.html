@@ -1327,9 +1327,10 @@ function showFavoritesTab() {
   page.style.display = "block";
   clubsPage.style.display = "none";
 
-  const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  const favIds = JSON.parse(localStorage.getItem("favorites") || "[]");
+const favClubs = clubs.filter(c => favIds.includes(c.id));
 
-    if (favs.length === 0) {
+if (favClubs.length === 0) {
   page.innerHTML = `
     <div style="
       padding:16px;
@@ -1357,9 +1358,9 @@ function showFavoritesTab() {
     </div>
   `;
   return;
-    }
+}
 
-  page.innerHTML = `
+page.innerHTML = `
   <div style="
     padding:16px;
     font-size:22px;
@@ -1368,7 +1369,7 @@ function showFavoritesTab() {
     ❤️ Избранное
   </div>
 
-  ${favs.map(c => `
+  ${favClubs.map(c => `
     <div class="card">
       <h2>${safe(c.name)}</h2>
       <button onclick="clubOpenedFrom='favorites'; openClub(${c.id})">
@@ -1381,20 +1382,18 @@ function showFavoritesTab() {
 
     function isFavorite(id) {
   const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-  return favs.some(c => c.id === id);
+  return favs.includes(id);
     }
     
     function toggleFavorite(id) {
   let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-  const club = clubs.find(c => c.id === id);
-  if (!club) return;
 
-  const exists = favs.some(c => c.id === id);
+  const exists = favs.includes(id);
 
   if (exists) {
-    favs = favs.filter(c => c.id !== id);
+    favs = favs.filter(favId => favId !== id);
   } else {
-    favs.push(club);
+    favs.push(id);
   }
 
   localStorage.setItem("favorites", JSON.stringify(favs));
