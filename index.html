@@ -384,6 +384,42 @@ a {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
+    /* ⭐ ПРЕМИАЛЬНАЯ РЕКОМЕНДАЦИЯ */
+.recommended-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    135deg,
+    #ffd36a,
+    #f5b942,
+    #e0a82e
+  );
+
+  color: #3a2a00;
+  font-weight: 800;
+  font-size: 12px;
+
+  box-shadow:
+    0 4px 12px rgba(245, 185, 66, 0.45),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+
+  z-index: 3;
+  pointer-events: none;
+}
+
+.recommended-badge span {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
   </style>
 </head>
 
@@ -817,7 +853,10 @@ clubs
   <img src="${img}">
 
   ${c.recommended ? `
-  <div class="recommended-star">
+  <div class="recommended-badge">
+  ⭐
+  <span>РЕКОМЕНДОВАНО</span>
+</div>
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path d="M12 2.5l2.9 6.1 6.6.6-5 4.4 1.5 6.4L12 16.8 6 20l1.5-6.4-5-4.4 6.6-.6L12 2.5z"/>
   </svg>
