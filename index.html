@@ -938,6 +938,7 @@ searchInput.addEventListener("input", () => {
 const tournamentBtn = document.getElementById("tournamentBtn");
 
 promoBtn.onclick = () => {
+  if (lockClick("promo", 400)) return;
   if (specialFilter === "promo") {
     // повторный клик → сброс
     specialFilter = "";
@@ -955,6 +956,7 @@ searchToggle.classList.remove("active");
 };
 
 tournamentBtn.onclick = () => {
+  if (lockClick("tournament", 400)) return;
   if (specialFilter === "tournament") {
     // повторный клик → сброс
     specialFilter = "";
