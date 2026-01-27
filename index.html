@@ -1492,6 +1492,7 @@ page.innerHTML = `
     }
     
     function toggleFavorite(id) {
+      id = Number(id);
       if (lockClick("fav_" + id)) return;
   let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
 
