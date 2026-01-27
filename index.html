@@ -226,37 +226,29 @@ body {
 user-select: none;
 }
     
-/* ⭐ SVG рекомендация — премиум */
+/* ⭐ Рекомендуемый клуб — чистый UI */
 .recommended-star {
   position: absolute;
-  top: 10px;      /* ТОЧНО как у .fav-heart */
+  top: 10px;      /* ровно как у сердечка */
   left: 10px;
 
-  width: 34px;
-  height: 34px;
-
-  background: rgba(0,0,0,0.35);
-  border-radius: 50%;
-  padding: 6px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.08),
-    0 4px 12px rgba(0,0,0,.35);
+  width: 22px;    /* ВИЗУАЛЬНО как ❤️ */
+  height: 22px;
 
   z-index: 2;
 
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+  pointer-events: none; /* не кликабельна */
 }
 
 .recommended-star svg {
-  width: 18px;
-  height: 18px;
+  width: 100%;
+  height: 100%;
+
   fill: #f5c451;
+  stroke: rgba(0,0,0,0.85);   /* 🔑 видно на светлом фоне */
+  stroke-width: 1.2;
+
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
 }
 
 .fav-heart.active {
