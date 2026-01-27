@@ -688,6 +688,7 @@ setTimeout(preloadImages, 500);
 
     function renderClubs() {
       clubsContainer.innerHTML = "";
+let visibleCount = 0;
       const promoCount = clubs.filter(c => c.promo).length;
 const tournamentCount = clubs.filter(c => c.tournament).length;
 
@@ -743,7 +744,13 @@ clubs
       (!query || (c.name || "").toLowerCase().includes(query))
     );
   })
+  .sort((a, b) => {
+    const aScore = (a.promo ? 2 : 0) + (a.tournament ? 1 : 0);
+    const bScore = (b.promo ? 2 : 0) + (b.tournament ? 1 : 0);
+    return bScore - aScore;
+  })
   .forEach((c) => {
+    visibleCount++;
           const img =
   Array.isArray(c.photos) && c.photos.length
     ? c.photos[0].url
@@ -797,6 +804,22 @@ ${c.tournament ? `
 </div>
           `;
         });
+      if (visibleCount === 0) {
+  clubsContainer.innerHTML = `
+    <div style="
+      grid-column:1 / -1;
+      text-align:center;
+      padding:40px 20px;
+      opacity:.7
+    ">
+      <div style="font-size:48px;margin-bottom:12px">😕</div>
+      <h3>Ничего не найдено</h3>
+      <p style="margin-top:8px">
+        Попробуйте изменить фильтры или поиск
+      </p>
+    </div>
+  `;
+      }
     }
 
     filter.addEventListener("change", () => {
