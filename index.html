@@ -225,23 +225,23 @@ body {
   -webkit-tap-highlight-color: transparent;
 user-select: none;
 }
-    /* ⭐ Рекомендуем */
-.recommended-badge {
+    /* ⭐ Рекомендуемый клуб */
+.recommended-star {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: rgba(255, 215, 0, 0.95);
-  color: #000;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 6px 8px;
-  border-radius: 10px;
+  font-size: 22px; /* как у сердечка */
+  color: #ffd700;
+  background: rgba(0,0,0,0.35);
+  border-radius: 50%;
+  padding: 6px;
   box-shadow: 0 4px 12px rgba(0,0,0,.3);
   z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
+
 
 .fav-heart.active {
   color: #ff3b3b; /* ❤️ активное */
@@ -836,10 +836,10 @@ clubs
   <img src="${img}">
 
   ${c.recommended ? `
-    <div class="recommended-badge">
-      ⭐ Рекомендуем
-    </div>
-  ` : ""}
+  <div class="recommended-star">
+    ⭐
+  </div>
+` : ""}
 
   <div class="fav-heart ${isFavorite(c.id) ? "active" : ""}"
        onclick="toggleFavorite(${c.id})">
