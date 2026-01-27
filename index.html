@@ -226,26 +226,21 @@ body {
 user-select: none;
 }
     
-/* ⭐ Рекомендуемый клуб — премиум стиль */
+/* ⭐ Рекомендуемый клуб — ВЫРОВНЕН с сердечком */
 .recommended-star {
   position: absolute;
-  top: 11px;          /* на 1px ниже — визуально ровнее */
-  left: 11px;
+  top: 10px;      /* ТОЧНО как у .fav-heart */
+  left: 10px;
 
-  width: 32px;        /* ЧЁТКО меньше сердечка */
-  height: 32px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 16px;    /* сама звезда меньше */
+  font-size: 16px; /* меньше, чем ❤️ */
   line-height: 1;
 
-  color: #f5c451;     /* не ядовитый жёлтый */
+  color: #f5c451;
   background: rgba(0,0,0,0.45);
 
   border-radius: 50%;
+  padding: 6px;   /* ТОЧНО как у .fav-heart */
+
   backdrop-filter: blur(4px);
 
   box-shadow:
