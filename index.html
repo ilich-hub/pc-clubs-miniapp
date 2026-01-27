@@ -226,30 +226,37 @@ body {
 user-select: none;
 }
     
-/* ⭐ Рекомендуемый клуб — ОПТИЧЕСКИ ВЫРОВНЕН */
+/* ⭐ SVG рекомендация — премиум */
 .recommended-star {
   position: absolute;
-  top: 10px;
+  top: 10px;      /* ТОЧНО как у .fav-heart */
   left: 10px;
 
-  font-size: 22px;          /* ТОЧНО как у сердечка */
-  line-height: 1;
+  width: 34px;
+  height: 34px;
 
-  color: #f5c451;
   background: rgba(0,0,0,0.35);
-
   border-radius: 50%;
   padding: 6px;
 
-  /* 🔑 КЛЮЧ: оптическая коррекция */
-  transform: translateY(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   box-shadow:
-  inset 0 0 0 1px rgba(255,255,255,0.08),
-  0 4px 12px rgba(0,0,0,.35);
+    inset 0 0 0 1px rgba(255,255,255,0.08),
+    0 4px 12px rgba(0,0,0,.35);
+
+  z-index: 2;
 
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+}
+
+.recommended-star svg {
+  width: 18px;
+  height: 18px;
+  fill: #f5c451;
 }
 
 .fav-heart.active {
@@ -846,8 +853,10 @@ clubs
 
   ${c.recommended ? `
   <div class="recommended-star">
-    ⭐
-  </div>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 2.5l2.9 6.1 6.6.6-5 4.4 1.5 6.4L12 16.8 6 20l1.5-6.4-5-4.4 6.6-.6L12 2.5z"/>
+  </svg>
+</div>
 ` : ""}
 
   <div class="fav-heart ${isFavorite(c.id) ? "active" : ""}"
