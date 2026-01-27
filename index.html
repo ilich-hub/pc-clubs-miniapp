@@ -494,6 +494,14 @@ a {
     const SUPABASE_KEY = "sb_publishable_WVIM_p30Vjag_MTxDWapEQ__W0SftDv";
     const STATS_DAYS = 30;
 const tg = window.Telegram?.WebApp;
+    const clickLock = {};
+
+function lockClick(key, delay = 600) {
+  if (clickLock[key]) return true;
+  clickLock[key] = true;
+  setTimeout(() => delete clickLock[key], delay);
+  return false;
+}
     const ADMIN_TELEGRAM_ID = 938184349; // ← вставь СВОЙ ID
     // 📊 Функция для записи статистики
 async function trackDailyVisit() {
@@ -1507,6 +1515,7 @@ page.innerHTML = `
     }
     
     function toggleFavorite(id) {
+      if (lockClick("fav_" + id)) return;
   let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
 
   const exists = favs.includes(id);
@@ -1520,7 +1529,7 @@ page.innerHTML = `
   localStorage.setItem("favorites", JSON.stringify(favs));
 
   // ❤️ АНИМАЦИЯ СЕРДЕЧКА
-  const heart = document.querySelector(`.fav-heart[onclick="toggleFavorite(${id})"]`);
+  const heart = document.querySelector(`.fav-heart[data-id="${id}"]`);
   if (heart) {
     heart.classList.remove("animate"); // сброс
     void heart.offsetWidth;            // перезапуск анимации
