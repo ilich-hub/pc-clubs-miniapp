@@ -212,6 +212,26 @@ body {
   transform: scale(0.9);
 }
 
+ /* ❤️ Анимация сердечка */
+.fav-heart.animate {
+  animation: heartPop 0.25s ease;
+}
+
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+    
     .photos-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1397,6 +1417,14 @@ page.innerHTML = `
   }
 
   localStorage.setItem("favorites", JSON.stringify(favs));
+
+  // ❤️ АНИМАЦИЯ СЕРДЕЧКА
+  const heart = document.querySelector(`.fav-heart[onclick="toggleFavorite(${id})"]`);
+  if (heart) {
+    heart.classList.remove("animate"); // сброс
+    void heart.offsetWidth;            // перезапуск анимации
+    heart.classList.add("animate");
+  }
 
   renderClubs();
 
