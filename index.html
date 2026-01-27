@@ -226,28 +226,31 @@ body {
 user-select: none;
 }
     
-/* ⭐ Рекомендуемый клуб — чистый UI */
+/* ⭐ Рекомендуемый клуб — как ❤️ */
 .recommended-star {
   position: absolute;
-  top: 10px;      /* ровно как у сердечка */
+  top: 10px;
   left: 10px;
 
-  width: 22px;    /* ВИЗУАЛЬНО как ❤️ */
-  height: 22px;
+  width: 34px;
+  height: 34px;
+
+  background: rgba(0,0,0,0.35);
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   z-index: 2;
-
-  pointer-events: none; /* не кликабельна */
+  pointer-events: none;
 }
 
 .recommended-star svg {
-  width: 100%;
-  height: 100%;
+  width: 18px;
+  height: 18px;
 
   fill: #f5c451;
-  stroke: rgba(0,0,0,0.85);   /* 🔑 видно на светлом фоне */
-  stroke-width: 1.2;
-
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
 }
 
