@@ -1424,13 +1424,16 @@ page.innerHTML = `
     heart.classList.remove("animate"); // сброс
     void heart.offsetWidth;            // перезапуск анимации
     heart.classList.add("animate");
-  }
+}
 
+// ⏱ даём анимации проиграться
+setTimeout(() => {
   renderClubs();
 
   if (document.getElementById("favoritesPage").style.display === "block") {
     renderFavorites();
   }
+}, 250);
     }
 
     function openZone(index) {
