@@ -811,10 +811,18 @@ clubs
     );
   })
   .sort((a, b) => {
-    const aScore = (a.promo ? 2 : 0) + (a.tournament ? 1 : 0);
-    const bScore = (b.promo ? 2 : 0) + (b.tournament ? 1 : 0);
-    return bScore - aScore;
-  })
+  const aScore =
+    (a.recommended ? 100 : 0) +
+    (a.promo ? 2 : 0) +
+    (a.tournament ? 1 : 0);
+
+  const bScore =
+    (b.recommended ? 100 : 0) +
+    (b.promo ? 2 : 0) +
+    (b.tournament ? 1 : 0);
+
+  return bScore - aScore;
+})
   .forEach((c) => {
     visibleCount++;
           const img =
