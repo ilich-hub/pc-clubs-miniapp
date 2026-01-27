@@ -52,6 +52,27 @@
   display: flex;
   flex-direction: column;
     }
+
+    /* 👉 Кликабельные зоны */
+.zone-item {
+  position: relative;
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+
+.zone-item:active {
+  transform: scale(0.97);
+  background: #222a44 !important;
+}
+
+/* стрелка справа */
+.zone-item::after {
+  content: "›";
+  position: absolute;
+  right: 14px;
+  font-size: 22px;
+  opacity: 0.5;
+}
     
     .card:active {
   transform: scale(0.98);
@@ -1144,18 +1165,18 @@ clubPage.dataset.instagram.startsWith("http")
 
   content.innerHTML = zones.map((z, i) => `
     <div
-      onclick="openZone(${i})"
-      style="
-        display:flex;
-        align-items:center;
-        gap:12px;
-        padding:14px;
-        margin-bottom:10px;
-        border-radius:14px;
-        background:#1a2033;
-        cursor:pointer;
-      "
-    >
+  class="zone-item"
+  onclick="openZone(${i})"
+  style="
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px;
+    margin-bottom:10px;
+    border-radius:14px;
+    background:#1a2033;
+  "
+>
       ${z.icon ? `<img src="${z.icon}" style="width:36px;height:36px">` : ''}
       <span style="font-weight:600">${safe(z.name)}</span>
     </div>
