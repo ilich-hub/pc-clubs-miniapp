@@ -647,18 +647,21 @@ searchInput.classList.add("search-animate");
 
     let clubs = [];
     function calcRating(club) {
-  let score = 0;
+  // 1️⃣ Реальный рейтинг пользователей
+  const userRating =
+    club.rating_count > 0
+      ? club.rating_sum / club.rating_count
+      : 0;
 
-  if (club.recommended) score += 5;
-  if (club.promo) score += 1;
-  if (club.tournament) score += 1;
+  let score = userRating;
 
-  // за наполненность
-  if (club.photos && club.photos.length >= 3) score += 1;
-  if (club.games && club.games.length >= 5) score += 1;
+  // 2️⃣ Маленькие бонусы (а не замена рейтинга)
+  if (club.recommended) score += 0.2;
+  if (club.promo) score += 0.1;
+  if (club.tournament) score += 0.1;
 
-  // ограничиваем от 1 до 5
-  return Math.min(5, Math.max(1, score));
+  // 3️⃣ Ограничиваем максимум
+  return Math.min(5, score);
     }
 
     let activeZoneIndex = 0;
