@@ -991,6 +991,8 @@ searchToggle.classList.remove("active");
 };
 
     function openClub(id) {
+  currentClubId = Number(id); // ✅ сохраняем ID клуба
+
   const club = clubs.find((c) => c.id === id);
   if (!club) return;
       clubPage.innerHTML = `
@@ -2069,6 +2071,7 @@ ctx.lineCap = "round";
   toggleFavorite(heart.dataset.id);
 });
     let selectedRating = 0;
+    let currentClubId = null;
 
 function openRatingModal() {
   selectedRating = 0;
@@ -2119,14 +2122,12 @@ async function submitRating() {
     return;
   }
 
-  const clubId = Number(
-    document.querySelector(".back-btn")?.onclick?.toString().match(/\d+/)?.[0]
-  );
+  const clubId = currentClubId;
 
-  if (!clubId) {
-    alert("Ошибка клуба");
-    return;
-  }
+if (!clubId) {
+  alert("Ошибка клуба");
+  return;
+}
 
   const rated = JSON.parse(localStorage.getItem("rated_clubs") || "[]");
   if (rated.includes(clubId)) {
