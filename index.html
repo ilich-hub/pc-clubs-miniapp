@@ -876,7 +876,11 @@ clubs
     color:#f5c451;
     font-weight:700
   ">
-    ⭐ ${calcRating(c)}.0
+    ⭐ ${
+  c.rating_count
+    ? (c.rating_sum / c.rating_count).toFixed(1)
+    : "—"
+    }
   </span>
 </h2>
   ${c.promo ? `
@@ -1325,6 +1329,22 @@ ${clubPage.dataset.instagram && clubPage.dataset.instagram.startsWith("http") ? 
         ">
         💬 Связаться с админом
       </button>
+
+      <button
+  onclick="openRatingModal()"
+  style="
+    margin-top:12px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#1a2033;
+    color:#f5c451;
+    font-weight:700;
+  "
+>
+  ⭐ Оценить клуб
+</button>
     </div>
 
   </div>
@@ -2048,6 +2068,82 @@ ctx.lineCap = "round";
   if (!heart) return;
   toggleFavorite(heart.dataset.id);
 });
+    let selectedRating = 0;
+
+function openRatingModal() {
+  selectedRating = 0;
+  updateStars(0);
+  document.getElementById("ratingModal").style.display = "flex";
+}
+
+function closeRatingModal() {
+  document.getElementById("ratingModal").style.display = "none";
+}
+
+function updateStars(count) {
+  selectedRating = count;
+  const stars = document.getElementById("ratingStars").children;
+  [...stars].forEach((s, i) => {
+    s.style.opacity = i < count ? "1" : "0.3";
+  });
+}
+
+// ⭐ обработка клика по звёздам
+document.getElementById("ratingStars").addEventListener("click", e => {
+  const index = [...e.currentTarget.children].indexOf(e.target);
+  if (index >= 0) updateStars(index + 1);
+});
+
+async function submitRating() {
+  if (selectedRating === 0) {
+    alert("Выберите оценку");
+    return;
+  }
+
+  const clubId = Number(
+    document.querySelector(".back-btn")?.onclick?.toString().match(/\d+/)?.[0]
+  );
+
+  if (!clubId) {
+    alert("Ошибка клуба");
+    return;
+  }
+
+  const rated = JSON.parse(localStorage.getItem("rated_clubs") || "[]");
+  if (rated.includes(clubId)) {
+    alert("Вы уже оценивали этот клуб");
+    return;
+  }
+
+  const club = clubs.find(c => c.id === clubId);
+  if (!club) return;
+
+  const newSum = (club.rating_sum || 0) + selectedRating;
+  const newCount = (club.rating_count || 0) + 1;
+
+  await fetch(`${SUPABASE_URL}/rest/v1/clubs?id=eq.${clubId}`, {
+    method: "PATCH",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      rating_sum: newSum,
+      rating_count: newCount
+    })
+  });
+
+  rated.push(clubId);
+  localStorage.setItem("rated_clubs", JSON.stringify(rated));
+
+  club.rating_sum = newSum;
+  club.rating_count = newCount;
+
+  closeRatingModal();
+  renderClubs();
+  alert("Спасибо за оценку ⭐");
+}
   </script>
   
   <div id="bottomNav">
@@ -2078,5 +2174,62 @@ ctx.lineCap = "round";
     border-radius:16px;
   ">
 </div>
+  <div id="ratingModal" style="
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+">
+  <div style="
+    background:#0f172a;
+    border-radius:20px;
+    padding:20px;
+    width:90%;
+    max-width:320px;
+    text-align:center;
+  ">
+    <h3 style="margin-top:0">Оцените клуб</h3>
+
+    <div id="ratingStars" style="
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      font-size:28px;
+      margin:16px 0;
+      cursor:pointer;
+    ">
+      ⭐ ⭐ ⭐ ⭐ ⭐
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:16px">
+      <button onclick="closeRatingModal()" style="
+        flex:1;
+        padding:12px;
+        border:none;
+        border-radius:12px;
+        background:#1a2033;
+        color:#fff;
+        font-weight:600;
+      ">
+        Назад
+      </button>
+
+      <button onclick="submitRating()" style="
+        flex:1;
+        padding:12px;
+        border:none;
+        border-radius:12px;
+        background:#00e5ff;
+        color:#001418;
+        font-weight:700;
+      ">
+        Готово
+      </button>
+    </div>
+  </div>
+  </div>
 </body>
 </html>
