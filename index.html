@@ -2082,9 +2082,17 @@ function closeRatingModal() {
 
 function updateStars(count) {
   selectedRating = count;
-  const stars = document.getElementById("ratingStars").children;
-  [...stars].forEach((s, i) => {
-    s.style.opacity = i < count ? "1" : "0.3";
+
+  const stars = document.querySelectorAll("#ratingStars span");
+
+  stars.forEach((star, index) => {
+    if (index < count) {
+      star.style.opacity = "1";
+      star.style.filter = "grayscale(0)";
+    } else {
+      star.style.opacity = "0.3";
+      star.style.filter = "grayscale(1)";
+    }
   });
 }
 
@@ -2194,14 +2202,18 @@ async function submitRating() {
     <h3 style="margin-top:0">Оцените клуб</h3>
 
     <div id="ratingStars" style="
-      display:flex;
-      justify-content:center;
-      gap:8px;
-      font-size:28px;
-      margin:16px 0;
-      cursor:pointer;
-    ">
-      ⭐ ⭐ ⭐ ⭐ ⭐
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  font-size:28px;
+  margin:16px 0;
+  cursor:pointer;
+">
+  <span data-star="1">⭐</span>
+  <span data-star="2">⭐</span>
+  <span data-star="3">⭐</span>
+  <span data-star="4">⭐</span>
+  <span data-star="5">⭐</span>
     </div>
 
     <div style="display:flex; gap:10px; margin-top:16px">
