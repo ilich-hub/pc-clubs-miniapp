@@ -842,6 +842,19 @@ clubs
     if (specialFilter === "promo" && !c.promo) return false;
     if (specialFilter === "tournament" && !c.tournament) return false;
 
+    // 📍 фильтр до 2 км
+if (nearFilter) {
+  if (!userLocation || !c.lat || !c.lng) return false;
+
+  const dist = getDistance(
+    userLocation.lat,
+    userLocation.lng,
+    Number(c.lat),
+    Number(c.lng)
+  );
+
+  if (dist > 2) return false;
+}
     return (
       (!selected || c.district === selected) &&
       (!query || (c.name || "").toLowerCase().includes(query))
@@ -979,6 +992,24 @@ searchInput.addEventListener("input", () => {
 });
     const promoBtn = document.getElementById("promoBtn");
 const tournamentBtn = document.getElementById("tournamentBtn");
+    const nearBtn = document.getElementById("nearBtn");
+
+nearBtn.onclick = () => {
+  if (!userLocation) {
+    alert("Разрешите доступ к геолокации");
+    return;
+  }
+
+  nearFilter = !nearFilter;
+  nearBtn.classList.toggle("active", nearFilter);
+
+  // сбрасываем другие фильтры
+  specialFilter = "";
+  promoBtn.classList.remove("active");
+  tournamentBtn.classList.remove("active");
+
+  renderClubs();
+};
 
 promoBtn.onclick = () => {
   if (lockClick("promo", 400)) return;
