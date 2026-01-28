@@ -425,14 +425,6 @@ a {
     <option value="">Все районы</option>
   </select>
 
-    <button
-  id="nearBtn"
-  class="tab"
-  style="font-size:14px"
->
-  Рядом
-    </button>
-
   <!-- Акции -->
   <button id="promoBtn" style="
     width:44px;
@@ -646,25 +638,11 @@ searchInput.classList.add("search-animate");
   // ограничиваем от 1 до 5
   return Math.min(5, Math.max(1, score));
     }
-    function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // км
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
 
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
-
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
     let activeZoneIndex = 0;
     let clubOpenedFrom = "clubs";
     let specialFilter = ""; // "", "promo", "tournament"
     let skipTabAnimation = false;
-    let nearFilter = false;
-let userLocation = null;
     
     
     async function loadClubs() {
@@ -834,25 +812,6 @@ clubs
     if (specialFilter === "promo" && !c.promo) return false;
     if (specialFilter === "tournament" && !c.tournament) return false;
 
-    if (nearFilter) {
-  if (
-    !userLocation ||
-    !c.lat || !c.lng ||
-    isNaN(Number(c.lat)) ||
-    isNaN(Number(c.lng))
-  ) {
-    return false;
-  }
-
-  const dist = getDistance(
-    userLocation.lat,
-    userLocation.lng,
-    Number(c.lat),
-    Number(c.lng)
-  );
-
-  if (dist > 2) return false;
-}
     return (
       (!selected || c.district === selected) &&
       (!query || (c.name || "").toLowerCase().includes(query))
@@ -990,44 +949,7 @@ searchInput.addEventListener("input", () => {
 });
     const promoBtn = document.getElementById("promoBtn");
 const tournamentBtn = document.getElementById("tournamentBtn");
-    const nearBtn = document.getElementById("nearBtn");
-
-nearBtn.onclick = () => {
-  // выключение фильтра
-  if (nearFilter) {
-    nearFilter = false;
-    nearBtn.classList.remove("active");
-    renderClubs();
-    return;
-  }
-
-  if (!tg || !tg.requestLocation) {
-    alert("Геолокация недоступна");
-    return;
-  }
-
-  nearBtn.classList.add("active");
-  nearFilter = true;
-
-  tg.requestLocation(
-    location => {
-      if (!location || !location.latitude || !location.longitude) {
-        alert("Не удалось получить геолокацию");
-        nearFilter = false;
-        nearBtn.classList.remove("active");
-        return;
-      }
-
-      userLocation = {
-        lat: location.latitude,
-        lng: location.longitude
-      };
-
-      renderClubs();
-    }
-  );
-};
-
+    
 promoBtn.onclick = () => {
   if (lockClick("promo", 400)) return;
   if (specialFilter === "promo") {
