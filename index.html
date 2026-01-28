@@ -1001,30 +1001,30 @@ nearBtn.onclick = () => {
     return;
   }
 
-  // включение фильтра → запрашиваем геолокацию
-  if (!navigator.geolocation) {
-    alert("Геолокация не поддерживается");
+  if (!tg || !tg.requestLocation) {
+    alert("Геолокация недоступна");
     return;
   }
 
   nearBtn.classList.add("active");
   nearFilter = true;
 
-  navigator.geolocation.getCurrentPosition(
-    pos => {
+  tg.requestLocation(
+    location => {
+      if (!location || !location.latitude || !location.longitude) {
+        alert("Не удалось получить геолокацию");
+        nearFilter = false;
+        nearBtn.classList.remove("active");
+        return;
+      }
+
       userLocation = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude
+        lat: location.latitude,
+        lng: location.longitude
       };
 
       renderClubs();
-    },
-    () => {
-      alert("Не удалось получить геолокацию");
-      nearFilter = false;
-      nearBtn.classList.remove("active");
-    },
-    { enableHighAccuracy: true, timeout: 8000 }
+    }
   );
 };
 
