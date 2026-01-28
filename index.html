@@ -389,6 +389,28 @@ a {
   background-size: 400% 100%;
   animation: shimmer 1.4s ease infinite;
 }
+    /* 🚫 Убираем синий tap-highlight в Telegram / Android */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+    
+    /* ⭐ Анимация нажатия на звёзды */
+#ratingStars span {
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+#ratingStars span:active {
+  transform: scale(0.9);
+}
+
+/* 📸 Анимация нажатия на фото */
+.photos-grid img {
+  transition: transform .15s ease;
+}
+
+.photos-grid img:active {
+  transform: scale(0.97);
+}
     
   </style>
 </head>
