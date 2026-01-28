@@ -2073,7 +2073,24 @@ ctx.lineCap = "round";
 function openRatingModal() {
   selectedRating = 0;
   updateStars(0);
-  document.getElementById("ratingModal").style.display = "flex";
+
+  const modal = document.getElementById("ratingModal");
+  modal.style.display = "flex";
+
+  const starsContainer = document.getElementById("ratingStars");
+
+  // 🔒 чтобы не вешать обработчик несколько раз
+  if (!starsContainer.dataset.ready) {
+    starsContainer.dataset.ready = "1";
+
+    starsContainer.addEventListener("click", e => {
+      const star = e.target.closest("span");
+      if (!star) return;
+
+      const value = Number(star.dataset.star);
+      updateStars(value);
+    });
+  }
 }
 
 function closeRatingModal() {
@@ -2095,14 +2112,6 @@ function updateStars(count) {
     }
   });
 }
-
-document.getElementById("ratingStars").addEventListener("click", e => {
-  const star = e.target.closest("span");
-  if (!star) return;
-
-  const value = Number(star.dataset.star);
-  updateStars(value);
-});
 
 async function submitRating() {
   if (selectedRating === 0) {
