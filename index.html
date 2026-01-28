@@ -821,6 +821,11 @@ if (specialFilter === "tournament") {
       const selected = filter.value;
 const query = searchInput.value.toLowerCase();
 
+      const topClubId =
+  clubs
+    .slice()
+    .sort((a, b) => calcRating(b) - calcRating(a))[0]?.id;
+      
 clubs
   .filter(c => {
     if (specialFilter === "promo" && !c.promo) return false;
@@ -844,10 +849,7 @@ clubs
 
   return bScore - aScore;
 })
-  const topClubId =
-  clubs
-    .slice()
-    .sort((a, b) => calcRating(b) - calcRating(a))[0]?.id;
+  
   .forEach((c) => {
     visibleCount++;
           const img =
