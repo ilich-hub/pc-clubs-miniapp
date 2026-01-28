@@ -995,11 +995,6 @@ nearBtn.onclick = () => {
   nearFilter = !nearFilter;
   nearBtn.classList.toggle("active", nearFilter);
 
-  // сбрасываем другие фильтры
-  specialFilter = "";
-  promoBtn.classList.remove("active");
-  tournamentBtn.classList.remove("active");
-
   renderClubs();
 };
 
