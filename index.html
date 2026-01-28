@@ -834,9 +834,15 @@ clubs
     if (specialFilter === "promo" && !c.promo) return false;
     if (specialFilter === "tournament" && !c.tournament) return false;
 
-    // 📍 фильтр до 2 км
-if (nearFilter) {
-  if (!userLocation || !c.lat || !c.lng) return false;
+    if (nearFilter) {
+  if (
+    !userLocation ||
+    !c.lat || !c.lng ||
+    isNaN(Number(c.lat)) ||
+    isNaN(Number(c.lng))
+  ) {
+    return false;
+  }
 
   const dist = getDistance(
     userLocation.lat,
@@ -987,16 +993,39 @@ const tournamentBtn = document.getElementById("tournamentBtn");
     const nearBtn = document.getElementById("nearBtn");
 
 nearBtn.onclick = () => {
-  // если координаты ещё загружаются — просто включаем фильтр
-  nearFilter = !nearFilter;
-  nearBtn.classList.toggle("active", nearFilter);
-
-  if (!userLocation && nearFilter) {
-    // ждём геолокацию, она применится автоматически
+  // выключение фильтра
+  if (nearFilter) {
+    nearFilter = false;
+    nearBtn.classList.remove("active");
+    renderClubs();
     return;
   }
 
-  renderClubs();
+  // включение фильтра → запрашиваем геолокацию
+  if (!navigator.geolocation) {
+    alert("Геолокация не поддерживается");
+    return;
+  }
+
+  nearBtn.classList.add("active");
+  nearFilter = true;
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLocation = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      };
+
+      renderClubs();
+    },
+    () => {
+      alert("Не удалось получить геолокацию");
+      nearFilter = false;
+      nearBtn.classList.remove("active");
+    },
+    { enableHighAccuracy: true, timeout: 8000 }
+  );
 };
 
 promoBtn.onclick = () => {
@@ -1563,26 +1592,6 @@ content.dataset.animating = "0";
   }
 
   window.open(`https://www.google.com/maps?q=${latitude},${longitude}`, "_blank");
-    }
-
-    if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      userLocation = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude
-      };
-
-      // ✅ если фильтр "Рядом" уже был включён — обновляем список
-      if (nearFilter) {
-        renderClubs();
-      }
-    },
-    () => {
-      userLocation = null;
-    },
-    { enableHighAccuracy: true, timeout: 5000 }
-  );
     }
     
     loadClubs();
