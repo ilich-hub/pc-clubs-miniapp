@@ -644,6 +644,20 @@ searchInput.classList.add("search-animate");
     const clubPage = document.getElementById("clubPage");
 
     let clubs = [];
+    function calcRating(club) {
+  let score = 0;
+
+  if (club.recommended) score += 5;
+  if (club.promo) score += 1;
+  if (club.tournament) score += 1;
+
+  // за наполненность
+  if (club.photos && club.photos.length >= 3) score += 1;
+  if (club.games && club.games.length >= 5) score += 1;
+
+  // ограничиваем от 1 до 5
+  return Math.min(5, Math.max(1, score));
+    }
     let activeZoneIndex = 0;
     let clubOpenedFrom = "clubs";
     let specialFilter = ""; // "", "promo", "tournament"
@@ -830,6 +844,10 @@ clubs
 
   return bScore - aScore;
 })
+  const topClubId =
+  clubs
+    .slice()
+    .sort((a, b) => calcRating(b) - calcRating(a))[0]?.id;
   .forEach((c) => {
     visibleCount++;
           const img =
@@ -841,6 +859,21 @@ clubs
             <div class="card">
   <div class="card-img-wrap">
   <img src="${img}">
+  ${c.id === topClubId ? `
+  <div style="
+    position:absolute;
+    bottom:10px;
+    left:10px;
+    padding:6px 10px;
+    background:#00e5ff;
+    color:#001418;
+    font-size:12px;
+    font-weight:700;
+    border-radius:999px;
+  ">
+    👑 Топ клуба
+  </div>
+` : ""}
 
   ${c.recommended ? `
   <div class="recommended-star">
@@ -856,7 +889,16 @@ clubs
 </div>
 </div>
 
-  <h2>${safe(c.name)}</h2>
+  <h2 style="display:flex;align-items:center;gap:6px">
+  ${safe(c.name)}
+  <span style="
+    font-size:13px;
+    color:#f5c451;
+    font-weight:700
+  ">
+    ⭐ ${calcRating(c)}.0
+  </span>
+</h2>
   ${c.promo ? `
   <div style="
     margin:0 12px 6px;
