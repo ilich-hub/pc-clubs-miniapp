@@ -654,9 +654,10 @@ searchInput.classList.add("search-animate");
     let activeZoneIndex = 0;
     let clubOpenedFrom = "clubs";
     let specialFilter = ""; // "", "promo", "tournament"
+    let skipTabAnimation = false;
     let nearFilter = false;
 let userLocation = null;
-    let skipTabAnimation = false;
+    
     
     async function loadClubs() {
   clubsContainer.innerHTML = `
