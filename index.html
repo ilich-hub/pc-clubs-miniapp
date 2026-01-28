@@ -451,6 +451,22 @@ a {
     🏆<span id="tournamentCount" style="margin-left:2px;font-size:12px"></span>
   </button>
 
+    <!-- 📍 до 2 км -->
+<button
+  id="nearBtn"
+  style="
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    border:none;
+    background:#1a2033;
+    color:#fff;
+    font-size:18px;
+  "
+>
+  📍
+</button>
+    
   <!-- Поиск -->
   <button id="searchToggle" style="
     width:44px;
@@ -1530,6 +1546,21 @@ content.dataset.animating = "0";
   window.open(`https://www.google.com/maps?q=${latitude},${longitude}`, "_blank");
     }
 
+    if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLocation = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      };
+    },
+    () => {
+      userLocation = null;
+    },
+    { enableHighAccuracy: true, timeout: 5000 }
+  );
+    }
+    
     loadClubs();
     function preloadImagesSmart() {
   document.querySelectorAll(".card img").forEach(img => {
