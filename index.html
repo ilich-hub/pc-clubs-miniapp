@@ -756,6 +756,10 @@ searchInput.classList.add("search-animate");
     function renderClubs() {
       clubsContainer.innerHTML = "";
 let visibleCount = 0;
+      const topClubId =
+  clubs
+    .slice()
+    .sort((a, b) => calcRating(b) - calcRating(a))[0]?.id;
       const promoCount = clubs.filter(c => c.promo).length;
 const tournamentCount = clubs.filter(c => c.tournament).length;
 
@@ -800,11 +804,6 @@ if (specialFilter === "tournament") {
 
       const selected = filter.value;
 const query = searchInput.value.toLowerCase();
-
-      const topClubId =
-  clubs
-    .slice()
-    .sort((a, b) => calcRating(b) - calcRating(a))[0]?.id;
       
 clubs
   .filter(c => {
