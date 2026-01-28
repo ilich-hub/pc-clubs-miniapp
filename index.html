@@ -2096,10 +2096,12 @@ function updateStars(count) {
   });
 }
 
-// ⭐ обработка клика по звёздам
 document.getElementById("ratingStars").addEventListener("click", e => {
-  const index = [...e.currentTarget.children].indexOf(e.target);
-  if (index >= 0) updateStars(index + 1);
+  const star = e.target.closest("span");
+  if (!star) return;
+
+  const value = Number(star.dataset.star);
+  updateStars(value);
 });
 
 async function submitRating() {
