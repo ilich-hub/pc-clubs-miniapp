@@ -987,13 +987,14 @@ const tournamentBtn = document.getElementById("tournamentBtn");
     const nearBtn = document.getElementById("nearBtn");
 
 nearBtn.onclick = () => {
-  if (!userLocation) {
-    alert("Разрешите доступ к геолокации");
-    return;
-  }
-
+  // если координаты ещё загружаются — просто включаем фильтр
   nearFilter = !nearFilter;
   nearBtn.classList.toggle("active", nearFilter);
+
+  if (!userLocation && nearFilter) {
+    // ждём геолокацию, она применится автоматически
+    return;
+  }
 
   renderClubs();
 };
@@ -1571,6 +1572,11 @@ content.dataset.animating = "0";
         lat: pos.coords.latitude,
         lng: pos.coords.longitude
       };
+
+      // ✅ если фильтр "Рядом" уже был включён — обновляем список
+      if (nearFilter) {
+        renderClubs();
+      }
     },
     () => {
       userLocation = null;
