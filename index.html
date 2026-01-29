@@ -534,8 +534,8 @@ function lockClick(key, delay = 600) {
     // 📊 Функция для записи статистики
 async function trackDailyVisit() {
   try {
-    const user = tg?.initDataUnsafe?.user;
-    if (!user) return;
+    if (!tg || !tg.initDataUnsafe?.user?.id) return;
+const user = tg.initDataUnsafe.user;
 
     const today = new Date().toISOString().slice(0, 10);
     const lastVisitKey = `last_visit_${user.id}`;
@@ -704,6 +704,7 @@ if (cached && cacheTime && Date.now() - cacheTime < CACHE_TTL) {
     if (JSON.stringify(freshData) !== JSON.stringify(clubs)) {
       clubs = freshData;
       localStorage.setItem("clubs_cache", JSON.stringify(clubs));
+      localStorage.setItem("clubs_cache_time", Date.now());
       renderDistricts();
       renderClubs();
     } else if (usingCache) {
