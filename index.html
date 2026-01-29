@@ -1063,8 +1063,7 @@ if (badge) {
     }
 
     function showTab(tab) {
-      // всегда скрываем статистику при переключении вкладок
-statsPage.style.display = "none";
+
   const content = document.getElementById("tabContent");
   if (!content) return;
       
@@ -1520,7 +1519,6 @@ setTimeout(preloadImagesSmart, 400);
 
     function showClubsTab() {
   SCROLL_TO_TOP();
-  document.getElementById("statsPage").style.display = "none";
 
   document.getElementById("favoritesPage").style.display = "none";
   document.getElementById("clubs").style.display = "grid";
@@ -1533,7 +1531,6 @@ setTimeout(preloadImagesSmart, 400);
 
 function showFavoritesTab() {
   SCROLL_TO_TOP();
-  document.getElementById("statsPage").style.display = "none";
   HIDE_HEADER();
   document.getElementById("clubs").style.display = "none";
   clubPage.style.display = "none";
@@ -1851,10 +1848,6 @@ document.addEventListener("touchend", function (event) {
 function setActiveBottomTab(tab) {
   document.getElementById("tabClubs").classList.toggle("active", tab === "clubs");
   document.getElementById("tabFavs").classList.toggle("active", tab === "favorites");
-  const statsBtn = document.getElementById("tabStats");
-  if (statsBtn) {
-    statsBtn.classList.toggle("active", tab === "stats");
-  }
 }
 
     document.addEventListener("click", function (e) {
