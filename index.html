@@ -531,39 +531,7 @@ function lockClick(key, delay = 600) {
   return false;
 }
     const ADMIN_TELEGRAM_ID = 938184349; // ← вставь СВОЙ ID
-    // 📊 Функция для записи статистики
-async function trackDailyVisit() {
-  try {
-    if (!tg || !tg.initDataUnsafe?.user?.id) return;
-const user = tg.initDataUnsafe.user;
-
-    const today = new Date().toISOString().slice(0, 10);
-    const lastVisitKey = `last_visit_${user.id}`;
-
-    // если сегодня уже записывали — выходим
-    if (localStorage.getItem(lastVisitKey) === today) {
-      return;
-    }
-
-   // 📊 корректно увеличиваем счётчик посещений за день
-  await fetch(`${SUPABASE_URL}/rest/v1/daily_stats`, {
-  method: "POST",
-  headers: {
-    apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${SUPABASE_KEY}`,
-    "Content-Type": "application/json",
-    Prefer: "resolution=merge-duplicates"
-  },
-  body: JSON.stringify({
-    day: today,
-    visits: 1
-  })
-});
-    localStorage.setItem(lastVisitKey, today);
-  } catch (e) {
-    console.log("visit skipped");
-  }
-}
+    
     // 🛡️ Функция для безопасной вставки текста
 function safe(text) {
   if (!text) return '';
@@ -575,9 +543,6 @@ function safe(text) {
 if (tg) {
   tg.ready();
   tg.expand();
-  
-  // 📊 Записываем посещение
-  trackDailyVisit();
 }
     
     // 📋 Константы для повторяющихся действий
@@ -1884,122 +1849,6 @@ document.addEventListener("touchend", function (event) {
     : cur >= s || cur <= e;
     }
 
-    // 📊 Показать страницу статистики
-async function showStatsTab() {
-  const user = tg?.initDataUnsafe?.user;
-
-  if (!user || user.id !== ADMIN_TELEGRAM_ID) {
-    alert("⛔ Статистика доступна только администратору");
-    return;
-  }
-
-  SCROLL_TO_TOP();
-  HIDE_HEADER();
-
-  document.getElementById("clubs").style.display = "none";
-  document.getElementById("favoritesPage").style.display = "none";
-  document.getElementById("clubPage").style.display = "none";
-
-  const statsPage = document.getElementById("statsPage");
-  statsPage.style.display = "block";
-  
-  // Показываем загрузку
-  statsPage.innerHTML = `
-    <div style="padding:20px;text-align:center">
-      <p>Загрузка статистики...</p>
-    </div>
-  `;
-  
-  try {
-    // 📊 Читаем агрегированную статистику по дням
-const res = await fetch(
-  `${SUPABASE_URL}/rest/v1/daily_stats?order=day.desc&limit=${STATS_DAYS}`,
-  {
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-    },
-  }
-);
-
-const stats = await res.json();
-    if (!Array.isArray(stats) || stats.length === 0) {
-  statsPage.innerHTML = `
-    <div style="padding:40px 20px;text-align:center;opacity:.7">
-      <div style="font-size:48px;margin-bottom:16px">📊</div>
-      <h3>Пока нет данных</h3>
-      <p>Статистика появится после первых посещений</p>
-    </div>
-  `;
-  return;
-    }
-
-// Считаем общее количество посещений
-const totalVisits = stats.reduce((sum, d) => sum + (d.visits || 0), 0);
-// 📅 посещения за последние 30 дней
-const monthVisits = stats
-  .filter(d => {
-    const day = new Date(d.day);
-    const diff = (Date.now() - day.getTime()) / (1000 * 60 * 60 * 24);
-    return diff <= STATS_DAYS;
-  })
-  .reduce((sum, d) => sum + (d.visits || 0), 0);
-    
-    statsPage.innerHTML = `
-  <div style="padding:16px">
-    <h2>📊 Статистика приложения</h2>
-
-    <div style="
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-      margin-top:20px
-    ">
-      <div style="
-        background:#141a2b;
-        border-radius:18px;
-        padding:20px;
-        text-align:center
-      ">
-        <div style="font-size:36px;font-weight:700;color:#00e5ff">
-          ${totalVisits}
-        </div>
-        <div style="opacity:.7;margin-top:8px">
-          Всего посещений
-        </div>
-      </div>
-
-      <div style="
-        background:#141a2b;
-        border-radius:18px;
-        padding:20px;
-        text-align:center
-      ">
-        <div style="font-size:36px;font-weight:700;color:#00e5ff">
-          ${monthVisits}
-        </div>
-        <div style="opacity:.7;margin-top:8px">
-          За последние 30 дней
-        </div>
-      </div>
-    </div>
-
-    <canvas id="visitsChart" height="180" style="margin-top:32px"></canvas>
-  </div>
-`;
-    drawVisitsChart(stats);
-  } catch (err) {
-    statsPage.innerHTML = `
-      <div style="padding:40px 20px;text-align:center;opacity:.7">
-        <div style="font-size:48px;margin-bottom:16px">⚠️</div>
-        <h3>Не удалось загрузить статистику</h3>
-      </div>
-    `;
-  }
-  
-  setActiveBottomTab("stats");
-}
-
 // Обновляем функцию переключения активной вкладки
 function setActiveBottomTab(tab) {
   document.getElementById("tabClubs").classList.toggle("active", tab === "clubs");
@@ -2009,67 +1858,7 @@ function setActiveBottomTab(tab) {
     statsBtn.classList.toggle("active", tab === "stats");
   }
 }
-    // 👑 Показываем кнопку статистики только админу (после загрузки DOM)
-window.addEventListener("load", () => {
-  if (tg?.initDataUnsafe?.user?.id === ADMIN_TELEGRAM_ID) {
-    const statsBtn = document.getElementById("tabStats");
-    if (statsBtn) {
-      statsBtn.style.display = "block";
-    }
-  }
-});
-    function drawVisitsChart(stats) {
-  const canvas = document.getElementById("visitsChart");
-  if (!canvas) return;
 
-  const ctx = canvas.getContext("2d");
-  const width = canvas.width = canvas.offsetWidth;
-  const height = canvas.height;
-
-  ctx.clearRect(0, 0, width, height);
-
-  const data = stats
-  .slice()
-  .reverse()
-  .slice(-STATS_DAYS);
-
-  const max = Math.max(...data.map(d => d.visits), 1);
-  const padding = 20;
-
-  ctx.strokeStyle = "#00e5ff";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-
-  data.forEach((d, i) => {
-    if (data.length === 1) {
-  // рисуем одну точку по центру
-  const d = data[0];
-  const x = width / 2;
-  const y = height - padding;
-  ctx.beginPath();
-  ctx.arc(x, y, 4, 0, Math.PI * 2);
-  ctx.fill();
-  return;
-    }
-    const x = padding + (i / (data.length - 1)) * (width - padding * 2);
-    const y = height - padding - (d.visits / max) * (height - padding * 2);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-
-  ctx.lineJoin = "round";
-ctx.lineCap = "round";
-  ctx.stroke();
-
-  // точки
-  ctx.fillStyle = "#00e5ff";
-  data.forEach((d, i) => {
-    const x = padding + (i / (data.length - 1)) * (width - padding * 2);
-    const y = height - padding - (d.visits / max) * (height - padding * 2);
-    ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fill();
-  });
-    }
     document.addEventListener("click", function (e) {
   const heart = e.target.closest(".fav-heart");
   if (!heart) return;
@@ -2177,9 +1966,6 @@ if (!clubId) {
   </button>
   <button id="tabFavs" class="nav-btn" onclick="showFavoritesTab()">
     ❤️ Избранное
-  </button>
-  <button id="tabStats" class="nav-btn" onclick="showStatsTab()" style="display:none">
-    📊 Статистика
   </button>
   </div>
 
