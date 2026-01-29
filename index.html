@@ -656,6 +656,15 @@ searchInput.classList.add("search-animate");
   
   // 1️⃣ Пытаемся взять данные из кэша
   const cached = localStorage.getItem("clubs_cache");
+  const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 часа
+const cacheTime = localStorage.getItem("clubs_cache_time");
+
+if (cached && cacheTime && Date.now() - cacheTime < CACHE_TTL) {
+  clubs = JSON.parse(cached);
+  renderDistricts();
+  renderClubs();
+  return; // ⛔ дальше в Supabase НЕ идём
+}
   let usingCache = false;
 
   if (cached) {
