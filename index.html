@@ -577,7 +577,8 @@ searchInput.classList.add("search-animate");
 };
     const clubPage = document.getElementById("clubPage");
 
-    let clubs = [];
+    let clubs = [];        // для списка (лёгкие данные)
+let clubsFull = {};   // подробные данные по id
     function calcRating(club) {
   // 1️⃣ Реальный рейтинг пользователей
   const userRating =
