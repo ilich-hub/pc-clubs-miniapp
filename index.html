@@ -1505,16 +1505,6 @@ content.dataset.animating = "0";
     }
     
     loadClubs();
-    function preloadImagesSmart() {
-  document.querySelectorAll(".card img").forEach(img => {
-    const src = img.getAttribute("src");
-    if (!src) return;
-    const i = new Image();
-    i.src = src;
-  });
-}
-
-setTimeout(preloadImagesSmart, 400);
 
     function showClubsTab() {
   SCROLL_TO_TOP();
