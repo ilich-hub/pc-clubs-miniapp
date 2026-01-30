@@ -808,7 +808,11 @@ clubs
           clubsContainer.innerHTML += `
             <div class="card">
   <div class="card-img-wrap">
-  <img src="${img}">
+  <img
+  src="${img}"
+  loading="lazy"
+  onerror="this.src='https://via.placeholder.com/400x200'"
+>
   ${c.id === topClubId ? `
   <div style="
   position:absolute;
