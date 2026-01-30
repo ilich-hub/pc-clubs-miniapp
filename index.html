@@ -1250,18 +1250,19 @@ ${clubPage.dataset.instagram && clubPage.dataset.instagram.startsWith("http") ? 
         <div>
           <div class="photo-skeleton">
   <img
-    src="${p.url}"
-    onclick="openImage('${p.url}')"
-    onload="this.parentElement.style.background='none'"
-    style="
-      width:100%;
-      height:140px;
-      object-fit:cover;
-      border-radius:14px;
-      display:block;
-      cursor:pointer;
-    "
-  >
+  src="${p.url}"
+  loading="lazy"
+  onclick="openImage('${p.url}')"
+  onload="this.parentElement.style.background='none'"
+  style="
+    width:100%;
+    height:140px;
+    object-fit:cover;
+    border-radius:14px;
+    display:block;
+    cursor:pointer;
+  "
+>
 </div>
           <p style="
   margin-top:6px;
