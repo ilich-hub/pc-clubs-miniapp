@@ -965,31 +965,51 @@ searchToggle.classList.remove("active");
   renderClubs();
 };
 
-    function openClub(id) {
-  currentClubId = Number(id); // ✅ сохраняем ID клуба
+    async function openClub(id) {
+  currentClubId = Number(id);
 
-  const club = clubs.find((c) => c.id === id);
-  if (!club) return;
-      clubPage.innerHTML = `
-  <div style="
-    padding:40px;
-    text-align:center;
-    opacity:.7
-  ">
-    <div style="font-size:40px">⏳</div>
-    <p>Загрузка клуба...</p>
-  </div>
-`;
-      // ⬆️ ВСЕГДА поднимаем страницу вверх
-SCROLL_TO_TOP();
+  // 1️⃣ если клуб уже загружали — берём из кэша
+  if (clubsFull[id]) {
+    renderClubPage(clubsFull[id]);
+    return;
+  }
 
+  // 2️⃣ показываем лоадер
+  clubPage.innerHTML = `
+    <div style="padding:40px;text-align:center;opacity:.7">
+      <div style="font-size:40px">⏳</div>
+      <p>Загрузка клуба...</p>
+    </div>
+  `;
+
+  SCROLL_TO_TOP();
   document.getElementById("clubs").style.display = "none";
   document.getElementById("favoritesPage").style.display = "none";
   clubPage.style.display = "block";
+  HIDE_HEADER();
 
-      HIDE_HEADER();
-      
-      clubPage.dataset.photos = JSON.stringify(club.photos || []);
+  // 3️⃣ 🔥 ВТОРОЙ ЗАПРОС — ОДИН КЛУБ
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/clubs?id=eq.${id}`,
+    {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    }
+  );
+
+  const data = await res.json();
+  if (!data || !data[0]) return;
+
+  clubsFull[id] = data[0]; // кешируем
+  renderClubPage(data[0]);
+    }
+
+    function renderClubPage(club) {
+  SCROLL_TO_TOP();
+
+  clubPage.dataset.photos = JSON.stringify(club.photos || []);
 clubPage.dataset.lat = club.lat || "";
 clubPage.dataset.lng = club.lng || "";
 clubPage.dataset.admin = club.admin_link || "";
