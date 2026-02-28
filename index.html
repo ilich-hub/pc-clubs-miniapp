@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cyber Clubs</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0b0f19;
+      color: #fff;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    header {
+      padding: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      background: #0b0f19;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      background: #141a2b;
+      color: #fff;
+      border: none;
+      margin-top: 8px;
+    }
+
+    #clubs {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #141a2b, #0f1322);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      transition: transform .2s ease, box-shadow .2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 👉 Кликабельные зоны */
+    .zone-item {
+      position: relative;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease;
+    }
+
+    .zone-item:active {
+      transform: scale(0.97);
+      background: #222a44 !important;
+    }
+
+    /* стрелка справа */
+    .zone-item::after {
+      content: "›";
+      position: absolute;
+      right: 14px;
+      font-size: 22px;
+      opacity: 0.5;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+
+    .card h2 {
+      margin: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .card button {
+      margin: 12px;
+      margin-top: auto;
+      padding: 13px;
+      width: calc(100% - 24px);
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      color: #001418;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    /* ===== Skeleton ===== */
+    .skeleton {
+      background: #141a2b;
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .skeleton-img {
+      height: 140px;
+      background: linear-gradient(
+        90deg,
+        #1a2033 25%,
+        #222a44 37%,
+        #1a2033 63%
+      );
+      background-size: 400% 100%;
+      animation: shimmer 1.4s ease infinite;
+    }
+
+    .skeleton-text {
+      height: 16px;
+      margin: 12px;
+      border-radius: 8px;
+      background: #1a2033;
+    }
+
+    .skeleton-btn {
+      height: 44px;
+      margin: 12px;
+      border-radius: 14px;
+      background: #1a2033;
+      margin-top: auto;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 10px 16px;
+      border-radius: 20px;
+      background: #1a2033;
+      color: #aaa;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      background: #00e5ff;
+      color: #001418;
+    }
+
+    .section {
+      margin-top: 16px;
+    }
+
+    .section h3 {
+      margin-bottom: 8px;
+    }
+
+    #bottomNav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: #0b0f19;
+      display: flex;
+      border-top: 1px solid #1f253a;
+      z-index: 1000;
+    }
+
+    .nav-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #8a93b2;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-btn.active {
+      color: #00e5ff;
+    }
+
+    /* чтобы контент не залезал под меню */
+    body {
+      padding-bottom: 70px;
+    }
+
+    .card-img-wrap {
+      position: relative;
+    }
+
+    .fav-heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 22px;
+      color: #ffffff;
+      opacity: 1;
+      background: rgba(0,0,0,0.35);
+      border-radius: 50%;
+      padding: 6px;
+      cursor: pointer;
+      transition: transform .2s ease, color .2s ease, opacity .2s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .fav-heart.active {
+      color: #ff3b3b;
+      opacity: 1;
+    }
+
+    .fav-heart:active {
+      transform: scale(0.9);
+    }
+
+    /* ❤️ Анимация сердечка */
+    .fav-heart.animate {
+      animation: heartPop 0.25s ease;
+    }
+
+    @keyframes heartPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.35); }
+      70%  { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .fade-in {
+      animation: fadeIn .35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    html, body {
+      touch-action: manipulation;
+      overscroll-behavior: none;
+    }
+
+    .tab-fade-out {
+      animation: tabFadeOut .15s ease forwards;
+    }
+
+    .tab-fade-in {
+      animation: tabFadeIn .25s ease forwards;
+    }
+
+    @keyframes tabFadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-6px); }
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    #promoBtn.active,
+    #tournamentBtn.active {
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      color: #001418;
+      box-shadow: 0 0 0 2px #00e5ff;
+      transform: scale(0.95);
+    }
+
+    #searchToggle.active {
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      color: #001418;
+      box-shadow: 0 0 0 2px #00e5ff;
+    }
+
+    .search-animate {
+      animation: searchSlide .25s ease;
+    }
+
+    @keyframes searchSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #1a2033;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .back-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* 🚫 убираем синий tap-highlight */
+    a {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* ℹ️ Ровные строки информации */
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+      line-height: 1.4;
+      margin-top: 8px;
+    }
+
+    .info-row svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* 🦴 Skeleton для фото внутри страницы клуба */
+    .photo-skeleton {
+      width: 100%;
+      height: 140px;
+      border-radius: 14px;
+      background: linear-gradient(
+        90deg,
+        #1a2033 25%,
+        #222a44 37%,
+        #1a2033 63%
+      );
+      background-size: 400% 100%;
+      animation: shimmer 1.4s ease infinite;
+    }
+
+    /* 🚫 Убираем синий tap-highlight глобально */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ⭐ Анимация нажатия на звёзды */
+    #ratingStars span {
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    #ratingStars span:active {
+      transform: scale(0.9);
+    }
+
+    /* 📸 Анимация нажатия на фото */
+    .photos-grid img {
+      transition: transform .15s ease;
+    }
+
+    .photos-grid img:active {
+      transform: scale(0.97);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Компьютерные клубы</h1>
+
+    <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+
+      <!-- Районы -->
+      <select id="districtFilter" style="
+        flex:1;
+        height:44px;
+        padding:0 12px;
+        border-radius:12px;
+        background:#141a2b;
+        color:#fff;
+        border:none;
+        font-size:14px;
+        appearance:none;
+        -webkit-appearance:none;
+        margin-top:0;
+      ">
+        <option value="">Все районы</option>
+      </select>
+
+      <!-- Акции -->
+      <button id="promoBtn" style="
+        width:44px;height:44px;border-radius:12px;
+        border:none;background:#1a2033;color:#fff;font-size:18px;
+      ">
+        🔥<span id="promoCount" style="margin-left:2px;font-size:12px"></span>
+      </button>
+
+      <!-- Турниры -->
+      <button id="tournamentBtn" style="
+        width:44px;height:44px;border-radius:12px;
+        border:none;background:#1a2033;color:#fff;font-size:18px;
+      ">
+        🏆<span id="tournamentCount" style="margin-left:2px;font-size:12px"></span>
+      </button>
+
+      <!-- Поиск -->
+      <button id="searchToggle" style="
+        width:44px;height:44px;border-radius:12px;
+        border:none;background:#141a2b;color:#fff;font-size:18px;
+      ">
+        🔍
+      </button>
+
+    </div>
+
+    <!-- Скрытый поиск -->
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Поиск клуба"
+      style="
+        display:none;
+        margin-top:10px;
+        width:100%;
+        height:44px;
+        padding:0 14px;
+        border-radius:12px;
+        background:#141a2b;
+        border:none;
+        outline:none;
+        color:#fff;
+        font-size:14px;
+      "
+    />
+  </header>
+
+  <main id="clubs"></main>
+  <section id="favoritesPage" style="display:none;"></section>
+  <section id="clubPage"      style="display:none;"></section>
+  <section id="zonePage"      style="display:none;"></section>
+
+  <script>
+    const SUPABASE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_WVIM_p30Vjag_MTxDWapEQ__W0SftDv";
+    const tg = window.Telegram?.WebApp;
+
+    // ─── FIX 7: Безопасные обёртки для localStorage ──────────────────────────
+    function lsGet(key, fallback = null) {
+      try { return localStorage.getItem(key) ?? fallback; }
+      catch { return fallback; }
+    }
+    function lsSet(key, value) {
+      try { localStorage.setItem(key, value); }
+      catch { console.warn("localStorage недоступен"); }
+    }
+
+    // ─── Click-lock ───────────────────────────────────────────────────────────
+    const clickLock = {};
+    function lockClick(key, delay = 600) {
+      if (clickLock[key]) return true;
+      clickLock[key] = true;
+      setTimeout(() => delete clickLock[key], delay);
+      return false;
+    }
+
+    // ─── Безопасная вставка текста (XSS-защита) ───────────────────────────────
+    function safe(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    // ─── Константы ─────────────────────────────────────────────────────────────
+    const SCROLL_TO_TOP = () => window.scrollTo(0, 0);
+    const HIDE_HEADER   = () => document.querySelector("header").style.display = "none";
+    const SHOW_HEADER   = () => document.querySelector("header").style.display = "block";
+
+    // ─── DOM-ссылки ────────────────────────────────────────────────────────────
+    const clubsContainer = document.getElementById("clubs");
+    const filter         = document.getElementById("districtFilter");
+    const searchInput    = document.getElementById("searchInput");
+    const searchToggle   = document.getElementById("searchToggle");
+    const clubPage       = document.getElementById("clubPage");
+    const zonePage       = document.getElementById("zonePage");
+    const promoBtn       = document.getElementById("promoBtn");
+    const tournamentBtn  = document.getElementById("tournamentBtn");
+
+    // ─── Состояние ─────────────────────────────────────────────────────────────
+    let clubs          = [];
+    let clubsFull      = {};
+    let activeZoneIndex  = 0;
+    let clubOpenedFrom   = "clubs";
+    let specialFilter    = "";   // "", "promo", "tournament"
+    let skipTabAnimation = false;
+    let selectedRating   = 0;
+    let currentClubId    = null;
+
+    // ─── FIX 8: единая формула сортировки / топ-клуба ────────────────────────
+    function calcScore(club) {
+      const userRating = club.rating_count > 0
+        ? club.rating_sum / club.rating_count
+        : 0;
+      let score = userRating;
+      if (club.recommended) score += 0.2;
+      if (club.promo)        score += 0.1;
+      if (club.tournament)   score += 0.1;
+      return Math.min(5, score);
+    }
+
+    // ─── SEARCH TOGGLE ─────────────────────────────────────────────────────────
+    searchToggle.onclick = () => {
+      const isOpen = searchInput.style.display === "block";
+
+      specialFilter = "";
+      promoBtn.classList.remove("active");
+      tournamentBtn.classList.remove("active");
+
+      if (isOpen) {
+        searchInput.style.display = "none";
+        searchInput.value = "";
+        searchToggle.classList.remove("active");
+      } else {
+        searchInput.style.display = "block";
+        searchInput.classList.remove("search-animate");
+        void searchInput.offsetWidth;
+        searchInput.classList.add("search-animate");
+        searchInput.focus();
+        searchToggle.classList.add("active");
+      }
+      renderClubs();
+    };
+
+    filter.addEventListener("change", () => {
+      specialFilter = "";
+      promoBtn.classList.remove("active");
+      tournamentBtn.classList.remove("active");
+      renderClubs();
+    });
+
+    searchInput.addEventListener("input", () => {
+      specialFilter = "";
+      promoBtn.classList.remove("active");
+      tournamentBtn.classList.remove("active");
+      renderClubs();
+    });
+
+    promoBtn.onclick = () => {
+      if (lockClick("promo", 400)) return;
+      if (specialFilter === "promo") {
+        specialFilter = "";
+        promoBtn.classList.remove("active");
+      } else {
+        specialFilter = "promo";
+        promoBtn.classList.add("active");
+        tournamentBtn.classList.remove("active");
+      }
+      searchInput.style.display = "none";
+      searchInput.value = "";
+      searchToggle.classList.remove("active");
+      renderClubs();
+    };
+
+    tournamentBtn.onclick = () => {
+      if (lockClick("tournament", 400)) return;
+      if (specialFilter === "tournament") {
+        specialFilter = "";
+        tournamentBtn.classList.remove("active");
+      } else {
+        specialFilter = "tournament";
+        tournamentBtn.classList.add("active");
+        promoBtn.classList.remove("active");
+      }
+      searchInput.style.display = "none";
+      searchInput.value = "";
+      searchToggle.classList.remove("active");
+      renderClubs();
+    };
+
+    // ─── LOAD CLUBS ────────────────────────────────────────────────────────────
+    async function loadClubs() {
+      clubsContainer.innerHTML = `
+        <div class="skeleton">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-text"></div>
+          <div class="skeleton-btn"></div>
+        </div>
+        <div class="skeleton">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-text"></div>
+          <div class="skeleton-btn"></div>
+        </div>
+      `;
+
+      const CACHE_TTL  = 24 * 60 * 60 * 1000;
+      const cached     = lsGet("clubs_cache");
+      const cacheTime  = lsGet("clubs_cache_time");
+      let   usingCache = false;
+
+      if (cached && cacheTime && Date.now() - cacheTime < CACHE_TTL) {
+        try {
+          clubs = JSON.parse(cached);
+          renderDistricts();
+          renderClubs();
+          return;
+        } catch {
+          lsSet("clubs_cache", "");
+        }
+      }
+
+      if (cached) {
+        try {
+          clubs = JSON.parse(cached);
+          renderDistricts();
+          renderClubs();
+          usingCache = true;
+        } catch {
+          lsSet("clubs_cache", "");
+        }
+      }
+
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/clubs?select=id,name,district,photos,rating_sum,rating_count,recommended,promo,tournament`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+        );
+
+        if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
+        const freshData = await res.json();
+        if (!Array.isArray(freshData)) throw new Error("Неверный формат данных");
+
+        if (JSON.stringify(freshData) !== JSON.stringify(clubs)) {
+          clubs = freshData;
+          lsSet("clubs_cache",      JSON.stringify(clubs));
+          lsSet("clubs_cache_time", Date.now());
+          renderDistricts();
+          renderClubs();
+        } else {
+          console.log("✅ Данные актуальны");
+        }
+
+      } catch (err) {
+        console.warn("⚠️ Ошибка загрузки:", err.message);
+        if (!usingCache) {
+          clubsContainer.innerHTML = `
+            <div style="padding:40px 20px;text-align:center;opacity:.7;grid-column:1/-1">
+              <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+              <h3>Не удалось загрузить клубы</h3>
+              <p style="opacity:.8;margin:12px 0">Проверьте подключение к интернету</p>
+              <button onclick="loadClubs()" style="
+                margin-top:16px;padding:12px 24px;border:none;border-radius:12px;
+                background:#00e5ff;font-weight:600;cursor:pointer;
+              ">🔄 Попробовать снова</button>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function renderDistricts() {
+      filter.innerHTML = `<option value="">Все районы</option>`;
+      [...new Set(clubs.map(c => c.district))].forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        filter.appendChild(opt);
+      });
+    }
+
+    // ─── FIX 6: innerHTML += заменён на сборку массива ───────────────────────
+    function renderClubs() {
+      const selected = filter.value;
+      const query    = searchInput.value.toLowerCase();
+
+      const promoCount      = clubs.filter(c => c.promo).length;
+      const tournamentCount = clubs.filter(c => c.tournament).length;
+      document.getElementById("promoCount").textContent      = promoCount      > 0 ? promoCount      : "";
+      document.getElementById("tournamentCount").textContent = tournamentCount > 0 ? tournamentCount : "";
+
+      // Единый топ-клуб через calcScore
+      const topClubId = clubs.slice().sort((a, b) => calcScore(b) - calcScore(a))[0]?.id;
+
+      const parts = [];
+
+      if (specialFilter === "promo") {
+        parts.push(`
+          <div style="
+            grid-column:1/-1;margin-bottom:12px;padding:10px;border-radius:12px;
+            background:#102a1c;color:#00e676;font-weight:600;text-align:center;
+          ">🔥 Показаны клубы с акциями</div>
+        `);
+      }
+      if (specialFilter === "tournament") {
+        parts.push(`
+          <div style="
+            grid-column:1/-1;margin-bottom:12px;padding:10px;border-radius:12px;
+            background:#1a2033;color:#00e5ff;font-weight:600;text-align:center;
+          ">🏆 Показаны клубы с турнирами</div>
+        `);
+      }
+
+      const filtered = clubs
+        .filter(c => {
+          if (specialFilter === "promo"       && !c.promo)       return false;
+          if (specialFilter === "tournament"  && !c.tournament)  return false;
+          return (
+            (!selected || c.district === selected) &&
+            (!query    || (c.name || "").toLowerCase().includes(query))
+          );
+        })
+        .sort((a, b) => calcScore(b) - calcScore(a));
+
+      if (filtered.length === 0) {
+        parts.push(`
+          <div style="grid-column:1/-1;text-align:center;padding:40px 20px;opacity:.7">
+            <div style="font-size:48px;margin-bottom:12px">😕</div>
+            <h3>Ничего не найдено</h3>
+            <p style="margin-top:8px">Попробуйте изменить фильтры или поиск</p>
+  
