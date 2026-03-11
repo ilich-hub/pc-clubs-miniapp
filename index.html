@@ -1078,6 +1078,7 @@ a { -webkit-tap-highlight-color: transparent; user-select: none; }
           <div style="background:#0f172a;border-radius:18px;padding:16px">
             <h3 style="margin-top:0">🎮 CS2</h3>
 ${zone.games?.cs2 ? `
+  <div style="display:flex;justify-content:space-between"><span>FPS</span><b>${zone.games.cs2.fps}</b></div>
   <div style="display:flex;justify-content:space-between"><span>Частота</span><b>${zone.games.cs2.hz} Hz</b></div>
 ` : `<p>Нет данных</p>`}
           </div>
