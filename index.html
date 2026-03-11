@@ -616,13 +616,13 @@ a { -webkit-tap-highlight-color: transparent; user-select: none; }
           visibleCount++;
           const img = Array.isArray(c.photos) && c.photos.length
             ? c.photos[0].url
-            : "https://via.placeholder.com/400x200";
+: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect width='400' height='200' fill='%23141a2b'/%3E%3Ctext x='50%25' y='50%25' fill='%23ffffff40' font-size='40' text-anchor='middle' dominant-baseline='middle'%3E🖥%3C/text%3E%3C/svg%3E";
 
           clubsContainer.innerHTML += `
             <div class="card">
               <div class="card-img-wrap">
                 <img src="${img}" loading="lazy"
-                     onerror="this.src='https://via.placeholder.com/400x200'">
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect width=%22400%22 height=%22200%22 fill=%22%23141a2b%22/%3E%3C/svg%3E'">
                 ${c.id === topClubId ? `
                   <div style="position:absolute;bottom:10px;left:10px;padding:5px 10px;
                        border:1.5px solid rgba(255,255,255,0.9);color:#ffffff;font-size:12px;
@@ -1077,10 +1077,9 @@ a { -webkit-tap-highlight-color: transparent; user-select: none; }
 
           <div style="background:#0f172a;border-radius:18px;padding:16px">
             <h3 style="margin-top:0">🎮 CS2</h3>
-            ${zone.games?.cs2 ? `
-              <div style="display:flex;justify-content:space-between"><span>FPS</span><b>${zone.games.cs2.fps}</b></div>
-              <div style="display:flex;justify-content:space-between"><span>Частота</span><b>${zone.games.cs2.hz} Hz</b></div>
-            ` : `<p>Нет данных</p>`}
+${zone.games?.cs2 ? `
+  <div style="display:flex;justify-content:space-between"><span>Частота</span><b>${zone.games.cs2.hz} Hz</b></div>
+` : `<p>Нет данных</p>`}
           </div>
 
           <div style="background:#0f172a;border-radius:18px;padding:16px">
