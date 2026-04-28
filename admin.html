@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0b0f19; --card:#141a2b; --card2:#1a2235;
+      --accent:#00e5ff; --accent2:#00bcd4;
+      --danger:#ff4757; --success:#2ed573; --warn:#ffa502;
+      --text:#e8eaf6; --muted:#8892b0; --border:rgba(0,229,255,0.12);
+      --radius:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;padding-bottom:40px;}
+
+    /* ACCESS DENIED */
+    #accessDenied{display:none;flex-direction:column;align-items:center;justify-content:center;
+      min-height:100vh;gap:16px;padding:30px;text-align:center;}
+    #accessDenied.show{display:flex;}
+    .denied-icon{font-size:64px;}
+    .denied-title{font-family:'Rajdhani',sans-serif;font-size:26px;color:var(--danger);}
+    .denied-text{color:var(--muted);font-size:14px;}
+
+    /* HEADER */
+    .header{padding:16px;position:sticky;top:0;z-index:100;
+      background:var(--bg);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:12px;}
+    .header-back{background:var(--card2);border:none;color:var(--text);
+      border-radius:10px;padding:8px 12px;font-size:18px;cursor:pointer;}
+    .header-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
+      color:var(--accent);flex:1;}
+    .header-action{background:none;border:none;color:var(--accent);
+      font-size:22px;cursor:pointer;padding:4px 8px;}
+
+    /* VIEWS */
+    .view{display:none;animation:fadeIn .2s ease;}
+    .view.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* LOADER */
+    #loader{display:none;position:fixed;inset:0;background:rgba(11,15,25,.85);
+      z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+    #loader.show{display:flex;}
+    .spinner{width:44px;height:44px;border:4px solid var(--border);
+      border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader-text{color:var(--muted);font-size:13px;}
+
+    /* SEARCH */
+    .search-wrap{padding:12px 16px;}
+    .search-input{width:100%;background:var(--card);border:1.5px solid var(--border);
+      border-radius:12px;color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;
+      padding:11px 14px;outline:none;}
+    .search-input:focus{border-color:var(--accent);}
+
+    /* STATS BAR */
+    .stats-bar{display:flex;gap:8px;padding:0 16px 12px;flex-wrap:wrap;}
+    .stat-chip{background:var(--card);border-radius:20px;padding:6px 12px;
+      font-size:12px;color:var(--muted);}
+    .stat-chip span{color:var(--accent);font-weight:700;}
+
+    /* CLUB LIST */
+    .club-list{padding:0 16px;}
+    .club-row{background:var(--card);border-radius:var(--radius);
+      margin-bottom:10px;overflow:hidden;display:flex;align-items:center;gap:0;}
+    .club-thumb{width:64px;height:64px;object-fit:cover;flex-shrink:0;}
+    .club-thumb-empty{width:64px;height:64px;background:var(--card2);
+      display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+    .club-info{flex:1;padding:10px 10px;min-width:0;}
+    .club-name{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .club-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+    .club-badges{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+    .badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
+    .badge-rec{background:rgba(0,229,255,.15);color:var(--accent);}
+    .badge-promo{background:rgba(255,165,2,.15);color:var(--warn);}
+    .badge-tour{background:rgba(46,213,115,.15);color:var(--success);}
+    .club-actions{display:flex;flex-direction:column;gap:0;flex-shrink:0;}
+    .btn-edit{background:rgba(0,229,255,.1);border:none;color:var(--accent);
+      padding:10px 14px;font-size:18px;cursor:pointer;border-bottom:1px solid var(--border);}
+    .btn-del{background:rgba(255,71,87,.1);border:none;color:var(--danger);
+      padding:10px 14px;font-size:18px;cursor:pointer;}
+
+    /* FORM ELEMENTS */
+    .form-wrap{padding:16px;}
+    .section-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;
+      color:var(--accent);margin:16px 0 10px;letter-spacing:.4px;}
+    .field{margin-bottom:12px;}
+    label{display:block;font-size:11px;font-weight:600;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+    input[type=text],input[type=tel],input[type=number],textarea,select{
+      width:100%;background:var(--card);border:1.5px solid var(--border);
+      border-radius:11px;color:var(--text);font-family:'Nunito',sans-serif;
+      font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+    input:focus,textarea:focus{border-color:var(--accent);}
+    textarea{resize:none;min-height:70px;}
+    input::placeholder,textarea::placeholder{color:var(--muted);}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .sep{height:1px;background:var(--border);margin:16px 0;}
+
+    /* TOGGLE */
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;
+      background:var(--card);border-radius:11px;padding:12px 14px;margin-bottom:12px;}
+    .toggle-label{font-size:14px;font-weight:600;}
+    .toggle{position:relative;width:46px;height:26px;}
+    .toggle input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:var(--card2);border-radius:13px;
+      cursor:pointer;transition:.3s;}
+    .toggle-slider:before{content:'';position:absolute;width:20px;height:20px;
+      left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;}
+    .toggle input:checked+.toggle-slider{background:var(--accent);}
+    .toggle input:checked+.toggle-slider:before{transform:translateX(20px);}
+
+    /* PHOTO GRID */
+    .photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+    .photo-cell{aspect-ratio:1;background:var(--card);border:1.5px dashed var(--border);
+      border-radius:11px;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;position:relative;overflow:hidden;}
+    .photo-cell img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+    .photo-cell .ph-icon{font-size:22px;color:var(--muted);}
+    .ph-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.75);
+      color:#fff;border:none;border-radius:50%;width:22px;height:22px;
+      font-size:13px;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;z-index:2;}
+    input[type=file]{display:none;}
+    .hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
+
+    /* ZONE CARD */
+    .zone-card{background:var(--card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:13px;margin-bottom:10px;}
+    .zone-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+    .zone-num{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);}
+    .btn-remove{background:rgba(255,71,87,.15);color:var(--danger);border:none;
+      border-radius:8px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;}
+    .specs-toggle{font-size:12px;color:var(--accent);background:none;border:none;
+      cursor:pointer;padding:3px 0;margin-top:6px;display:flex;align-items:center;gap:4px;
+      font-family:'Nunito',sans-serif;}
+    .specs-block{display:none;margin-top:8px;}
+    .specs-block.open{display:block;}
+    .range-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:5px;align-items:center;margin-bottom:7px;}
+    .range-row input{font-size:13px;padding:8px 9px;}
+    .btn-range-del{background:rgba(255,71,87,.15);color:var(--danger);border:none;
+    border-radius:8px;padding:8px 10px;font-size:14px;cursor:pointer;line-height:1;}
+    .btn-add-range{font-size:12px;color:var(--accent);background:none;
+    border:1.5px dashed rgba(0,229,255,.3);border-radius:8px;padding:6px 12px;
+    cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:8px;width:100%;}
+    .ranges-block{display:none;margin-top:8px;}
+    .ranges-block.open{display:block;}
+    .btn-add-zone{width:100%;padding:12px;background:rgba(0,229,255,.07);
+      border:1.5px dashed rgba(0,229,255,.3);color:var(--accent);border-radius:var(--radius);
+      font-size:14px;font-family:'Nunito',sans-serif;font-weight:600;cursor:pointer;margin-bottom:14px;}
+
+    /* BUTTONS */
+    .btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#0b0f19;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
+      border:none;border-radius:var(--radius);cursor:pointer;letter-spacing:.5px;margin-top:8px;}
+    .btn-danger{width:100%;padding:14px;background:rgba(255,71,87,.15);
+      color:var(--danger);font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+      border:1px solid rgba(255,71,87,.3);border-radius:var(--radius);cursor:pointer;margin-top:8px;}
+    .btn-secondary{width:100%;padding:12px;background:var(--card2);color:var(--text);
+      font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;
+      border:none;border-radius:var(--radius);cursor:pointer;margin-top:8px;}
+
+    /* ERROR */
+    .error-msg{background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.3);
+      color:var(--danger);border-radius:10px;padding:10px 13px;font-size:13px;
+      margin-top:10px;display:none;}
+    .error-msg.show{display:block;}
+
+    /* CONFIRM DIALOG */
+    #confirmOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+      z-index:200;align-items:flex-end;justify-content:center;}
+    #confirmOverlay.show{display:flex;}
+    .confirm-box{background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px;
+      width:100%;max-width:500px;}
+    .confirm-title{font-family:'Rajdhani',sans-serif;font-size:20px;color:var(--danger);margin-bottom:8px;}
+    .confirm-text{color:var(--muted);font-size:14px;margin-bottom:18px;}
+    .confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .confirm-cancel{padding:13px;background:var(--card2);border:none;color:var(--text);
+      border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:16px;cursor:pointer;}
+    .confirm-ok{padding:13px;background:var(--danger);border:none;color:#fff;
+      border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:16px;cursor:pointer;}
+
+    /* EMPTY STATE */
+    .empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+    .empty-icon{font-size:48px;margin-bottom:12px;}
+  </style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader"><div class="spinner"></div><div class="loader-text">Загружаем...</div></div>
+
+<!-- ACCESS DENIED -->
+<div id="accessDenied">
+  <div class="denied-icon">🔒</div>
+  <div class="denied-title">Нет доступа</div>
+  <div class="denied-text">Эта панель только для администратора.</div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title">Удалить клуб?</div>
+    <div class="confirm-text" id="confirmText"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Отмена</button>
+      <button class="confirm-ok" onclick="confirmDelete()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LIST VIEW ===== -->
+<div class="view active" id="viewList">
+  <div class="header">
+    <div class="header-title">🎮 КЛУБЫ</div>
+    <button class="header-action" onclick="openAdd()" title="Добавить">＋</button>
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" placeholder="🔍  Поиск по названию..." oninput="renderList()"/>
+  </div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="club-list" id="clubList"></div>
+</div>
+
+<!-- ===== EDIT VIEW ===== -->
+<div class="view" id="viewEdit">
+  <div class="header">
+    <button class="header-back" onclick="showList()">←</button>
+    <div class="header-title" id="editTitle">Редактировать</div>
+  </div>
+  <div class="form-wrap">
+
+    <div class="section-title">📋 Основная информация</div>
+    <div class="field"><label>Название *</label><input type="text" id="e_name" /></div>
+    <div class="field"><label>Район *</label><input type="text" id="e_district" /></div>
+    <div class="field"><label>Адрес *</label><input type="text" id="e_address" /></div>
+    <div class="row2">
+      <div class="field"><label>Время работы</label><input type="text" id="e_work_time" placeholder="10:00–02:00"/></div>
+      <div class="field"><label>Телефон</label><input type="tel" id="e_phone" /></div>
+    </div>
+    <div class="field"><label>Instagram</label><input type="text" id="e_instagram" /></div>
+    <div class="field"><label>Telegram Admin</label><input type="text" id="e_admin_link" /></div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">⭐ Рекомендованный</div>
+      <label class="toggle"><input type="checkbox" id="e_recommended"><div class="toggle-slider"></div></label>
+    </div>
+
+    <div class="sep"></div>
+    <div class="section-title">📸 Фото клуба</div>
+    <div class="photo-grid" id="e_photoGrid"></div>
+    <div class="hint">Первое фото — обложка. Нажмите ✕ чтобы удалить, + чтобы добавить.</div>
+
+    <div class="sep"></div>
+    <div class="section-title">💻 Зоны и цены</div>
+    <div id="e_zonesContainer"></div>
+    <button class="btn-add-zone" onclick="addZone()">+ Добавить зону</button>
+
+    <div class="sep"></div>
+    <div class="section-title">🏷️ Акция</div>
+    <div class="field"><label>Текст акции</label><textarea id="e_promo"></textarea></div>
+    <div class="field"><label>Фото акции</label>
+      <div class="photo-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="photo-cell" id="e_promoCell" onclick="triggerFile('e_promoInput')"><span class="ph-icon">🏷️</span></div>
+        <input type="file" id="e_promoInput" accept="image/*" onchange="previewSingle(this,'e_promoCell','promoFile')">
+      </div>
+    </div>
+
+    <div class="section-title">🏆 Турнир</div>
+    <div class="field"><label>Текст турнира</label><textarea id="e_tournament"></textarea></div>
+    <div class="field"><label>Фото турнира</label>
+      <div class="photo-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="photo-cell" id="e_tournamentCell" onclick="triggerFile('e_tournamentInput')"><span class="ph-icon">🏆</span></div>
+        <input type="file" id="e_tournamentInput" accept="image/*" onchange="previewSingle(this,'e_tournamentCell','tournamentFile')">
+      </div>
+    </div>
+
+    <div class="error-msg" id="editError"></div>
+    <button class="btn-primary" onclick="saveEdit()">💾 Сохранить</button>
+    <button class="btn-danger" onclick="askDelete(editingId)">🗑 Удалить клуб</button>
+
+  </div>
+</div>
+
+<!-- ===== ADD VIEW ===== -->
+<div class="view" id="viewAdd">
+  <div class="header">
+    <button class="header-back" onclick="showList()">←</button>
+    <div class="header-title">Новый клуб</div>
+  </div>
+  <div class="form-wrap">
+
+    <div class="section-title">📋 Основная информация</div>
+    <div class="field"><label>Название *</label><input type="text" id="a_name" /></div>
+    <div class="field"><label>Район *</label><input type="text" id="a_district" /></div>
+    <div class="field"><label>Адрес *</label><input type="text" id="a_address" /></div>
+    <div class="row2">
+      <div class="field"><label>Время работы</label><input type="text" id="a_work_time" placeholder="10:00–02:00"/></div>
+      <div class="field"><label>Телефон</label><input type="tel" id="a_phone" /></div>
+    </div>
+    <div class="field"><label>Instagram</label><input type="text" id="a_instagram" /></div>
+    <div class="field"><label>Telegram Admin</label><input type="text" id="a_admin_link" /></div>
+
+    <div class="sep"></div>
+    <div class="section-title">📸 Фото клуба</div>
+    <div class="photo-grid" id="a_photoGrid"></div>
+
+    <div class="sep"></div>
+    <div class="section-title">💻 Зоны и цены</div>
+    <div id="a_zonesContainer"></div>
+    <button class="btn-add-zone" onclick="addZoneAdd()">+ Добавить зону</button>
+
+    <div class="sep"></div>
+    <div class="section-title">🏷️ Акция</div>
+    <div class="field"><label>Текст акции</label><textarea id="a_promo"></textarea></div>
+
+    <div class="section-title">🏆 Турнир</div>
+    <div class="field"><label>Текст турнира</label><textarea id="a_tournament"></textarea></div>
+
+    <div class="error-msg" id="addError"></div>
+    <button class="btn-primary" onclick="saveAdd()">✅ Добавить клуб</button>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
+const SUPABASE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5eGZ2aGpnZ21lc3N4ZnVobmJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NjE0NjcsImV4cCI6MjA4MzQzNzQ2N30.RUG23UQaa7ZN8y3hXbIfaErWRQz9rAUsSp8B8dAv28A"; // ← замени на свой eyJ... ключ
+const ADMIN_ID = 938184349;
+const EDGE_URL = "https://dyxfvhjggmessxfuhnbr.supabase.co/functions/v1/admin-action";
+
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.expand(); tg.setHeaderColor("#0b0f19"); }
+
+/* ============================================================
+   AUTH CHECK
+============================================================ */
+function checkAccess() {
+  const userId = tg?.initDataUnsafe?.user?.id;
+  if (userId && userId !== ADMIN_ID) {
+    document.getElementById('accessDenied').classList.add('show');
+    document.getElementById('viewList').classList.remove('active');
+    return false;
+  }
+  return true;
+}
+
+/* ============================================================
+   STATE
+============================================================ */
+let allClubs = [];
+let editingId = null;
+let editPhotos = [];      // {url, file, deleted}
+let editPromoUrl = null;  let promoFile = null;
+let editTournUrl = null;  let tournamentFile = null;
+let addPhotos = [];
+let zones = []; let zoneCount = 0;
+let addZones = []; let addZoneCount = 0;
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const loader = document.getElementById('loader');
+const show = (id) => { loader.classList.add('show'); };
+const hide = () => loader.classList.remove('show');
+
+function supaFetch(path, opts={}) {
+  return fetch(SUPABASE_URL + path, {
+    ...opts,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      ...(opts.headers||{})
+    }
+  });
+}
+
+function sanitizeName(str) {
+  const map = {
+    'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh',
+    'з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o',
+    'п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'h','ц':'ts',
+    'ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'
+  };
+  return str.trim().toLowerCase()
+    .split('').map(c => map[c]||c).join('')
+    .replace(/[^a-z0-9_-]/g,'_');
+}
+
+async function uploadFile(file, path) {
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/clubs/${path}`, {
+    method:'POST',
+    headers:{ 'Authorization':`Bearer ${SUPABASE_KEY}`, 'x-upsert':'true', 'Content-Type':file.type },
+    body: file
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return `${SUPABASE_URL}/storage/v1/object/public/clubs/${path}`;
+}
+
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function sv(id, val) { const el = document.getElementById(id); if(el) el.value = val||''; }
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+}
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+
+/* ============================================================
+   LOAD CLUBS
+============================================================ */
+async function loadClubs() {
+  show();
+  try {
+    const res = await supaFetch('/rest/v1/clubs?select=*&order=name.asc');
+    allClubs = await res.json();
+    renderStats();
+    renderList();
+  } catch(e) {
+    console.error(e);
+  }
+  hide();
+}
+
+function renderStats() {
+  const bar = document.getElementById('statsBar');
+  const rec = allClubs.filter(c=>c.recommended).length;
+  const promo = allClubs.filter(c=>c.promo).length;
+  bar.innerHTML = `
+    <div class="stat-chip">Всего: <span>${allClubs.length}</span></div>
+    <div class="stat-chip">⭐ Рек: <span>${rec}</span></div>
+    <div class="stat-chip">🏷️ Акции: <span>${promo}</span></div>
+  `;
+}
+
+function renderList() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allClubs.filter(c => c.name?.toLowerCase().includes(q));
+  const list = document.getElementById('clubList');
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎮</div>Клубы не найдены</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(c => {
+    const thumb = Array.isArray(c.photos) && c.photos.length
+      ? `<img class="club-thumb" src="${c.photos[0].url}" />`
+      : `<div class="club-thumb-empty">🎮</div>`;
+    const badges = [
+      c.recommended ? `<span class="badge badge-rec">⭐ Рек</span>` : '',
+      c.promo ? `<span class="badge badge-promo">🏷️ Акция</span>` : '',
+      c.tournament ? `<span class="badge badge-tour">🏆 Турнир</span>` : ''
+    ].join('');
+    return `
+      <div class="club-row">
+        ${thumb}
+        <div class="club-info">
+          <div class="club-name">${c.name}</div>
+          <div class="club-meta">${c.district||''} · ${c.work_time||''}</div>
+          <div class="club-badges">${badges}</div>
+        </div>
+        <div class="club-actions">
+          <button class="btn-edit" onclick="openEdit(${c.id})">✏️</button>
+          <button class="btn-del" onclick="askDelete(${c.id})">🗑</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function showList() { showView('viewList'); renderList(); }
+
+/* ============================================================
+   EDIT
+============================================================ */
+async function openEdit(id) {
+  show();
+  try {
+    const res = await supaFetch(`/rest/v1/clubs?id=eq.${id}`);
+    const [club] = await res.json();
+    if (!club) return;
+    editingId = id;
+    document.getElementById('editTitle').textContent = club.name;
+
+    // Basic fields
+    sv('e_name', club.name); sv('e_district', club.district);
+    sv('e_address', club.address); sv('e_work_time', club.work_time);
+    sv('e_phone', club.phone); sv('e_instagram', club.instagram);
+    sv('e_admin_link', club.admin_link);
+    document.getElementById('e_recommended').checked = !!club.recommended;
+
+    // Photos
+    editPhotos = (club.photos||[]).map(p => ({ url: p.url, file: null, deleted: false }));
+    renderEditPhotos();
+
+    // Promo
+    sv('e_promo', club.promo);
+    editPromoUrl = club.promo_image; promoFile = null;
+    renderSinglePhoto('e_promoCell', club.promo_image, 'promoFile');
+
+    // Tournament
+    sv('e_tournament', club.tournament);
+    editTournUrl = club.tournament_image; tournamentFile = null;
+    renderSinglePhoto('e_tournamentCell', club.tournament_image, 'tournamentFile');
+
+    // Zones
+    zones = []; zoneCount = 0;
+    document.getElementById('e_zonesContainer').innerHTML = '';
+    const existingZones = Array.isArray(club.zones) ? club.zones : [];
+    existingZones.forEach(z => addZone(z));
+
+    hideErr('editError');
+    showView('viewEdit');
+  } catch(e) { console.error(e); }
+  hide();
+}
+
+function renderEditPhotos() {
+  const grid = document.getElementById('e_photoGrid');
+  grid.innerHTML = '';
+  editPhotos.forEach((p, i) => {
+    if (p.deleted) return;
+    const cell = document.createElement('div');
+    cell.className = 'photo-cell';
+    cell.innerHTML = `<img src="${p.url||URL.createObjectURL(p.file)}" /><button class="ph-del" onclick="deleteEditPhoto(${i})">✕</button>`;
+    grid.appendChild(cell);
+  });
+  // Add cell
+  if (editPhotos.filter(p=>!p.deleted).length < 6) {
+    const add = document.createElement('div');
+    add.className = 'photo-cell';
+    add.innerHTML = `<span class="ph-icon">＋</span>`;
+    add.onclick = () => {
+      const inp = document.createElement('input');
+      inp.type='file'; inp.accept='image/*';
+      inp.onchange = e => {
+        const f = e.target.files[0]; if(!f) return;
+        editPhotos.push({ url: null, file: f, deleted: false });
+        renderEditPhotos();
+      };
+      inp.click();
+    };
+    grid.appendChild(add);
+  }
+}
+
+function deleteEditPhoto(i) {
+  editPhotos[i].deleted = true;
+  renderEditPhotos();
+}
+
+function renderSinglePhoto(cellId, url, varName) {
+  const cell = document.getElementById(cellId);
+  if (url) {
+    cell.innerHTML = `<img src="${url}" style="object-fit:cover;width:100%;height:100%;"><button class="ph-del" onclick="clearSinglePhoto('${cellId}','${varName}')">✕</button>`;
+  } else {
+    cell.innerHTML = `<span class="ph-icon">${varName==='promoFile'?'🏷️':'🏆'}</span>`;
+  }
+}
+
+function clearSinglePhoto(cellId, varName) {
+  if (varName === 'promoFile') { editPromoUrl = null; promoFile = null; }
+  else { editTournUrl = null; tournamentFile = null; }
+  renderSinglePhoto(cellId, null, varName);
+}
+
+function triggerFile(id) { document.getElementById(id).click(); }
+
+function previewSingle(inp, cellId, varName) {
+  const file = inp.files[0]; if (!file) return;
+  window[varName] = file;
+  const url = URL.createObjectURL(file);
+  const cell = document.getElementById(cellId);
+  cell.innerHTML = `<img src="${url}" style="object-fit:cover;width:100%;height:100%;">`;
+}
+
+async function saveEdit() {
+  hideErr('editError');
+  if (!v('e_name')) return showErr('editError','Введите название');
+  if (!v('e_district')) return showErr('editError','Введите район');
+  show();
+  try {
+    const clubName = sanitizeName(v('e_name'));
+    const ts = Date.now();
+
+    // Upload new photos
+    const finalPhotos = [];
+    for (const p of editPhotos) {
+      if (p.deleted) continue;
+      if (p.file) {
+        const ext = p.file.name.split('.').pop();
+        const url = await uploadFile(p.file, `${clubName}/${ts}_${Math.random().toString(36).slice(2)}.${ext}`);
+        finalPhotos.push({ url });
+      } else {
+        finalPhotos.push({ url: p.url });
+      }
+    }
+
+    // Upload promo image
+    let finalPromoImg = editPromoUrl;
+    if (promoFile) {
+      const ext = promoFile.name.split('.').pop();
+      finalPromoImg = await uploadFile(promoFile, `${clubName}/${ts}_promo.${ext}`);
+    }
+
+    // Upload tournament image
+    let finalTournImg = editTournUrl;
+    if (tournamentFile) {
+      const ext = tournamentFile.name.split('.').pop();
+      finalTournImg = await uploadFile(tournamentFile, `${clubName}/${ts}_tournament.${ext}`);
+    }
+
+    // Build zones
+    const zonesArr = zones.map((_,i) => getZoneData(i, 'e'));
+
+    const payload = {
+      name: v('e_name'), district: v('e_district'), address: v('e_address'),
+      work_time: v('e_work_time'), phone: v('e_phone'),
+      instagram: v('e_instagram')||null, admin_link: v('e_admin_link')||null,
+      recommended: document.getElementById('e_recommended').checked,
+      photos: finalPhotos.length ? finalPhotos : null,
+      zones: zonesArr,
+      promo: v('e_promo')||null, tournament: v('e_tournament')||null,
+      promo_image: finalPromoImg, tournament_image: finalTournImg
+    };
+
+    const initData = tg?.initData || '';
+    const res = await fetch(EDGE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update', id: editingId, data: payload, initData })
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || res.statusText);
+
+    // Update local cache
+    const idx = allClubs.findIndex(c => c.id === editingId);
+    if (idx !== -1) allClubs[idx] = { ...allClubs[idx], ...payload };
+
+    hide();
+    showList();
+    renderStats();
+  } catch(e) {
+    hide();
+    showErr('editError', '⚠️ ' + e.message);
+  }
+}
+
+/* ============================================================
+   ZONES (shared for edit mode)
+============================================================ */
+function addZone(existing={}) {
+  const idx = zoneCount++;
+  zones.push(idx);
+  const container = document.getElementById('e_zonesContainer');
+  const div = document.createElement('div');
+  div.className = 'zone-card'; div.id = `zone_${idx}`;
+  div.innerHTML = zoneHTML(idx, 'e');
+  container.appendChild(div);
+  renumberZones('e');
+  if (existing.name) {
+    sv(`z_name_${idx}`, existing.name);
+    sv(`z_hour_${idx}`, existing.prices?.hour||'');
+    sv(`z_3h_${idx}`, existing.prices?.package_3h||'');
+    sv(`z_5h_${idx}`, existing.prices?.package_5h||'');
+    sv(`z_night_${idx}`, existing.prices?.package_night||'');
+    if (existing.prices?.ranges?.length) existing.prices.ranges.forEach(r => addRange(idx, r));
+    sv(`z_cpu_${idx}`, existing.specs?.cpu||'');
+    sv(`z_gpu_${idx}`, existing.specs?.gpu||'');
+    sv(`z_ram_${idx}`, existing.specs?.ram||'');
+    sv(`z_hz_${idx}`, existing.specs?.hz || existing.games?.cs2?.hz||'');
+    sv(`z_mouse_${idx}`, existing.specs?.mouse||'');
+    sv(`z_head_${idx}`, existing.specs?.headset||'');
+    sv(`z_kb_${idx}`, existing.specs?.keyboard||'');
+    if (existing.specs && Object.keys(existing.specs).length) {
+      document.getElementById(`specs_block_${idx}`)?.classList.add('open');
+      const arr = document.getElementById(`specs_arrow_${idx}`);
+      if(arr) arr.textContent='▼';
+    }
+  }
+}
+
+function removeZone(idx) {
+  zones = zones.filter(z => z !== idx);
+  document.getElementById(`zone_${idx}`)?.remove();
+  renumberZones('e');
+}
+
+function renumberZones(prefix) {
+  const arr = prefix === 'e' ? zones : addZones;
+  arr.forEach((idx, i) => {
+    const el = document.querySelector(`#zone_${idx} .zone-num`);
+    if (el) el.textContent = `Зона ${i+1}`;
+  });
+}
+
+function toggleRanges(idx) {
+  const block = document.getElementById(`ranges_block_${idx}`);
+  const arrow = document.getElementById(`ranges_arrow_${idx}`);
+  block.classList.toggle('open');
+  arrow.textContent = block.classList.contains('open') ? '▼' : '▶';
+}
+
+let rangeCounters = {};
+function addRange(zoneIdx, existing) {
+  existing = existing || {};
+  if (!rangeCounters[zoneIdx]) rangeCounters[zoneIdx] = 0;
+  const rIdx = rangeCounters[zoneIdx]++;
+  const list = document.getElementById(`ranges_list_${zoneIdx}`);
+  const row = document.createElement('div');
+  row.className = 'range-row'; row.id = `range_${zoneIdx}_${rIdx}`;
+  row.innerHTML = `
+    <input type="text" id="rf_${zoneIdx}_${rIdx}" placeholder="10:00" value="${existing.from||''}" />
+    <input type="text" id="rt_${zoneIdx}_${rIdx}" placeholder="17:00" value="${existing.to||''}" />
+    <input type="number" id="rp_${zoneIdx}_${rIdx}" placeholder="5000" value="${existing.price||''}" />
+    <button class="btn-range-del" onclick="removeRange(${zoneIdx},${rIdx})">x</button>
+  `;
+  list.appendChild(row);
+  if (!document.getElementById(`ranges_block_${zoneIdx}`).classList.contains('open')) toggleRanges(zoneIdx);
+}
+function removeRange(zoneIdx, rIdx) { document.getElementById(`range_${zoneIdx}_${rIdx}`)?.remove(); }
+function getRanges(idx) {
+  const list = document.getElementById(`ranges_list_${idx}`);
+  if (!list) return [];
+  const result = [];
+  list.querySelectorAll('.range-row').forEach(row => {
+    const id = row.id.replace('range_' + idx + '_', '');
+    const from = document.getElementById(`rf_${idx}_${id}`)?.value?.trim();
+    const to   = document.getElementById(`rt_${idx}_${id}`)?.value?.trim();
+    const price= document.getElementById(`rp_${idx}_${id}`)?.value?.trim();
+    if (from && to && price) result.push({ from, to, price: parseInt(price) });
+  });
+  return result;
+}
+
+function toggleSpecs(idx) {
+  const block = document.getElementById(`specs_block_${idx}`);
+  const arrow = document.getElementById(`specs_arrow_${idx}`);
+  block.classList.toggle('open');
+  arrow.textContent = block.classList.contains('open') ? '▼' : '▶';
+}
+
+function zoneHTML(idx, prefix) {
+  return `
+    <div class="zone-header">
+      <div class="zone-num">Зона</div>
+      <button class="btn-remove" onclick="${prefix==='e'?'removeZone':'removeZoneAdd'}(${idx})">✕</button>
+    </div>
+    <div class="field"><label>Название *</label><input type="text" id="z_name_${idx}" placeholder="Стандарт, VIP..." /></div>
+    <div class="field"><label>Базовая цена/час *</label><input type="number" id="z_hour_${idx}" placeholder="12000" /></div>
+    <button class="specs-toggle" onclick="toggleRanges(${idx})">
+      <span id="ranges_arrow_${idx}">▶</span> Цены по времени суток
+    </button>
+    <div class="ranges-block" id="ranges_block_${idx}">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:5px;margin-bottom:4px">
+        <div style="font-size:10px;color:var(--muted);text-align:center">С</div>
+        <div style="font-size:10px;color:var(--muted);text-align:center">До</div>
+        <div style="font-size:10px;color:var(--muted);text-align:center">Цена</div>
+        <div></div>
+      </div>
+      <div id="ranges_list_${idx}"></div>
+      <button class="btn-add-range" onclick="addRange(${idx})">+ Добавить интервал</button>
+      <div class="field"><label>Ночной пакет (сум)</label><input type="number" id="z_night_${idx}" placeholder="20000" /></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Пакет 3ч</label><input type="number" id="z_3h_${idx}" placeholder="33000" /></div>
+      <div class="field"><label>Пакет 5ч</label><input type="number" id="z_5h_${idx}" placeholder="50000" /></div>
+    </div>
+    <button class="specs-toggle" onclick="toggleSpecs(${idx})">
+      <span id="specs_arrow_${idx}">▶</span> Характеристики ПК
+    </button>
+    <div class="specs-block" id="specs_block_${idx}">
+      <div class="row2">
+        <div class="field"><label>CPU</label><input type="text" id="z_cpu_${idx}" placeholder="Ryzen 7 5800X"/></div>
+        <div class="field"><label>GPU</label><input type="text" id="z_gpu_${idx}" placeholder="RTX 3070"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>RAM</label><input type="text" id="z_ram_${idx}" placeholder="32 GB"/></div>
+        <div class="field"><label>Гц монитора</label><input type="number" id="z_hz_${idx}" placeholder="240"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Мышь</label><input type="text" id="z_mouse_${idx}" placeholder="Logitech G Pro"/></div>
+        <div class="field"><label>Наушники</label><input type="text" id="z_head_${idx}" placeholder="HyperX Cloud"/></div>
+      </div>
+      <div class="field"><label>Клавиатура</label><input type="text" id="z_kb_${idx}" placeholder="HyperX Alloy"/></div>
+    </div>`;
+}
+
+function getZoneData(i, prefix) {
+  const idx = prefix === 'e' ? zones[i] : addZones[i];
+  const g = id => document.getElementById(id)?.value?.trim()||'';
+  const prices = {};
+  if (g(`z_hour_${idx}`)) prices.hour = parseInt(g(`z_hour_${idx}`));
+  if (g(`z_3h_${idx}`)) prices.package_3h = parseInt(g(`z_3h_${idx}`));
+  if (g(`z_5h_${idx}`)) prices.package_5h = parseInt(g(`z_5h_${idx}`));
+  if (g(`z_night_${idx}`)) prices.package_night = parseInt(g(`z_night_${idx}`));
+  const ranges = getRanges(idx);
+  if (ranges.length) prices.ranges = ranges;
+  const specs = {};
+  if (g(`z_cpu_${idx}`)) specs.cpu = g(`z_cpu_${idx}`);
+  if (g(`z_gpu_${idx}`)) specs.gpu = g(`z_gpu_${idx}`);
+  if (g(`z_ram_${idx}`)) specs.ram = g(`z_ram_${idx}`);
+  if (g(`z_mouse_${idx}`)) specs.mouse = g(`z_mouse_${idx}`);
+  if (g(`z_head_${idx}`)) specs.headset = g(`z_head_${idx}`);
+  if (g(`z_kb_${idx}`)) specs.keyboard = g(`z_kb_${idx}`);
+  const hz = g(`z_hz_${idx}`);
+  const games = hz ? { cs2: { hz: parseInt(hz) } } : {};
+  const zone = { name: g(`z_name_${idx}`), prices };
+  if (Object.keys(specs).length) zone.specs = specs;
+  if (Object.keys(games).length) zone.games = games;
+  return zone;
+}
+
+/* ============================================================
+   ZONES for ADD mode
+============================================================ */
+function addZoneAdd(existing={}) {
+  const idx = addZoneCount++;
+  addZones.push(idx);
+  const container = document.getElementById('a_zonesContainer');
+  const div = document.createElement('div');
+  div.className = 'zone-card'; div.id = `zone_${idx}`;
+  div.innerHTML = zoneHTML(idx, 'a');
+  container.appendChild(div);
+  renumberZones('a');
+}
+function removeZoneAdd(idx) {
+  addZones = addZones.filter(z => z !== idx);
+  document.getElementById(`zone_${idx}`)?.remove();
+  renumberZones('a');
+}
+
+/* ============================================================
+   ADD NEW CLUB
+============================================================ */
+let addPhotoFiles = new Array(6).fill(null);
+
+function openAdd() {
+  addZones = []; addZoneCount = 0; addPhotoFiles = new Array(6).fill(null);
+  ['a_name','a_district','a_address','a_work_time','a_phone','a_instagram','a_admin_link','a_promo','a_tournament'].forEach(id => sv(id,''));
+  document.getElementById('a_zonesContainer').innerHTML = '';
+  buildAddPhotoGrid();
+  addZoneAdd();
+  hideErr('addError');
+  showView('viewAdd');
+}
+
+function buildAddPhotoGrid() {
+  const grid = document.getElementById('a_photoGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'photo-cell'; cell.id = `aphotocell_${i}`;
+    cell.onclick = () => document.getElementById(`aphotoInput_${i}`).click();
+    cell.innerHTML = `<span class="ph-icon">📷</span>`;
+    const inp = document.createElement('input');
+    inp.type='file'; inp.accept='image/*'; inp.id=`aphotoInput_${i}`;
+    inp.onchange = e => {
+      const f = e.target.files[0]; if(!f) return;
+      addPhotoFiles[i] = f;
+      const cell = document.getElementById(`aphotocell_${i}`);
+      cell.innerHTML = `<img src="${URL.createObjectURL(f)}" /><button class="ph-del" onclick="removeAddPhoto(event,${i})">✕</button>`;
+    };
+    grid.appendChild(cell);
+    grid.appendChild(inp);
+  }
+}
+
+function removeAddPhoto(e, i) {
+  e.stopPropagation();
+  addPhotoFiles[i] = null;
+  const cell = document.getElementById(`aphotocell_${i}`);
+  cell.innerHTML = `<span class="ph-icon">📷</span>`;
+  document.getElementById(`aphotoInput_${i}`).value='';
+}
+
+async function saveAdd() {
+  hideErr('addError');
+  if (!v('a_name')) return showErr('addError','Введите название');
+  if (!v('a_district')) return showErr('addError','Введите район');
+  show();
+  try {
+    const clubName = sanitizeName(v('a_name'));
+    const ts = Date.now();
+    const photos = [];
+    for (let i = 0; i < 6; i++) {
+      if (!addPhotoFiles[i]) continue;
+      const ext = addPhotoFiles[i].name.split('.').pop();
+      const url = await uploadFile(addPhotoFiles[i], `${clubName}/${ts}_photo${i}.${ext}`);
+      photos.push({ url });
+    }
+    const zonesArr = addZones.map((_,i) => getZoneData(i,'a'));
+    const payload = {
+      name: v('a_name'), district: v('a_district'), address: v('a_address'),
+      work_time: v('a_work_time'), phone: v('a_phone'),
+      instagram: v('a_instagram')||null, admin_link: v('a_admin_link')||null,
+      photos: photos.length ? photos : null, zones: zonesArr,
+      promo: v('a_promo')||null, tournament: v('a_tournament')||null,
+      recommended: false, rating_sum: 0, rating_count: 0
+    };
+    const res = await supaFetch('/rest/v1/clubs', {
+      method:'POST', headers:{'Prefer':'return=minimal'}, body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    hide();
+    await loadClubs();
+    showList();
+  } catch(e) {
+    hide();
+    showErr('addError', '⚠️ ' + e.message);
+  }
+}
+
+/* ============================================================
+   DELETE
+============================================================ */
+let deleteTargetId = null;
+
+function askDelete(id) {
+  deleteTargetId = id;
+  const club = allClubs.find(c => c.id === id);
+  document.getElementById('confirmText').textContent = `Клуб "${club?.name}" будет удалён безвозвратно.`;
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('show');
+  deleteTargetId = null;
+}
+async function confirmDelete() {
+  closeConfirm();
+  show();
+  try {
+    const initData = tg?.initData || '';
+    const res = await fetch(EDGE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id: deleteTargetId, initData })
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || res.statusText);
+    allClubs = allClubs.filter(c => c.id !== deleteTargetId);
+    hide();
+    showList();
+    renderStats();
+  } catch(e) {
+    hide();
+    alert('Ошибка удаления: ' + e.message);
+  }
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+if (checkAccess()) loadClubs();
+</script>
+</body>
+</html>
