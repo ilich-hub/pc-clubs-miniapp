@@ -344,7 +344,7 @@ if (tg) { tg.expand(); tg.setHeaderColor("#0b0f19"); }
 ============================================================ */
 function checkAccess() {
   const userId = tg?.initDataUnsafe?.user?.id;
-  if (userId && userId !== ADMIN_ID) {
+if (!userId) {
     document.getElementById('accessDenied').classList.add('show');
     document.getElementById('viewList').classList.remove('active');
     return false;
@@ -964,6 +964,77 @@ async function confirmDelete() {
    INIT
 ============================================================ */
 if (checkAccess()) loadClubs();
+
+  // ─── ЗАЯВКИ ───────────────────────────────────────────────
+
+async function loadSubmissions() {
+  const initData = tg?.initData || '';
+  const res = await fetch(EDGE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'getSubmissions', initData })
+  });
+  const json = await res.json();
+  if (!json.ok) return;
+
+  const container = document.getElementById('submissions-list');
+  if (!json.submissions.length) {
+    container.innerHTML = '<p style="color:#888">Новых заявок нет</p>';
+    return;
+  }
+
+  container.innerHTML = json.submissions.map(s => `
+    <div style="border:1px solid #333;padding:16px;margin-bottom:12px;border-radius:8px">
+      <b>${s.name}</b> — ${s.district}<br>
+      <span style="color:#aaa">${s.address}</span><br>
+      ${s.phone ? `📞 ${s.phone}<br>` : ''}
+      ${s.instagram ? `📸 ${s.instagram}<br>` : ''}
+      <small style="color:#666">Подано: ${new Date(s.submitted_at).toLocaleString()}</small><br><br>
+      <button onclick="approveSubmission('${s.id}')" 
+        style="background:#22c55e;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;margin-right:8px">
+        ✅ Одобрить
+      </button>
+      <button onclick="rejectSubmission('${s.id}')"
+        style="background:#ef4444;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer">
+        ❌ Отклонить
+      </button>
+    </div>
+  `).join('');
+}
+
+async function approveSubmission(id) {
+  if (!confirm('Одобрить эту заявку и добавить клуб?')) return;
+  const initData = tg?.initData || '';
+  const res = await fetch(EDGE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'approveSubmission', id, initData })
+  });
+  const json = await res.json();
+  if (json.ok) {
+    alert('Клуб добавлен!');
+    loadSubmissions();
+  } else {
+    alert('Ошибка: ' + json.error);
+  }
+}
+
+async function rejectSubmission(id) {
+  if (!confirm('Отклонить эту заявку?')) return;
+  const initData = tg?.initData || '';
+  const res = await fetch(EDGE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'rejectSubmission', id, initData })
+  });
+  const json = await res.json();
+  if (json.ok) {
+    alert('Заявка отклонена');
+    loadSubmissions();
+  } else {
+    alert('Ошибка: ' + json.error);
+  }
+}
 </script>
 </body>
 </html>
