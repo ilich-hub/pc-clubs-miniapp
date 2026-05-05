@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Admin Panel — Cyber Clubs</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #070b14;
+      color: #fff;
+      font-family: Inter, system-ui, sans-serif;
+      padding-bottom: 80px;
+    }
+    /* -------- Layout -------- */
+    #loginScreen, #adminApp { transition: opacity .3s; }
+    #adminApp { display: none; }
+
+    /* -------- Login -------- */
+    .login-wrap {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    .login-card {
+      width: 100%; max-width: 360px;
+      background: #141a2b;
+      border-radius: 20px;
+      padding: 32px 24px;
+    }
+    .login-card h2 { margin: 0 0 6px; font-size: 22px; }
+    .login-card p  { margin: 0 0 24px; color: #8a93b2; font-size: 14px; }
+
+    /* -------- Top nav -------- */
+    .top-nav {
+      background: #0b0f19;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1f253a;
+      position: sticky; top: 0; z-index: 500;
+    }
+    .top-nav h1 { margin: 0; font-size: 17px; font-weight: 700; }
+    .badge {
+      background: #00e5ff;
+      color: #001418;
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* -------- Tabs -------- */
+    .main-tabs {
+      display: flex;
+      background: #0b0f19;
+      border-bottom: 1px solid #1f253a;
+      position: sticky; top: 53px; z-index: 400;
+    }
+    .main-tab {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #8a93b2;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+    }
+    .main-tab.active { color: #00e5ff; border-bottom-color: #00e5ff; }
+
+    /* -------- Search bar -------- */
+    .search-bar {
+      padding: 12px 16px;
+      position: sticky; top: 101px; z-index: 300;
+      background: #070b14;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 11px 14px;
+      background: #141a2b;
+      border: 1.5px solid #1f253a;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+    .search-bar input:focus { border-color: #00e5ff; }
+
+    /* -------- Toolbar -------- */
+    .toolbar {
+      padding: 0 16px 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .btn-primary {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      border: none;
+      border-radius: 12px;
+      color: #001418;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-danger {
+      padding: 8px 12px;
+      background: rgba(255,68,68,.15);
+      border: 1px solid rgba(255,68,68,.3);
+      border-radius: 10px;
+      color: #ff6b6b;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      padding: 8px 12px;
+      background: #1f253a;
+      border: none;
+      border-radius: 10px;
+      color: #ccc;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-success {
+      padding: 8px 12px;
+      background: rgba(0,200,83,.15);
+      border: 1px solid rgba(0,200,83,.3);
+      border-radius: 10px;
+      color: #00e676;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* -------- Club card -------- */
+    .clubs-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+    .club-card {
+      background: #141a2b;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .club-card-thumb {
+      width: 56px; height: 56px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #0b0f19;
+      flex-shrink: 0;
+    }
+    .club-card-thumb-placeholder {
+      width: 56px; height: 56px;
+      border-radius: 10px;
+      background: #0b0f19;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .club-card-body { flex: 1; min-width: 0; }
+    .club-card-name { font-size: 15px; font-weight: 700; }
+    .club-card-sub  { font-size: 12px; color: #8a93b2; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .club-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .icon-btn {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .icon-btn.edit   { background: #1a2540; color: #00e5ff; }
+    .icon-btn.delete { background: rgba(255,68,68,.12); color: #ff4444; }
+
+    /* -------- Submission card -------- */
+    .sub-card {
+      background: #141a2b;
+      border-radius: 16px;
+      padding: 14px;
+      margin: 0 16px 10px;
+    }
+    .sub-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .sub-card-name { font-size: 15px; font-weight: 700; }
+    .sub-card-time { font-size: 11px; color: #8a93b2; margin-top: 2px; }
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .status-pending  { background: rgba(255,193,7,.15);  color: #ffc107; }
+    .status-approved { background: rgba(0,200,83,.15);   color: #00e676; }
+    .status-rejected { background: rgba(255,68,68,.15);  color: #ff4444; }
+    .sub-card-fields { font-size: 13px; color: #aaa; margin-bottom: 10px; line-height: 1.7; }
+    .sub-card-fields b { color: #fff; }
+    .sub-card-actions { display: flex; gap: 8px; }
+    .sub-photos { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0; }
+    .sub-photos img { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    .expand-btn {
+      background: none;
+      border: none;
+      color: #00e5ff;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
+      font-weight: 600;
+    }
+    .sub-extra { display: none; }
+    .sub-extra.open { display: block; }
+    .zone-preview {
+      background: #0b0f19;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+    .zone-preview-name { font-weight: 700; margin-bottom: 4px; }
+    .zone-preview-row  { display: flex; justify-content: space-between; color: #aaa; }
+
+    /* -------- Empty state -------- */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #8a93b2;
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 10px; }
+
+    /* -------- Modal: Form -------- */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75);
+      z-index: 1000;
+      display: none;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: block; }
+    .modal-box {
+      background: #0b0f19;
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+    .modal-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #0b0f19;
+      padding: 14px 16px;
+      border-bottom: 1px solid #1f253a;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .modal-header h2 { margin: 0; font-size: 17px; font-weight: 700; flex: 1; }
+    .modal-close {
+      background: #1a2033;
+      border: none;
+      color: #fff;
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #0b0f19;
+      border-top: 1px solid #1f253a;
+      padding: 12px 16px;
+      z-index: 200;
+    }
+
+    /* -------- Form styles (reused from form.html) -------- */
+    .section-card {
+      margin: 16px;
+      background: #141a2b;
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .section-title {
+      font-size: 15px; font-weight: 700;
+      color: #00e5ff;
+      margin: 0 0 14px;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 12px; }
+    label {
+      font-size: 12px; color: #8a93b2;
+      font-weight: 600; text-transform: uppercase;
+      letter-spacing: .5px; margin-bottom: 4px; display: block;
+    }
+    input[type="text"], input[type="tel"], input[type="number"],
+    input[type="url"], input[type="time"], select {
+      width: 100%;
+      padding: 12px 14px;
+      background: #0b0f19;
+      border: 1.5px solid #1f253a;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus { border-color: #00e5ff; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .hint { font-size: 12px; color: #8a93b2; margin-top: 6px; }
+    .games-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+    .game-chip {
+      padding: 10px 12px;
+      background: #0b0f19;
+      border: 1.5px solid #1f253a;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600;
+      transition: border-color .2s, background .2s;
+    }
+    .game-chip.selected { border-color: #00e5ff; background: rgba(0,229,255,.1); }
+    .game-chip img { width: 24px; height: 24px; object-fit: contain; }
+    .photo-upload-area {
+      border: 2px dashed #1f253a;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #0b0f19;
+    }
+    .photo-preview-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 12px; }
+    .photo-preview-item {
+      position: relative; border-radius: 10px;
+      overflow: hidden; aspect-ratio: 1; background: #0b0f19;
+    }
+    .photo-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-preview-item .remove-photo {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,.7); border: none; color: #fff;
+      border-radius: 50%; width: 22px; height: 22px;
+      font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .photo-preview-item .photo-title-input {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,.65); border: none; color: #fff;
+      font-size: 11px; padding: 4px 6px; width: 100%;
+      font-family: inherit; outline: none;
+    }
+    .photo-uploading {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+    }
+    .zone-block {
+      background: #0b0f19;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1.5px solid #1f253a;
+    }
+    .zone-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .zone-name-label { font-size: 14px; font-weight: 700; }
+    .btn-remove-zone {
+      background: rgba(255,68,68,.15); border: none;
+      color: #ff4444; border-radius: 8px;
+      padding: 6px 10px; font-size: 12px; cursor: pointer; font-weight: 600;
+    }
+    .zone-sub-title {
+      font-size: 12px; font-weight: 700; color: #8a93b2;
+      text-transform: uppercase; letter-spacing: .5px; margin: 12px 0 8px;
+    }
+    .price-mode-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+    .price-mode-tab {
+      flex: 1; padding: 8px; border-radius: 10px;
+      background: #141a2b; border: 1.5px solid #1f253a;
+      color: #8a93b2; font-size: 12px; font-weight: 600;
+      cursor: pointer; text-align: center; transition: all .2s;
+    }
+    .price-mode-tab.active { border-color: #00e5ff; color: #00e5ff; background: rgba(0,229,255,.08); }
+    .hour-range-row {
+      background: rgba(0,0,0,.25);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: 1px solid #1f253a;
+    }
+    .hour-range-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 6px;
+      align-items: flex-end;
+      margin-bottom: 8px;
+    }
+    .hour-range-packages {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .btn-add-range {
+      background: rgba(0,229,255,.1); border: 1.5px dashed #00e5ff;
+      color: #00e5ff; border-radius: 10px;
+      padding: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; width: 100%; margin-top: 4px;
+    }
+    .btn-remove-small {
+      background: rgba(255,68,68,.1); border: none;
+      color: #ff4444; border-radius: 8px;
+      width: 28px; height: 28px; font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+    .toggle-label { font-size: 13px; font-weight: 600; }
+    .toggle-switch {
+      width: 44px; height: 24px; background: #1f253a;
+      border-radius: 12px; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0;
+    }
+    .toggle-switch.on { background: #00e5ff; }
+    .toggle-switch::after {
+      content: ""; position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: #fff; border-radius: 50%; transition: transform .2s;
+    }
+    .toggle-switch.on::after { transform: translateX(20px); }
+    .night-block { background: rgba(0,0,30,.4); border-radius: 10px; padding: 10px; margin-top: 8px; display: none; }
+    .night-block.visible { display: block; }
+    .btn-add-zone {
+      width: 100%; padding: 14px;
+      background: rgba(0,229,255,.08);
+      border: 2px dashed rgba(0,229,255,.4);
+      border-radius: 14px; color: #00e5ff;
+      font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px;
+    }
+    /* Additional fields for admin form */
+    .admin-extra-section { margin-top: 12px; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+      background: #1a2033; color: #fff; padding: 12px 20px;
+      border-radius: 12px; font-size: 14px; z-index: 9999;
+      display: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    #toast.success { background: #0d3320; border: 1px solid #00c853; color: #00e676; }
+    #toast.error   { background: #3d1010; border: 1px solid #ff4444; color: #ff6b6b; }
+
+    /* Confirm modal */
+    .confirm-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      z-index: 2000; display: none;
+      align-items: center; justify-content: center;
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: #141a2b; border-radius: 20px;
+      padding: 24px; width: 90%; max-width: 320px;
+      text-align: center;
+    }
+    .confirm-box h3 { margin: 0 0 8px; }
+    .confirm-box p  { margin: 0 0 20px; color: #8a93b2; font-size: 14px; }
+    .confirm-btns   { display: flex; gap: 10px; }
+
+    /* Loading */
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid #1f253a;
+      border-top-color: #00e5ff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 40px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .work-time-row {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center;
+    }
+    .work-time-sep { color: #8a93b2; font-weight: 700; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ================================================================
+     LOGIN
+================================================================ -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <h2>🔐 Admin Panel</h2>
+      <p>Введи пароль для входа</p>
+      <div style="margin-bottom:12px">
+        <label>Пароль</label>
+        <input type="password" id="loginPassword" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <button class="btn-primary" style="width:100%;padding:14px;font-size:15px"
+              onclick="doLogin()">Войти</button>
+      <div id="loginError" style="color:#ff4444;font-size:13px;margin-top:10px;text-align:center;display:none">
+        Неверный пароль
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     ADMIN APP
+================================================================ -->
+<div id="adminApp">
+
+  <!-- Top nav -->
+  <div class="top-nav">
+    <h1>🎮 Admin</h1>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="pendingBadge" class="badge" style="display:none">0</span>
+      <button class="btn-secondary" onclick="logout()" style="padding:6px 12px">Выйти</button>
+    </div>
+  </div>
+
+  <!-- Main tabs -->
+  <div class="main-tabs">
+    <div class="main-tab active" id="tabClubsBtn" onclick="switchMainTab('clubs')">🖥 Клубы</div>
+    <div class="main-tab" id="tabSubsBtn" onclick="switchMainTab('submissions')">📥 Заявки</div>
+  </div>
+
+  <!-- ---- CLUBS TAB ---- -->
+  <div id="tabClubs">
+    <div class="search-bar">
+      <input type="text" id="clubSearch" placeholder="Поиск клубов…" oninput="filterClubs()" />
+    </div>
+    <div class="toolbar">
+      <button class="btn-primary" onclick="openClubForm(null)">+ Добавить</button>
+      <button class="btn-secondary" onclick="loadClubs()" style="margin-left:auto">🔄</button>
+    </div>
+    <div id="clubsListWrap"></div>
+  </div>
+
+  <!-- ---- SUBMISSIONS TAB ---- -->
+  <div id="tabSubs" style="display:none">
+    <div style="padding:12px 16px 4px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14px;color:#8a93b2">Заявки от владельцев клубов</div>
+      <button class="btn-secondary" onclick="loadSubmissions()">🔄</button>
+    </div>
+    <div id="subsListWrap"></div>
+  </div>
+
+</div>
+
+<!-- ================================================================
+     MODAL: CLUB FORM
+================================================================ -->
+<div class="modal-overlay" id="clubFormModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeClubForm()">✕</button>
+      <h2 id="clubFormTitle">Добавить клуб</h2>
+    </div>
+
+    <!-- Основная информация -->
+    <div class="section-card">
+      <div class="section-title">📋 Основная информация</div>
+      <div class="field-group">
+        <div><label>Название *</label><input type="text" id="cf_name" placeholder="Cyber Zone" /></div>
+        <div><label>Район *</label><input type="text" id="cf_district" placeholder="Чиланзар" /></div>
+        <div><label>Адрес</label><input type="text" id="cf_address" placeholder="Улица, дом" /></div>
+      </div>
+    </div>
+
+    <!-- Контакты -->
+    <div class="section-card">
+      <div class="section-title">📞 Контакты</div>
+      <div class="field-group">
+        <div><label>Телефон</label><input type="tel" id="cf_phone" placeholder="+998 90 123 45 67" /></div>
+        <div><label>Instagram</label><input type="url" id="cf_instagram" placeholder="https://instagram.com/..." /></div>
+        <div><label>Admin Link *</label><input type="url" id="cf_admin_link" placeholder="https://t.me/..." /></div>
+      </div>
+    </div>
+
+    <!-- Координаты -->
+    <div class="section-card">
+      <div class="section-title">📍 Координаты</div>
+      <div class="row2">
+        <div><label>Широта (lat)</label><input type="number" id="cf_lat" placeholder="41.299" step="0.000001" /></div>
+        <div><label>Долгота (lng)</label><input type="number" id="cf_lng" placeholder="69.240" step="0.000001" /></div>
+      </div>
+    </div>
+
+    <!-- Время работы -->
+    <div class="section-card">
+      <div class="section-title">🕐 Время работы</div>
+      <div class="toggle-row">
+        <span class="toggle-label">24/7</span>
+        <div class="toggle-switch" id="cf_alldayToggle" onclick="cfToggleAllday()"></div>
+      </div>
+      <div id="cf_workTimeFields">
+        <div class="work-time-row" style="margin-top:12px">
+          <div><label>Открытие</label><input type="time" id="cf_work_open" value="10:00" /></div>
+          <div class="work-time-sep">—</div>
+          <div><label>Закрытие</label><input type="time" id="cf_work_close" value="23:00" /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Промо / турнир -->
+    <div class="section-card">
+      <div class="section-title">🏆 Промо и турниры</div>
+      <div class="field-group">
+        <div><label>Промо текст</label><input type="text" id="cf_promo" placeholder="Скидка 20% по будням..." /></div>
+        <div><label>Турнир</label><input type="text" id="cf_tournament" placeholder="Турнир 1 февраля..." /></div>
+        <div><label>Рекомендуемый</label>
+          <div class="toggle-row" style="padding:8px 0 0">
+            <span class="toggle-label">Показывать как рекомендованный</span>
+            <div class="toggle-switch" id="cf_recommendedToggle" onclick="cfToggleRecommended()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Фотографии -->
+    <div class="section-card">
+      <div class="section-title">🖼 Фотографии</div>
+      <div class="photo-upload-area" onclick="document.getElementById('cf_photoInput').click()">
+        <div style="font-size:28px">📷</div>
+        <p style="margin:4px 0 0;font-size:13px;color:#8a93b2">Нажми чтобы добавить фото</p>
+      </div>
+      <input type="file" id="cf_photoInput" accept="image/*" multiple style="display:none"
+             onchange="cfHandlePhotoSelect(event)" />
+      <div class="photo-preview-grid" id="cf_photoPreviewGrid"></div>
+    </div>
+
+    <!-- Игры -->
+    <div class="section-card">
+      <div class="section-title">🎮 Игры</div>
+      <div class="games-grid" id="cf_gamesGrid"></div>
+    </div>
+
+    <!-- Зоны -->
+    <div class="section-card">
+      <div class="section-title">🖥 Зоны / Тарифы</div>
+      <div id="cf_zonesContainer"></div>
+      <button class="btn-add-zone" onclick="cfAddZone()">+ Добавить зону</button>
+    </div>
+
+    <!-- Submit -->
+    <div class="modal-footer">
+      <button class="btn-primary" id="cf_submitBtn" style="width:100%;padding:15px;font-size:15px"
+              onclick="saveClub()">💾 Сохранить клуб</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     CONFIRM MODAL
+================================================================ -->
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Удалить клуб?</h3>
+    <p id="confirmText">Это действие нельзя отменить.</p>
+    <div class="confirm-btns">
+      <button class="btn-secondary" style="flex:1;padding:12px" onclick="closeConfirm()">Отмена</button>
+      <button class="btn-danger"    style="flex:1;padding:12px" id="confirmOkBtn">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// КОНФИГ — ЗАМЕНИ НА СВОИ ЗНАЧЕНИЯ
+// ================================================================
+const SUPABASE_URL        = "https://ТВОЙ_ПРОЕКТ.supabase.co";
+const SUPABASE_ANON_KEY   = "ТВОЙ_ANON_KEY";
+const SUPABASE_SERVICE_KEY = "ТВОЙ_SERVICE_ROLE_KEY"; // только здесь, в admin.html
+const ADMIN_PASSWORD      = "твой_пароль_сюда"; // придумай сложный
+
+// Cloudflare R2 Worker
+const WORKER_URL    = "https://ИМЯ_ВОРКЕРА.workers.dev"; // URL воркера из Cloudflare
+const UPLOAD_SECRET = "ТВОЙ_СЕКРЕТ";                     // тот же UPLOAD_SECRET что в воркере
+
+// ================================================================
+// AUTH
+// ================================================================
+function doLogin() {
+  const pw = document.getElementById("loginPassword").value;
+  if (pw === ADMIN_PASSWORD) {
+    sessionStorage.setItem("admin_auth", "1");
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminApp").style.display   = "block";
+    loadClubs();
+    loadSubmissions();
+  } else {
+    document.getElementById("loginError").style.display = "block";
+    document.getElementById("loginPassword").value = "";
+  }
+}
+function logout() {
+  sessionStorage.removeItem("admin_auth");
+  location.reload();
+}
+window.addEventListener("DOMContentLoaded", () => {
+  if (sessionStorage.getItem("admin_auth") === "1") {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminApp").style.display   = "block";
+    loadClubs();
+    loadSubmissions();
+  }
+});
+
+// ================================================================
+// API HELPERS
+// ================================================================
+function apiHeaders(useService = true) {
+  const key = useService ? SUPABASE_SERVICE_KEY : SUPABASE_ANON_KEY;
+  return {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    "Content-Type": "application/json",
+    Prefer: "return=representation",
+  };
+}
+async function apiGet(table, params = "") {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&order=id.desc`, { headers: apiHeaders() });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function apiInsert(table, body) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: "POST", headers: apiHeaders(), body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function apiUpdate(table, id, body) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: "PATCH", headers: apiHeaders(), body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function apiDelete(table, id) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: "DELETE", headers: apiHeaders(),
+  });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// ================================================================
+// MAIN TAB SWITCH
+// ================================================================
+function switchMainTab(tab) {
+  document.getElementById("tabClubs").style.display    = tab === "clubs"       ? "block" : "none";
+  document.getElementById("tabSubs").style.display     = tab === "submissions" ? "block" : "none";
+  document.getElementById("tabClubsBtn").classList.toggle("active", tab === "clubs");
+  document.getElementById("tabSubsBtn").classList.toggle("active",  tab === "submissions");
+}
+
+// ================================================================
+// CLUBS LIST
+// ================================================================
+let allClubs = [];
+async function loadClubs() {
+  const wrap = document.getElementById("clubsListWrap");
+  wrap.innerHTML = `<div class="spinner"></div>`;
+  try {
+    allClubs = await apiGet("clubs", "select=*");
+    renderClubs(allClubs);
+  } catch(e) {
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>${e.message}</p></div>`;
+  }
+}
+function filterClubs() {
+  const q = document.getElementById("clubSearch").value.toLowerCase();
+  renderClubs(allClubs.filter(c =>
+    c.name.toLowerCase().includes(q) || (c.district||"").toLowerCase().includes(q)
+  ));
+}
+function renderClubs(list) {
+  const wrap = document.getElementById("clubsListWrap");
+  if (!list.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>Нет клубов</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="clubs-list">${list.map(c => {
+    const thumb = c.photos?.[0]?.url;
+    const avgRating = c.rating_count ? (c.rating_sum / c.rating_count).toFixed(1) : "—";
+    return `
+    <div class="club-card">
+      ${thumb
+        ? `<img class="club-card-thumb" src="${thumb}" onerror="this.style.display='none'">`
+        : `<div class="club-card-thumb-placeholder">🎮</div>`}
+      <div class="club-card-body">
+        <div class="club-card-name">${esc(c.name)}</div>
+        <div class="club-card-sub">${esc(c.district)} · ⭐ ${avgRating} · ${esc(c.work_time||"")}</div>
+      </div>
+      <div class="club-card-actions">
+        <button class="icon-btn edit" onclick="openClubForm(${c.id})">✏️</button>
+        <button class="icon-btn delete" onclick="confirmDelete(${c.id},'${esc(c.name)}')">🗑</button>
+      </div>
+    </div>`;
+  }).join("")}</div>`;
+}
+
+// ================================================================
+// DELETE CLUB
+// ================================================================
+let deleteCallback = null;
+function confirmDelete(id, name) {
+  document.getElementById("confirmTitle").textContent = `Удалить «${name}»?`;
+  document.getElementById("confirmText").textContent  = "Это действие нельзя отменить.";
+  document.getElementById("confirmOkBtn").textContent = "Удалить";
+  document.getElementById("confirmOkBtn").className   = "btn-danger";
+  deleteCallback = async () => {
+    try {
+      await apiDelete("clubs", id);
+      showToast("✅ Клуб удалён", "success");
+      loadClubs();
+    } catch(e) { showToast("Ошибка: " + e.message, "error"); }
+    closeConfirm();
+  };
+  document.getElementById("confirmOkBtn").onclick = deleteCallback;
+  document.getElementById("confirmModal").classList.add("open");
+}
+function closeConfirm() { document.getElementById("confirmModal").classList.remove("open"); }
+
+// ================================================================
+// SUBMISSIONS LIST
+// ================================================================
+let allSubmissions = [];
+async function loadSubmissions() {
+  const wrap = document.getElementById("subsListWrap");
+  wrap.innerHTML = `<div class="spinner"></div>`;
+  try {
+    allSubmissions = await apiGet("club_submissions", "select=*");
+    const pending = allSubmissions.filter(s => s.status === "pending").length;
+    const badge = document.getElementById("pendingBadge");
+    badge.textContent = pending;
+    badge.style.display = pending ? "inline" : "none";
+    renderSubmissions();
+  } catch(e) {
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>${e.message}</p></div>`;
+  }
+}
+function renderSubmissions() {
+  const wrap = document.getElementById("subsListWrap");
+  if (!allSubmissions.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Заявок нет</p></div>`;
+    return;
+  }
+  wrap.innerHTML = allSubmissions.map(s => {
+    const date = new Date(s.submitted_at).toLocaleString("ru");
+    const statusClass = { pending:"status-pending", approved:"status-approved", rejected:"status-rejected" }[s.status] || "status-pending";
+    const statusLabel = { pending:"⏳ Ожидает", approved:"✅ Одобрена", rejected:"❌ Отклонена" }[s.status] || s.status;
+    const zones = s.zones || [];
+    const games = s.games || [];
+    return `
+    <div class="sub-card" id="sub_${s.id}">
+      <div class="sub-card-header">
+        <div>
+          <div class="sub-card-name">${esc(s.name || "—")}</div>
+          <div class="sub-card-time">${date}</div>
+        </div>
+        <span class="status-badge ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="sub-card-fields">
+        📍 <b>${esc(s.district||"—")}</b> · ${esc(s.address||"—")}<br>
+        📞 <b>${esc(s.phone||"—")}</b>${s.instagram ? ` · <a href="${esc(s.instagram)}" target="_blank" style="color:#00e5ff">Instagram</a>` : ""}<br>
+        🔗 ${s.admin_link ? `<a href="${esc(s.admin_link)}" target="_blank" style="color:#00e5ff">Admin link</a>` : "—"}<br>
+        🕐 <b>${esc(s.work_time||"—")}</b>
+        ${games.length ? `<br>🎮 ${games.map(g => esc(g.name)).join(", ")}` : ""}
+      </div>
+      ${s.photos?.length ? `
+        <div class="sub-photos">
+          ${s.photos.map(p => `<img src="${esc(p.url)}" onclick="openSubPhoto('${esc(p.url)}')">`).join("")}
+        </div>` : ""}
+      ${zones.length ? `
+        <button class="expand-btn" onclick="toggleSubExtra(${s.id})">
+          🖥 ${zones.length} зон(ы) — развернуть ▾
+        </button>
+        <div class="sub-extra" id="subExtra_${s.id}">
+          ${zones.map(z => `
+            <div class="zone-preview">
+              <div class="zone-preview-name">${esc(z.name)}</div>
+              ${z.prices?.hour ? `<div class="zone-preview-row"><span>1 ч</span><b>${z.prices.hour}</b></div>` : ""}
+              ${z.prices?.package_3h ? `<div class="zone-preview-row"><span>3 ч</span><b>${z.prices.package_3h}</b></div>` : ""}
+              ${z.prices?.package_5h ? `<div class="zone-preview-row"><span>5 ч</span><b>${z.prices.package_5h}</b></div>` : ""}
+              ${z.prices?.hour_ranges ? z.prices.hour_ranges.map(r=>`
+                <div class="zone-preview-row"><span>${r.from}–${r.to}</span><b>${r.price}</b></div>
+                ${r.package_3h ? `<div class="zone-preview-row"><span>&nbsp;&nbsp;└ 3ч (${r.from}–${r.to})</span><b>${r.package_3h} сум</b></div>` : ""}
+                ${r.package_5h ? `<div class="zone-preview-row"><span>&nbsp;&nbsp;└ 5ч (${r.from}–${r.to})</span><b>${r.package_5h} сум</b></div>` : ""}
+              `).join("") : ""}
+              ${z.prices?.night ? `<div class="zone-preview-row"><span>🌙 Ночной</span><b>${z.prices.night.price}</b></div>` : ""}
+              ${z.specs?.cpu ? `<div class="zone-preview-row"><span>CPU</span><b>${esc(z.specs.cpu)}</b></div>` : ""}
+              ${z.specs?.gpu ? `<div class="zone-preview-row"><span>GPU</span><b>${esc(z.specs.gpu)}</b></div>` : ""}
+            </div>`).join("")}
+        </div>` : ""}
+      ${s.status === "pending" ? `
+        <div class="sub-card-actions" style="margin-top:12px">
+          <button class="btn-success" style="flex:1;padding:11px" onclick="approveSubmission(${s.id})">✅ Одобрить</button>
+          <button class="btn-danger"  style="flex:1;padding:11px" onclick="rejectSubmission(${s.id})">❌ Отклонить</button>
+        </div>` : ""}
+    </div>`;
+  }).join("");
+}
+function toggleSubExtra(id) {
+  const el = document.getElementById(`subExtra_${id}`);
+  if (el) el.classList.toggle("open");
+}
+function openSubPhoto(url) {
+  window.open(url, "_blank");
+}
+
+// ================================================================
+// APPROVE / REJECT
+// ================================================================
+async function approveSubmission(id) {
+  const sub = allSubmissions.find(s => s.id === id);
+  if (!sub) return;
+  if (!confirm(`Одобрить заявку «${sub.name}» и добавить в clubs?`)) return;
+  try {
+    // Копируем данные в clubs
+    const clubData = {
+      name:       sub.name,
+      district:   sub.district || "",
+      address:    sub.address,
+      phone:      sub.phone,
+      instagram:  sub.instagram,
+      admin_link: sub.admin_link || "",
+      lat:        sub.lat,
+      lng:        sub.lng,
+      work_time:  sub.work_time,
+      photos:     sub.photos,
+      zones:      sub.zones,
+      games:      sub.games,
+      recommended:  false,
+      rating_sum:   0,
+      rating_count: 0,
+    };
+    await apiInsert("clubs", clubData);
+    // Меняем статус заявки
+    await apiUpdate("club_submissions", id, { status: "approved" });
+    showToast("✅ Клуб добавлен!", "success");
+    await Promise.all([loadClubs(), loadSubmissions()]);
+  } catch(e) {
+    showToast("Ошибка: " + e.message, "error");
+  }
+}
+async function rejectSubmission(id) {
+  const sub = allSubmissions.find(s => s.id === id);
+  if (!sub) return;
+  if (!confirm(`Отклонить заявку «${sub.name}»?`)) return;
+  try {
+    await apiUpdate("club_submissions", id, { status: "rejected" });
+    showToast("Заявка отклонена", "");
+    loadSubmissions();
+  } catch(e) {
+    showToast("Ошибка: " + e.message, "error");
+  }
+}
+
+// ================================================================
+// CLUB FORM — STATE
+// ================================================================
+let cfEditId     = null;
+let cfIsAllday   = false;
+let cfRecommended = false;
+let cfPhotos     = [];
+let cfSelectedGames = new Set();
+let cfZones      = [];
+let cfZoneIdCounter = 0;
+
+const GAMES_LIST = [
+  { id: "cs2",     name: "CS2",          icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/Cs2.png" },
+  { id: "dota2",   name: "Dota 2",       icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/dota2.png" },
+  { id: "valorant",name: "Valorant",     icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/Valorant.png" },
+  { id: "gta5",    name: "GTA V",        icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/gta5.png" },
+  { id: "pubg",    name: "PUBG",         icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/pubg.png" },
+  { id: "apex",    name: "Apex Legends", icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/Apex.png" },
+  { id: "fifa",    name: "FC 25",        icon: "" },
+  { id: "fortnite",name: "Fortnite",     icon: "" },
+];
+
+// ================================================================
+// OPEN FORM — новый клуб или редактирование
+// ================================================================
+function openClubForm(clubId) {
+  cfEditId = clubId;
+  cfIsAllday   = false;
+  cfRecommended = false;
+  cfPhotos     = [];
+  cfSelectedGames = new Set();
+  cfZones      = [];
+  cfZoneIdCounter = 0;
+
+  document.getElementById("clubFormTitle").textContent = clubId ? "Редактировать клуб" : "Добавить клуб";
+
+  // Сброс полей
+  ["cf_name","cf_district","cf_address","cf_phone","cf_instagram",
+   "cf_admin_link","cf_promo","cf_tournament"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  document.getElementById("cf_lat").value = "";
+  document.getElementById("cf_lng").value = "";
+  document.getElementById("cf_work_open").value  = "10:00";
+  document.getElementById("cf_work_close").value = "23:00";
+  document.getElementById("cf_alldayToggle").classList.remove("on");
+  document.getElementById("cf_workTimeFields").style.display = "block";
+  document.getElementById("cf_recommendedToggle").classList.remove("on");
+
+  if (clubId) {
+    const club = allClubs.find(c => c.id === clubId);
+    if (club) populateForm(club);
+  }
+
+  cfRenderGames();
+  cfRenderPhotos();
+  cfRenderZones();
+  document.getElementById("clubFormModal").classList.add("open");
+  document.querySelector(".modal-box").scrollTop = 0;
+}
+
+function populateForm(c) {
+  document.getElementById("cf_name").value       = c.name || "";
+  document.getElementById("cf_district").value   = c.district || "";
+  document.getElementById("cf_address").value    = c.address  || "";
+  document.getElementById("cf_phone").value      = c.phone    || "";
+  document.getElementById("cf_instagram").value  = c.instagram || "";
+  document.getElementById("cf_admin_link").value = c.admin_link || "";
+  document.getElementById("cf_promo").value      = c.promo    || "";
+  document.getElementById("cf_tournament").value = c.tournament || "";
+  document.getElementById("cf_lat").value        = c.lat ?? "";
+  document.getElementById("cf_lng").value        = c.lng ?? "";
+
+  // Work time
+  if (c.work_time === "24/7") {
+    cfIsAllday = true;
+    document.getElementById("cf_alldayToggle").classList.add("on");
+    document.getElementById("cf_workTimeFields").style.display = "none";
+  } else if (c.work_time && c.work_time.includes("-")) {
+    const [open, close] = c.work_time.replace(/[–—]/g, "-").split("-");
+    document.getElementById("cf_work_open").value  = open  || "10:00";
+    document.getElementById("cf_work_close").value = close || "23:00";
+  }
+
+  // Recommended
+  cfRecommended = !!c.recommended;
+  document.getElementById("cf_recommendedToggle").classList.toggle("on", cfRecommended);
+
+  // Photos
+  cfPhotos = (c.photos || []).map(p => ({
+    file: null, previewUrl: p.url, uploadedUrl: p.url,
+    title: p.title || "", uploading: false, error: false,
+  }));
+
+  // Games
+  cfSelectedGames = new Set((c.games || []).map(g => g.id));
+
+  // Zones
+  cfZones = (c.zones || []).map(z => {
+    const id = cfZoneIdCounter++;
+    const prices = z.prices || {};
+    const isRanges = !!prices.hour_ranges;
+    return {
+      id,
+      name:      z.name || "",
+      priceMode: isRanges ? "ranges" : "fixed",
+      hour:      prices.hour       ? String(prices.hour)       : "",
+      package3h: prices.package_3h ? String(prices.package_3h) : "",
+      package5h: prices.package_5h ? String(prices.package_5h) : "",
+      hasNight:  !!prices.night,
+      nightFrom: prices.night?.from  || "00:00",
+      nightTo:   prices.night?.to    || "08:00",
+      nightPrice:prices.night?.price || "",
+      hourRanges: isRanges
+        ? prices.hour_ranges.map(r => ({
+            from: r.from, to: r.to, price: r.price,
+            package3h: r.package_3h ? String(r.package_3h) : "",
+            package5h: r.package_5h ? String(r.package_5h) : "",
+          }))
+        : [{ from: "10:00", to: "22:00", price: "", package3h: "", package5h: "" }],
+      cs2hz:    z.games?.cs2?.hz  ? String(z.games.cs2.hz)  : "",
+      cs2fps:   z.games?.cs2?.fps ? String(z.games.cs2.fps) : "",
+      cpu:      z.specs?.cpu      || "",
+      gpu:      z.specs?.gpu      || "",
+      ram:      z.specs?.ram      || "",
+      mouse:    z.specs?.mouse    || "",
+      keyboard: z.specs?.keyboard || "",
+      headset:  z.specs?.headset  || "",
+    };
+  });
+}
+
+function closeClubForm() {
+  document.getElementById("clubFormModal").classList.remove("open");
+}
+
+// ================================================================
+// FORM — toggles
+// ================================================================
+function cfToggleAllday() {
+  cfIsAllday = !cfIsAllday;
+  document.getElementById("cf_alldayToggle").classList.toggle("on", cfIsAllday);
+  document.getElementById("cf_workTimeFields").style.display = cfIsAllday ? "none" : "block";
+}
+function cfToggleRecommended() {
+  cfRecommended = !cfRecommended;
+  document.getElementById("cf_recommendedToggle").classList.toggle("on", cfRecommended);
+}
+
+// ================================================================
+// FORM — Photos
+// ================================================================
+function cfHandlePhotoSelect(e) {
+  const files = Array.from(e.target.files);
+  for (const file of files) {
+    if (file.size > 5 * 1024 * 1024) { showToast("Файл слишком большой (>5MB)", "error"); continue; }
+    const reader = new FileReader();
+    const idx = cfPhotos.length;
+    cfPhotos.push({ file, previewUrl: "", uploadedUrl: null, title: "", uploading: true, error: false });
+    reader.onload = ev => {
+      cfPhotos[idx].previewUrl = ev.target.result;
+      cfRenderPhotos();
+      cfUploadPhoto(idx);
+    };
+    reader.readAsDataURL(file);
+  }
+  e.target.value = "";
+  cfRenderPhotos();
+}
+async function cfUploadPhoto(idx) {
+  const p = cfPhotos[idx];
+  const clubName = document.getElementById("cf_name").value.trim().replace(/\s+/g,"_") || "club";
+  const ext = p.file.name.split(".").pop();
+  const filePath = `clubs/${clubName}/${Date.now()}_photo${idx}.${ext}`;
+  try {
+    const fd = new FormData();
+    fd.append("file", p.file);
+    fd.append("path", filePath);
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "X-Upload-Secret": UPLOAD_SECRET },
+      body: fd,
+    });
+    if (!res.ok) throw new Error("upload failed");
+    const data = await res.json();
+    cfPhotos[idx].uploadedUrl = data.url;
+    cfPhotos[idx].uploading   = false;
+  } catch {
+    cfPhotos[idx].uploading = false;
+    cfPhotos[idx].error     = true;
+    showToast("Ошибка загрузки фото", "error");
+  }
+  cfRenderPhotos();
+}
+function cfRenderPhotos() {
+  const grid = document.getElementById("cf_photoPreviewGrid");
+  grid.innerHTML = cfPhotos.map((p, i) => `
+    <div class="photo-preview-item">
+      <img src="${p.previewUrl}" />
+      ${p.uploading ? `<div class="photo-uploading">⏳</div>` : ""}
+      ${p.error     ? `<div class="photo-uploading" style="color:#ff4444">❌</div>` : ""}
+      <button class="remove-photo" onclick="cfRemovePhoto(${i})">×</button>
+      <input class="photo-title-input" type="text" placeholder="Подпись…"
+             value="${p.title}" oninput="cfPhotos[${i}].title=this.value" />
+    </div>`).join("");
+}
+function cfRemovePhoto(idx) { cfPhotos.splice(idx, 1); cfRenderPhotos(); }
+
+// ================================================================
+// FORM — Games
+// ================================================================
+function cfRenderGames() {
+  document.getElementById("cf_gamesGrid").innerHTML = GAMES_LIST.map(g => `
+    <div class="game-chip ${cfSelectedGames.has(g.id) ? "selected" : ""}" onclick="cfToggleGame('${g.id}')">
+      ${g.icon ? `<img src="${g.icon}" onerror="this.style.display='none'">` : "🎮"}
+      <span>${g.name}</span>
+    </div>`).join("");
+}
+function cfToggleGame(id) {
+  if (cfSelectedGames.has(id)) cfSelectedGames.delete(id);
+  else cfSelectedGames.add(id);
+  cfRenderGames();
+}
+
+// ================================================================
+// FORM — Zones (same logic as form.html)
+// ================================================================
+function cfAddZone() {
+  cfZones.push({
+    id: cfZoneIdCounter++, name: "", priceMode: "fixed",
+    hour: "", package3h: "", package5h: "",
+    hasNight: false, nightFrom: "00:00", nightTo: "08:00", nightPrice: "",
+    hourRanges: [{ from: "10:00", to: "22:00", price: "", package3h: "", package5h: "" }],
+    cs2hz: "", cs2fps: "", cpu: "", gpu: "", ram: "",
+    mouse: "", keyboard: "", headset: "",
+  });
+  cfRenderZones();
+}
+function cfRemoveZone(id) { cfZones = cfZones.filter(z => z.id !== id); cfRenderZones(); }
+function cfSetPriceMode(id, mode) { const z = cfZones.find(z=>z.id===id); if(z) z.priceMode=mode; cfRenderZones(); }
+function cfToggleNight(id)  { const z = cfZones.find(z=>z.id===id); if(z) z.hasNight=!z.hasNight; cfRenderZones(); }
+function cfAddHourRange(id) { const z = cfZones.find(z=>z.id===id); if(z) z.hourRanges.push({from:"",to:"",price:"",package3h:"",package5h:""}); cfRenderZones(); }
+function cfRemoveHourRange(id,ri) { const z=cfZones.find(z=>z.id===id); if(z&&z.hourRanges.length>1)z.hourRanges.splice(ri,1); cfRenderZones(); }
+function cfSyncZone(id,f,v) { const z=cfZones.find(z=>z.id===id); if(z) z[f]=v; }
+function cfSyncRange(id,ri,f,v) { const z=cfZones.find(z=>z.id===id); if(z&&z.hourRanges[ri]) z.hourRanges[ri][f]=v; }
+
+function cfRenderZones() {
+  document.getElementById("cf_zonesContainer").innerHTML = cfZones.map(z => `
+    <div class="zone-block" id="cfzone_${z.id}">
+      <div class="zone-header">
+        <div class="zone-name-label">Зона ${cfZones.indexOf(z)+1}</div>
+        <button class="btn-remove-zone" onclick="cfRemoveZone(${z.id})">✕ Удалить</button>
+      </div>
+      <label>Название зоны *</label>
+      <input type="text" value="${z.name}" placeholder="Bootcamp, VIP, Кабина"
+             oninput="cfSyncZone(${z.id},'name',this.value)" />
+      <div class="zone-sub-title">💰 Цены</div>
+      <div class="price-mode-tabs">
+        <div class="price-mode-tab ${z.priceMode==='fixed'?'active':''}" onclick="cfSetPriceMode(${z.id},'fixed')">Фиксированная</div>
+        <div class="price-mode-tab ${z.priceMode==='ranges'?'active':''}" onclick="cfSetPriceMode(${z.id},'ranges')">По времени</div>
+      </div>
+      ${z.priceMode==='fixed' ? `
+        <div class="row2">
+          <div><label>1 ч</label><input type="number" value="${z.hour}" placeholder="12000" oninput="cfSyncZone(${z.id},'hour',this.value)"/></div>
+          <div><label>3 ч</label><input type="number" value="${z.package3h}" placeholder="33000" oninput="cfSyncZone(${z.id},'package3h',this.value)"/></div>
+        </div>
+        <div style="margin-top:8px"><label>5 ч</label><input type="number" value="${z.package5h}" placeholder="50000" oninput="cfSyncZone(${z.id},'package5h',this.value)"/></div>
+      ` : `
+        ${z.hourRanges.map((r,ri)=>`
+          <div class="hour-range-row">
+            <div class="hour-range-top">
+              <div><label style="font-size:10px">С</label><input type="time" value="${r.from}" onchange="cfSyncRange(${z.id},${ri},'from',this.value)"/></div>
+              <div><label style="font-size:10px">До</label><input type="time" value="${r.to}" onchange="cfSyncRange(${z.id},${ri},'to',this.value)"/></div>
+              <button class="btn-remove-small" onclick="cfRemoveHourRange(${z.id},${ri})">−</button>
+            </div>
+            <div class="hour-range-packages">
+              <div><label style="font-size:10px">Цена за 1 ч</label><input type="text" value="${r.price}" placeholder="7 000 сум" oninput="cfSyncRange(${z.id},${ri},'price',this.value)"/></div>
+              <div></div>
+              <div><label style="font-size:10px">Пакет 3 ч (сум)</label><input type="number" value="${r.package3h||''}" placeholder="30000" oninput="cfSyncRange(${z.id},${ri},'package3h',this.value)"/></div>
+              <div><label style="font-size:10px">Пакет 5 ч (сум)</label><input type="number" value="${r.package5h||''}" placeholder="45000" oninput="cfSyncRange(${z.id},${ri},'package5h',this.value)"/></div>
+            </div>
+          </div>`).join("")}
+        <button class="btn-add-range" onclick="cfAddHourRange(${z.id})">+ Интервал</button>
+      `}
+      <div class="toggle-row" style="margin-top:12px">
+        <span class="toggle-label">🌙 Ночной пакет</span>
+        <div class="toggle-switch ${z.hasNight?'on':''}" onclick="cfToggleNight(${z.id})"></div>
+      </div>
+      <div class="night-block ${z.hasNight?'visible':''}">
+        <div class="row2" style="margin-bottom:8px">
+          <div><label>С</label><input type="time" value="${z.nightFrom}" onchange="cfSyncZone(${z.id},'nightFrom',this.value)"/></div>
+          <div><label>До</label><input type="time" value="${z.nightTo}" onchange="cfSyncZone(${z.id},'nightTo',this.value)"/></div>
+        </div>
+        <label>Цена ночного пакета</label>
+        <input type="text" value="${z.nightPrice}" placeholder="75 000 сум" oninput="cfSyncZone(${z.id},'nightPrice',this.value)"/>
+      </div>
+      <div class="zone-sub-title">🎮 CS2</div>
+      <div class="row2">
+        <div><label>Hz</label><input type="number" value="${z.cs2hz}" placeholder="240" oninput="cfSyncZone(${z.id},'cs2hz',this.value)"/></div>
+        <div><label>FPS</label><input type="number" value="${z.cs2fps}" placeholder="300" oninput="cfSyncZone(${z.id},'cs2fps',this.value)"/></div>
+      </div>
+      <div class="zone-sub-title">🖥 Железо</div>
+      <div class="field-group">
+        <div><label>CPU</label><input type="text" value="${z.cpu}" placeholder="Ryzen 7 5800X" oninput="cfSyncZone(${z.id},'cpu',this.value)"/></div>
+        <div><label>GPU</label><input type="text" value="${z.gpu}" placeholder="RTX 3070" oninput="cfSyncZone(${z.id},'gpu',this.value)"/></div>
+        <div><label>RAM</label><input type="text" value="${z.ram}" placeholder="32 GB" oninput="cfSyncZone(${z.id},'ram',this.value)"/></div>
+      </div>
+      <div class="zone-sub-title">🎧 Периферия</div>
+      <div class="field-group">
+        <div><label>Мышь</label><input type="text" value="${z.mouse}" placeholder="Logitech G Pro" oninput="cfSyncZone(${z.id},'mouse',this.value)"/></div>
+        <div><label>Клавиатура</label><input type="text" value="${z.keyboard}" placeholder="SteelSeries Apex Pro" oninput="cfSyncZone(${z.id},'keyboard',this.value)"/></div>
+        <div><label>Наушники</label><input type="text" value="${z.headset}" placeholder="Arctis Nova 7" oninput="cfSyncZone(${z.id},'headset',this.value)"/></div>
+      </div>
+    </div>`).join("");
+}
+
+// ================================================================
+// BUILD JSON FOR SAVE
+// ================================================================
+function cfBuildZonesJson() {
+  return cfZones.map(z => {
+    const prices = {};
+    if (z.priceMode === "fixed") {
+      if (z.hour)       prices.hour        = parseInt(z.hour);
+      if (z.package3h)  prices.package_3h  = parseInt(z.package3h);
+      if (z.package5h)  prices.package_5h  = parseInt(z.package5h);
+    } else {
+      prices.hour_ranges = z.hourRanges
+        .filter(r => r.from && r.to && r.price)
+        .map(r => {
+          const item = { from: r.from, to: r.to, price: r.price };
+          if (r.package3h) item.package_3h = parseInt(r.package3h);
+          if (r.package5h) item.package_5h = parseInt(r.package5h);
+          return item;
+        });
+    }
+    if (z.hasNight && z.nightPrice)
+      prices.night = { from: z.nightFrom, to: z.nightTo, price: z.nightPrice };
+    const games = {};
+    if (z.cs2hz || z.cs2fps) {
+      games.cs2 = {};
+      if (z.cs2hz)  games.cs2.hz  = parseInt(z.cs2hz);
+      if (z.cs2fps) games.cs2.fps = parseInt(z.cs2fps);
+    }
+    const specs = {};
+    if (z.cpu)      specs.cpu      = z.cpu;
+    if (z.gpu)      specs.gpu      = z.gpu;
+    if (z.ram)      specs.ram      = z.ram;
+    if (z.mouse)    specs.mouse    = z.mouse;
+    if (z.keyboard) specs.keyboard = z.keyboard;
+    if (z.headset)  specs.headset  = z.headset;
+    const obj = { name: z.name, specs, prices };
+    if (Object.keys(games).length) obj.games = games;
+    return obj;
+  });
+}
+function cfBuildGamesJson() {
+  return GAMES_LIST.filter(g => cfSelectedGames.has(g.id)).map(g => ({ id: g.id, name: g.name, icon: g.icon }));
+}
+
+// ================================================================
+// SAVE CLUB
+// ================================================================
+async function saveClub() {
+  const name = document.getElementById("cf_name").value.trim();
+  const dist  = document.getElementById("cf_district").value.trim();
+  if (!name || !dist) { showToast("Заполни название и район", "error"); return; }
+  if (cfPhotos.some(p => p.uploading)) { showToast("Подожди — фото загружаются", "error"); return; }
+  const btn = document.getElementById("cf_submitBtn");
+  btn.disabled = true; btn.textContent = "⏳ Сохраняем...";
+
+  let workTime = "24/7";
+  if (!cfIsAllday) {
+    const open  = document.getElementById("cf_work_open").value;
+    const close = document.getElementById("cf_work_close").value;
+    workTime = `${open}-${close}`;
+  }
+  const photosJson = cfPhotos
+    .filter(p => p.uploadedUrl)
+    .map(p => ({ url: p.uploadedUrl, ...(p.title ? { title: p.title } : {}) }));
+
+  const payload = {
+    name:        name,
+    district:    dist,
+    address:     document.getElementById("cf_address").value.trim() || null,
+    phone:       document.getElementById("cf_phone").value.trim() || null,
+    instagram:   document.getElementById("cf_instagram").value.trim() || null,
+    admin_link:  document.getElementById("cf_admin_link").value.trim() || "",
+    lat:         parseFloat(document.getElementById("cf_lat").value) || null,
+    lng:         parseFloat(document.getElementById("cf_lng").value) || null,
+    work_time:   workTime,
+    promo:       document.getElementById("cf_promo").value.trim() || null,
+    tournament:  document.getElementById("cf_tournament").value.trim() || null,
+    recommended: cfRecommended,
+    photos:      photosJson.length ? photosJson : null,
+    zones:       cfBuildZonesJson(),
+    games:       cfBuildGamesJson().length ? cfBuildGamesJson() : null,
+  };
+
+  try {
+    if (cfEditId) {
+      await apiUpdate("clubs", cfEditId, payload);
+      showToast("✅ Клуб обновлён", "success");
+    } else {
+      payload.rating_sum   = 0;
+      payload.rating_count = 0;
+      await apiInsert("clubs", payload);
+      showToast("✅ Клуб добавлен", "success");
+    }
+    closeClubForm();
+    loadClubs();
+  } catch(e) {
+    showToast("Ошибка: " + e.message, "error");
+  }
+  btn.disabled = false;
+  btn.textContent = "💾 Сохранить клуб";
+}
+
+// ================================================================
+// UTILITIES
+// ================================================================
+function esc(str) {
+  if (str == null) return "";
+  return String(str)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+let toastTimer;
+function showToast(msg, type = "") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className   = type;
+  t.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = "none"; }, 3500);
+}
+</script>
+</body>
+</html>
