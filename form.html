@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Добавить клуб</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0b0f19;
+      color: #fff;
+      font-family: Inter, system-ui, sans-serif;
+      padding-bottom: 100px;
+    }
+    .page-header {
+      padding: 20px 16px 12px;
+      background: #0b0f19;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #1f253a;
+    }
+    .page-header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .page-header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #8a93b2;
+    }
+    .section-card {
+      margin: 16px;
+      background: #141a2b;
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #00e5ff;
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    label {
+      font-size: 12px;
+      color: #8a93b2;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    input[type="text"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="url"],
+    input[type="time"],
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      background: #0b0f19;
+      border: 1.5px solid #1f253a;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus {
+      border-color: #00e5ff;
+    }
+    input.error, select.error {
+      border-color: #ff4444;
+    }
+    .error-msg {
+      color: #ff4444;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .hint {
+      font-size: 12px;
+      color: #8a93b2;
+      margin-top: 6px;
+    }
+    /* Games */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .game-chip {
+      padding: 10px 12px;
+      background: #0b0f19;
+      border: 1.5px solid #1f253a;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: border-color .2s, background .2s;
+    }
+    .game-chip.selected {
+      border-color: #00e5ff;
+      background: rgba(0,229,255,.1);
+    }
+    .game-chip img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+    /* Photos */
+    .photo-upload-area {
+      border: 2px dashed #1f253a;
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s;
+      background: #0b0f19;
+    }
+    .photo-upload-area:hover { border-color: #00e5ff; }
+    .photo-upload-area .icon { font-size: 32px; margin-bottom: 8px; }
+    .photo-upload-area p { margin: 0; font-size: 14px; color: #8a93b2; }
+    .photo-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .photo-preview-item {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      aspect-ratio: 1;
+      background: #0b0f19;
+    }
+    .photo-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo-preview-item .remove-photo {
+      position: absolute;
+      top: 4px; right: 4px;
+      background: rgba(0,0,0,.7);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 22px; height: 22px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0;
+    }
+    .photo-preview-item .photo-title-input {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,.65);
+      border: none;
+      color: #fff;
+      font-size: 11px;
+      padding: 4px 6px;
+      width: 100%;
+      font-family: inherit;
+      outline: none;
+    }
+    .photo-uploading {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+    }
+    /* Zones */
+    .zone-block {
+      background: #0b0f19;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1.5px solid #1f253a;
+    }
+    .zone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .zone-name-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .btn-remove-zone {
+      background: rgba(255,68,68,.15);
+      border: none;
+      color: #ff4444;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .zone-sub-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #8a93b2;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin: 12px 0 8px;
+    }
+    .price-mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .price-mode-tab {
+      flex: 1;
+      padding: 8px;
+      border-radius: 10px;
+      background: #141a2b;
+      border: 1.5px solid #1f253a;
+      color: #8a93b2;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all .2s;
+    }
+    .price-mode-tab.active {
+      border-color: #00e5ff;
+      color: #00e5ff;
+      background: rgba(0,229,255,.08);
+    }
+    .hour-range-row {
+      background: rgba(0,0,0,.25);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: 1px solid #1f253a;
+    }
+    .hour-range-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 6px;
+      align-items: flex-end;
+      margin-bottom: 8px;
+    }
+    .hour-range-packages {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .btn-add-range {
+      background: rgba(0,229,255,.1);
+      border: 1.5px dashed #00e5ff;
+      color: #00e5ff;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .btn-remove-small {
+      background: rgba(255,68,68,.1);
+      border: none;
+      color: #ff4444;
+      border-radius: 8px;
+      width: 28px; height: 28px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .toggle-label { font-size: 13px; font-weight: 600; }
+    .toggle-switch {
+      width: 44px; height: 24px;
+      background: #1f253a;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .toggle-switch.on { background: #00e5ff; }
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform .2s;
+    }
+    .toggle-switch.on::after { transform: translateX(20px); }
+    .night-block {
+      background: rgba(0,0,30,.4);
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 8px;
+      display: none;
+    }
+    .night-block.visible { display: block; }
+    .btn-add-zone {
+      width: 100%;
+      padding: 14px;
+      background: rgba(0,229,255,.08);
+      border: 2px dashed rgba(0,229,255,.4);
+      border-radius: 14px;
+      color: #00e5ff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background .2s;
+    }
+    .btn-add-zone:hover { background: rgba(0,229,255,.14); }
+    /* Submit */
+    .submit-wrap {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 12px 16px;
+      background: #0b0f19;
+      border-top: 1px solid #1f253a;
+      z-index: 200;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      border: none;
+      border-radius: 16px;
+      color: #001418;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 90px; left: 50%; transform: translateX(-50%);
+      background: #1a2033;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 9999;
+      display: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    #toast.success { background: #0d3320; border: 1px solid #00c853; color: #00e676; }
+    #toast.error   { background: #3d1010; border: 1px solid #ff4444; color: #ff6b6b; }
+    .map-preview {
+      width: 100%;
+      height: 160px;
+      border-radius: 12px;
+      background: #0b0f19;
+      border: 1.5px solid #1f253a;
+      overflow: hidden;
+      margin-top: 10px;
+      display: none;
+    }
+    .map-preview iframe {
+      width: 100%; height: 100%; border: none;
+    }
+    .work-time-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+    .work-time-sep {
+      color: #8a93b2;
+      font-weight: 700;
+      text-align: center;
+    }
+    .allday-toggle {
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div class="page-header">
+  <h1>🎮 Добавить клуб</h1>
+  <p>Заполни форму — мы проверим и добавим твой клуб</p>
+</div>
+
+<!-- ===== ОСНОВНАЯ ИНФОРМАЦИЯ ===== -->
+<div class="section-card">
+  <div class="section-title">📋 Основная информация</div>
+  <div class="field-group">
+    <div>
+      <label>Название клуба *</label>
+      <input type="text" id="f_name" placeholder="Например: Cyber Zone" />
+    </div>
+    <div>
+      <label>Район *</label>
+      <input type="text" id="f_district" placeholder="Например: Чиланзар" />
+    </div>
+    <div>
+      <label>Адрес *</label>
+      <input type="text" id="f_address" placeholder="Улица, дом, ориентир" />
+    </div>
+  </div>
+</div>
+
+<!-- ===== КОНТАКТЫ ===== -->
+<div class="section-card">
+  <div class="section-title">📞 Контакты</div>
+  <div class="field-group">
+    <div>
+      <label>Телефон *</label>
+      <input type="tel" id="f_phone" placeholder="+998 90 123 45 67" />
+    </div>
+    <div>
+      <label>Instagram</label>
+      <input type="url" id="f_instagram" placeholder="https://instagram.com/yourclub" />
+    </div>
+    <div>
+      <label>Telegram / Admin Link *</label>
+      <input type="url" id="f_admin_link" placeholder="https://t.me/yourusername" />
+    </div>
+  </div>
+</div>
+
+<!-- ===== РАСПОЛОЖЕНИЕ ===== -->
+<div class="section-card">
+  <div class="section-title">📍 Расположение на карте</div>
+  <div class="hint" style="margin-bottom:12px">Открой Google Maps → нажми на точку → скопируй координаты</div>
+  <div class="row2">
+    <div>
+      <label>Широта (lat)</label>
+      <input type="number" id="f_lat" placeholder="41.2995" step="0.000001" />
+    </div>
+    <div>
+      <label>Долгота (lng)</label>
+      <input type="number" id="f_lng" placeholder="69.2401" step="0.000001" />
+    </div>
+  </div>
+  <div class="map-preview" id="mapPreview">
+    <iframe id="mapIframe" src="" allowfullscreen></iframe>
+  </div>
+  <div class="hint" id="mapHint" style="margin-top:8px;display:none">
+    ✅ Координаты указаны — карта показана выше
+  </div>
+</div>
+
+<!-- ===== ВРЕМЯ РАБОТЫ ===== -->
+<div class="section-card">
+  <div class="section-title">🕐 Время работы</div>
+  <div class="toggle-row allday-toggle">
+    <span class="toggle-label">Работает 24/7</span>
+    <div class="toggle-switch" id="alldayToggle" onclick="toggleAllday()"></div>
+  </div>
+  <div id="workTimeFields">
+    <div class="work-time-row" style="margin-top:12px">
+      <div>
+        <label>Открытие</label>
+        <input type="time" id="f_work_open" value="10:00" />
+      </div>
+      <div class="work-time-sep">—</div>
+      <div>
+        <label>Закрытие</label>
+        <input type="time" id="f_work_close" value="23:00" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ФОТОГРАФИИ ===== -->
+<div class="section-card">
+  <div class="section-title">🖼 Фотографии</div>
+  <div class="photo-upload-area" id="photoDropZone" onclick="document.getElementById('photoInput').click()">
+    <div class="icon">📷</div>
+    <p>Нажми чтобы добавить фото</p>
+    <p style="font-size:12px;margin-top:4px">JPG, PNG, WEBP · до 5 МБ каждое</p>
+  </div>
+  <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotoSelect(event)" />
+  <div class="photo-preview-grid" id="photoPreviewGrid"></div>
+</div>
+
+<!-- ===== ИГРЫ ===== -->
+<div class="section-card">
+  <div class="section-title">🎮 Поддерживаемые игры</div>
+  <div class="games-grid" id="gamesGrid"></div>
+</div>
+
+<!-- ===== ЗОНЫ ===== -->
+<div class="section-card">
+  <div class="section-title">🖥 Зоны / Тарифы</div>
+  <div id="zonesContainer"></div>
+  <button class="btn-add-zone" onclick="addZone()">+ Добавить зону</button>
+</div>
+
+<!-- ===== SUBMIT ===== -->
+<div class="submit-wrap">
+  <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+    📤 Отправить заявку
+  </button>
+</div>
+
+<script>
+// ================================================================
+// КОНФИГ — замени на свои значения
+// ================================================================
+const SUPABASE_URL   = "https://ТВОЙ_ПРОЕКТ.supabase.co";
+const SUPABASE_KEY   = "ТВОЙ_ANON_KEY";
+const WORKER_URL     = "https://ИМЯ_ВОРКЕРА.workers.dev"; // URL воркера из Cloudflare
+const UPLOAD_SECRET  = "ТВОЙ_СЕКРЕТ";                     // тот же UPLOAD_SECRET что в воркере
+
+// ================================================================
+// ИГРЫ
+// ================================================================
+const GAMES_LIST = [
+  { id: "cs2",     name: "CS2",          icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/Cs2.png" },
+  { id: "dota2",   name: "Dota 2",       icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/dota2.png" },
+  { id: "valorant",name: "Valorant",     icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/Valorant.png" },
+  { id: "gta5",    name: "GTA V",        icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/gta5.png" },
+  { id: "pubg",    name: "PUBG",         icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/pubg.png" },
+  { id: "apex",    name: "Apex Legends", icon: "https://dyxfvhjggmessxfuhnbr.supabase.co/storage/v1/object/public/clubs/Icon/Apex.png" },
+  { id: "fifa",    name: "FC 25",        icon: "" },
+  { id: "fortnite",name: "Fortnite",     icon: "" },
+];
+let selectedGames = new Set();
+
+function renderGames() {
+  const grid = document.getElementById("gamesGrid");
+  grid.innerHTML = GAMES_LIST.map(g => `
+    <div class="game-chip ${selectedGames.has(g.id) ? "selected" : ""}"
+         onclick="toggleGame('${g.id}')">
+      ${g.icon ? `<img src="${g.icon}" onerror="this.style.display='none'">` : "🎮"}
+      <span>${g.name}</span>
+    </div>
+  `).join("");
+}
+
+function toggleGame(id) {
+  if (selectedGames.has(id)) selectedGames.delete(id);
+  else selectedGames.add(id);
+  renderGames();
+}
+
+// ================================================================
+// ФОТОГРАФИИ
+// ================================================================
+let photos = []; // { file, previewUrl, uploadedUrl, title, uploading, error }
+
+function handlePhotoSelect(e) {
+  const files = Array.from(e.target.files);
+  for (const file of files) {
+    if (file.size > 5 * 1024 * 1024) { showToast("Файл " + file.name + " больше 5 МБ", "error"); continue; }
+    const reader = new FileReader();
+    const idx = photos.length;
+    photos.push({ file, previewUrl: "", uploadedUrl: null, title: "", uploading: true, error: false });
+    reader.onload = (ev) => {
+      photos[idx].previewUrl = ev.target.result;
+      renderPhotos();
+      uploadPhoto(idx);
+    };
+    reader.readAsDataURL(file);
+  }
+  e.target.value = "";
+  renderPhotos();
+}
+
+function renderPhotos() {
+  const grid = document.getElementById("photoPreviewGrid");
+  if (!photos.length) { grid.innerHTML = ""; return; }
+  grid.innerHTML = photos.map((p, i) => `
+    <div class="photo-preview-item">
+      <img src="${p.previewUrl}" />
+      ${p.uploading ? `<div class="photo-uploading">⏳</div>` : ""}
+      ${p.error ? `<div class="photo-uploading" style="color:#ff4444">❌</div>` : ""}
+      <button class="remove-photo" onclick="removePhoto(${i})">×</button>
+      <input
+        class="photo-title-input"
+        type="text"
+        placeholder="Подпись…"
+        value="${p.title}"
+        oninput="photos[${i}].title = this.value"
+      />
+    </div>
+  `).join("");
+}
+
+function removePhoto(idx) {
+  photos.splice(idx, 1);
+  renderPhotos();
+}
+
+async function uploadPhoto(idx) {
+  const p = photos[idx];
+  const ext = p.file.name.split(".").pop();
+  const filePath = `submissions/${Date.now()}_photo${idx}.${ext}`;
+  try {
+    const fd = new FormData();
+    fd.append("file", p.file);
+    fd.append("path", filePath);
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "X-Upload-Secret": UPLOAD_SECRET },
+      body: fd,
+    });
+    if (!res.ok) throw new Error("upload failed");
+    const data = await res.json();
+    photos[idx].uploadedUrl = data.url;
+    photos[idx].uploading = false;
+  } catch {
+    photos[idx].uploading = false;
+    photos[idx].error = true;
+    showToast("Ошибка загрузки фото", "error");
+  }
+  renderPhotos();
+}
+
+// ================================================================
+// 24/7 TOGGLE
+// ================================================================
+let isAllday = false;
+function toggleAllday() {
+  isAllday = !isAllday;
+  document.getElementById("alldayToggle").classList.toggle("on", isAllday);
+  document.getElementById("workTimeFields").style.display = isAllday ? "none" : "block";
+}
+
+// ================================================================
+// КООРДИНАТЫ → КАРТА
+// ================================================================
+function updateMapPreview() {
+  const lat = parseFloat(document.getElementById("f_lat").value);
+  const lng = parseFloat(document.getElementById("f_lng").value);
+  const preview = document.getElementById("mapPreview");
+  const hint = document.getElementById("mapHint");
+  if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+    document.getElementById("mapIframe").src =
+      `https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed`;
+    preview.style.display = "block";
+    hint.style.display = "block";
+  } else {
+    preview.style.display = "none";
+    hint.style.display = "none";
+  }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("f_lat").addEventListener("change", updateMapPreview);
+  document.getElementById("f_lng").addEventListener("change", updateMapPreview);
+});
+
+// ================================================================
+// ЗОНЫ
+// ================================================================
+let zones = [];
+let zoneIdCounter = 0;
+
+function addZone() {
+  const id = zoneIdCounter++;
+  zones.push({
+    id, name: "", priceMode: "fixed",
+    hour: "", package3h: "", package5h: "",
+    hasNight: false,
+    nightFrom: "00:00", nightTo: "08:00", nightPrice: "",
+    hourRanges: [{ from: "10:00", to: "22:00", price: "", package3h: "", package5h: "" }],
+    cs2hz: "", cs2fps: "",
+    cpu: "", gpu: "", ram: "",
+    mouse: "", keyboard: "", headset: "",
+  });
+  renderZones();
+  setTimeout(() => {
+    const el = document.getElementById(`zone_${id}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 100);
+}
+
+function removeZone(id) {
+  zones = zones.filter(z => z.id !== id);
+  renderZones();
+}
+
+function setPriceMode(id, mode) {
+  const z = zones.find(z => z.id === id);
+  if (z) z.priceMode = mode;
+  renderZones();
+}
+
+function toggleNight(id) {
+  const z = zones.find(z => z.id === id);
+  if (z) z.hasNight = !z.hasNight;
+  renderZones();
+}
+
+function addHourRange(id) {
+  const z = zones.find(z => z.id === id);
+  if (z) z.hourRanges.push({ from: "", to: "", price: "", package3h: "", package5h: "" });
+  renderZones();
+}
+
+function removeHourRange(id, idx) {
+  const z = zones.find(z => z.id === id);
+  if (z && z.hourRanges.length > 1) z.hourRanges.splice(idx, 1);
+  renderZones();
+}
+
+function syncZoneField(id, field, value) {
+  const z = zones.find(z => z.id === id);
+  if (z) z[field] = value;
+}
+
+function syncHourRange(id, idx, field, value) {
+  const z = zones.find(z => z.id === id);
+  if (z && z.hourRanges[idx]) z.hourRanges[idx][field] = value;
+}
+
+function renderZones() {
+  const container = document.getElementById("zonesContainer");
+  container.innerHTML = zones.map(z => `
+    <div class="zone-block" id="zone_${z.id}">
+      <div class="zone-header">
+        <div class="zone-name-label">Зона ${zones.indexOf(z) + 1}</div>
+        <button class="btn-remove-zone" onclick="removeZone(${z.id})">✕ Удалить</button>
+      </div>
+
+      <!-- Название зоны -->
+      <label>Название зоны *</label>
+      <input type="text" value="${z.name}"
+        placeholder="Например: Bootcamp, VIP, Кабина"
+        oninput="syncZoneField(${z.id},'name',this.value)" />
+
+      <!-- Режим цен -->
+      <div class="zone-sub-title">💰 Ценообразование</div>
+      <div class="price-mode-tabs">
+        <div class="price-mode-tab ${z.priceMode === 'fixed' ? 'active' : ''}"
+             onclick="setPriceMode(${z.id},'fixed')">Фиксированная</div>
+        <div class="price-mode-tab ${z.priceMode === 'ranges' ? 'active' : ''}"
+             onclick="setPriceMode(${z.id},'ranges')">По времени суток</div>
+      </div>
+
+      ${z.priceMode === 'fixed' ? `
+        <div class="row2">
+          <div>
+            <label>1 час (сум)</label>
+            <input type="number" value="${z.hour}"
+              placeholder="12000"
+              oninput="syncZoneField(${z.id},'hour',this.value)" />
+          </div>
+          <div>
+            <label>3 часа (сум)</label>
+            <input type="number" value="${z.package3h}"
+              placeholder="33000"
+              oninput="syncZoneField(${z.id},'package3h',this.value)" />
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <label>5 часов (сум)</label>
+          <input type="number" value="${z.package5h}"
+            placeholder="50000"
+            oninput="syncZoneField(${z.id},'package5h',this.value)" />
+        </div>
+      ` : `
+        ${z.hourRanges.map((r, ri) => `
+          <div class="hour-range-row">
+            <div class="hour-range-top">
+              <div>
+                <label style="font-size:10px">С</label>
+                <input type="time" value="${r.from}"
+                  onchange="syncHourRange(${z.id},${ri},'from',this.value)" />
+              </div>
+              <div>
+                <label style="font-size:10px">До</label>
+                <input type="time" value="${r.to}"
+                  onchange="syncHourRange(${z.id},${ri},'to',this.value)" />
+              </div>
+              <button class="btn-remove-small" onclick="removeHourRange(${z.id},${ri})">−</button>
+            </div>
+            <div class="hour-range-packages">
+              <div>
+                <label style="font-size:10px">Цена за 1 ч</label>
+                <input type="text" value="${r.price}"
+                  placeholder="7 000 сум"
+                  oninput="syncHourRange(${z.id},${ri},'price',this.value)" />
+              </div>
+              <div></div>
+              <div>
+                <label style="font-size:10px">Пакет 3 ч (сум)</label>
+                <input type="number" value="${r.package3h||''}"
+                  placeholder="30000"
+                  oninput="syncHourRange(${z.id},${ri},'package3h',this.value)" />
+              </div>
+              <div>
+                <label style="font-size:10px">Пакет 5 ч (сум)</label>
+                <input type="number" value="${r.package5h||''}"
+                  placeholder="45000"
+                  oninput="syncHourRange(${z.id},${ri},'package5h',this.value)" />
+              </div>
+            </div>
+          </div>
+        `).join("")}
+        <button class="btn-add-range" onclick="addHourRange(${z.id})">+ Добавить интервал</button>
+      `}
+
+      <!-- Ночной пакет -->
+      <div class="toggle-row" style="margin-top:12px">
+        <span class="toggle-label">🌙 Ночной пакет</span>
+        <div class="toggle-switch ${z.hasNight ? 'on' : ''}"
+             onclick="toggleNight(${z.id})"></div>
+      </div>
+      <div class="night-block ${z.hasNight ? 'visible' : ''}">
+        <div class="row2" style="margin-bottom:8px">
+          <div>
+            <label>С</label>
+            <input type="time" value="${z.nightFrom}"
+              onchange="syncZoneField(${z.id},'nightFrom',this.value)" />
+          </div>
+          <div>
+            <label>До</label>
+            <input type="time" value="${z.nightTo}"
+              onchange="syncZoneField(${z.id},'nightTo',this.value)" />
+          </div>
+        </div>
+        <label>Цена ночного пакета</label>
+        <input type="text" value="${z.nightPrice}"
+          placeholder="75 000 сум"
+          oninput="syncZoneField(${z.id},'nightPrice',this.value)" />
+      </div>
+
+      <!-- CS2 -->
+      <div class="zone-sub-title">🎮 CS2 характеристики</div>
+      <div class="row2">
+        <div>
+          <label>Hz монитора</label>
+          <input type="number" value="${z.cs2hz}"
+            placeholder="240"
+            oninput="syncZoneField(${z.id},'cs2hz',this.value)" />
+        </div>
+        <div>
+          <label>Макс. FPS</label>
+          <input type="number" value="${z.cs2fps}"
+            placeholder="300"
+            oninput="syncZoneField(${z.id},'cs2fps',this.value)" />
+        </div>
+      </div>
+
+      <!-- Характеристики ПК -->
+      <div class="zone-sub-title">🖥 Характеристики ПК</div>
+      <div class="field-group">
+        <div>
+          <label>CPU (процессор)</label>
+          <input type="text" value="${z.cpu}"
+            placeholder="Ryzen 7 5800X"
+            oninput="syncZoneField(${z.id},'cpu',this.value)" />
+        </div>
+        <div>
+          <label>GPU (видеокарта)</label>
+          <input type="text" value="${z.gpu}"
+            placeholder="RTX 3070"
+            oninput="syncZoneField(${z.id},'gpu',this.value)" />
+        </div>
+        <div>
+          <label>RAM (оперативная)</label>
+          <input type="text" value="${z.ram}"
+            placeholder="32 GB"
+            oninput="syncZoneField(${z.id},'ram',this.value)" />
+        </div>
+      </div>
+
+      <!-- Периферия -->
+      <div class="zone-sub-title">🎧 Периферия</div>
+      <div class="field-group">
+        <div>
+          <label>Мышь</label>
+          <input type="text" value="${z.mouse}"
+            placeholder="Logitech G Pro X Superlight"
+            oninput="syncZoneField(${z.id},'mouse',this.value)" />
+        </div>
+        <div>
+          <label>Клавиатура</label>
+          <input type="text" value="${z.keyboard}"
+            placeholder="SteelSeries Apex Pro"
+            oninput="syncZoneField(${z.id},'keyboard',this.value)" />
+        </div>
+        <div>
+          <label>Наушники</label>
+          <input type="text" value="${z.headset}"
+            placeholder="SteelSeries Arctis Nova 7"
+            oninput="syncZoneField(${z.id},'headset',this.value)" />
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ================================================================
+// СОБРАТЬ ЗОНЫ В JSON
+// ================================================================
+function buildZonesJson() {
+  return zones.map(z => {
+    const prices = {};
+    if (z.priceMode === "fixed") {
+      if (z.hour)      prices.hour       = parseInt(z.hour);
+      if (z.package3h) prices.package_3h = parseInt(z.package3h);
+      if (z.package5h) prices.package_5h = parseInt(z.package5h);
+    } else {
+      prices.hour_ranges = z.hourRanges
+        .filter(r => r.from && r.to && r.price)
+        .map(r => {
+          const item = { from: r.from, to: r.to, price: r.price };
+          if (r.package3h) item.package_3h = parseInt(r.package3h);
+          if (r.package5h) item.package_5h = parseInt(r.package5h);
+          return item;
+        });
+    }
+    if (z.hasNight && z.nightPrice) {
+      prices.night = { from: z.nightFrom, to: z.nightTo, price: z.nightPrice };
+    }
+    const games = {};
+    if (z.cs2hz || z.cs2fps) {
+      games.cs2 = {};
+      if (z.cs2hz)  games.cs2.hz  = parseInt(z.cs2hz);
+      if (z.cs2fps) games.cs2.fps = parseInt(z.cs2fps);
+    }
+    const specs = {};
+    if (z.cpu)     specs.cpu      = z.cpu;
+    if (z.gpu)     specs.gpu      = z.gpu;
+    if (z.ram)     specs.ram      = z.ram;
+    if (z.mouse)   specs.mouse    = z.mouse;
+    if (z.keyboard)specs.keyboard = z.keyboard;
+    if (z.headset) specs.headset  = z.headset;
+    const result = { name: z.name, specs, prices };
+    if (Object.keys(games).length) result.games = games;
+    return result;
+  });
+}
+
+// ================================================================
+// СОБРАТЬ ИГРЫ В JSON
+// ================================================================
+function buildGamesJson() {
+  return GAMES_LIST
+    .filter(g => selectedGames.has(g.id))
+    .map(g => ({ id: g.id, name: g.name, icon: g.icon }));
+}
+
+// ================================================================
+// ВАЛИДАЦИЯ
+// ================================================================
+function validate() {
+  let ok = true;
+  const required = [
+    ["f_name", "Название"],
+    ["f_district", "Район"],
+    ["f_address", "Адрес"],
+    ["f_phone", "Телефон"],
+    ["f_admin_link", "Admin Link"],
+  ];
+  required.forEach(([id, label]) => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) {
+      el.classList.add("error");
+      ok = false;
+    } else {
+      el.classList.remove("error");
+    }
+  });
+  if (!ok) showToast("Заполни обязательные поля", "error");
+
+  // Проверить загрузку фото
+  const uploading = photos.some(p => p.uploading);
+  if (uploading) { showToast("Подожди — фото ещё загружаются", "error"); return false; }
+
+  // Проверить зоны
+  for (const z of zones) {
+    if (!z.name.trim()) {
+      showToast("Укажи название для каждой зоны", "error");
+      return false;
+    }
+  }
+  return ok;
+}
+
+// ================================================================
+// ОТПРАВКА
+// ================================================================
+async function submitForm() {
+  if (!validate()) return;
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "⏳ Отправляем...";
+
+  // Время работы
+  let workTime = "24/7";
+  if (!isAllday) {
+    const open  = document.getElementById("f_work_open").value;
+    const close = document.getElementById("f_work_close").value;
+    workTime = `${open}-${close}`;
+  }
+
+  // Фотографии
+  const photosJson = photos
+    .filter(p => p.uploadedUrl)
+    .map(p => ({ url: p.uploadedUrl, ...(p.title ? { title: p.title } : {}) }));
+
+  const payload = {
+    name:       document.getElementById("f_name").value.trim(),
+    district:   document.getElementById("f_district").value.trim(),
+    address:    document.getElementById("f_address").value.trim(),
+    phone:      document.getElementById("f_phone").value.trim(),
+    instagram:  document.getElementById("f_instagram").value.trim() || null,
+    admin_link: document.getElementById("f_admin_link").value.trim(),
+    lat:        parseFloat(document.getElementById("f_lat").value) || null,
+    lng:        parseFloat(document.getElementById("f_lng").value) || null,
+    work_time:  workTime,
+    photos:     photosJson.length ? photosJson : null,
+    zones:      buildZonesJson(),
+    games:      buildGamesJson().length ? buildGamesJson() : null,
+    status:     "pending",
+  };
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/club_submissions`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+    showToast("✅ Заявка отправлена! Мы проверим и добавим клуб.", "success");
+    btn.textContent = "✅ Заявка отправлена";
+    setTimeout(() => {
+      if (window.Telegram?.WebApp) window.Telegram.WebApp.close();
+    }, 2000);
+  } catch (e) {
+    console.error(e);
+    showToast("❌ Ошибка отправки. Проверь подключение.", "error");
+    btn.disabled = false;
+    btn.textContent = "📤 Отправить заявку";
+  }
+}
+
+// ================================================================
+// TOAST
+// ================================================================
+let toastTimer;
+function showToast(msg, type = "") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = type;
+  t.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = "none"; }, 3500);
+}
+
+// ================================================================
+// INIT
+// ================================================================
+renderGames();
+renderZones();
+addZone(); // одна зона по умолчанию
+</script>
+</body>
+</html>
