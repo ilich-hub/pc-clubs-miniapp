@@ -65,7 +65,7 @@ export default async function handler(req, res) {
     if (text === "/start") {
       await sendMessage(
         chat_id,
-        `👋 Привет, <b>${first_name}</b>!\n\n🎮 Добро пожаловать в <b>PC Clubs</b> — каталог лучших компьютерных клубов.\n\nНайди клуб рядом с тобой, сравни цены и характеристики ПК!`,
+        `👋 Привет, <b>${first_name}</b>!\n\n🎮 Добро пожаловать в <b>NKS</b> — каталог лучших компьютерных клубов.\n\nНайди клуб рядом с тобой, сравни цены и характеристики ПК!`,
         {
           reply_markup: {
             inline_keyboard: [[
